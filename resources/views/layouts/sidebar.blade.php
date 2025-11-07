@@ -80,6 +80,23 @@
                     </li>
                 </ul>
             </li>
+            <li class="nav-item has-treeview {{ Route::is('invoice.*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Route::is('invoice.*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-sack-dollar"></i>
+                    <p>
+                        Gaji
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('gaji.index') }}" class="nav-link {{ (Route::is('gaji.*') && !Route::is('gaji.create')) ? 'active' : '' }}">
+                            <i class="fas fa-file-invoice-dollar nav-icon"></i>
+                            <p>Gaji</p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
         </ul>
     </nav>
 </div>

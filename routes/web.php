@@ -15,11 +15,11 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes([
     'register' => false,
-    // 'login' => false,
+    'login' => false,
     'reset' => false,
 ]);
 
-Route::middleware('auth')->group(function () {
+// Route::middleware('auth')->group(function () {
 Route::get('/', 'InvoiceController@index')->name('home');
 
 Route::get('/userguide', 'SecurityController@userguide')->name('userguide');
@@ -66,4 +66,18 @@ Route::prefix('customer')->group(function () {
     Route::get('/datatable', 'CustomerController@datatable')->name('customer.datatable');
 });
 Route::resource('customer', 'CustomerController');
+// });
+
+// GAJI
+Route::prefix('gaji')->group(function () {
+    Route::post('/upload', 'GajiController@upload')->name('gaji.upload');
+});
+Route::resource('gaji', 'GajiController');
+
+// PEGAWAI
+Route::prefix('pegawai')->group(function () {
+    Route::get('/getPegawai', 'PegawaiController@getPegawai')->name('pegawai.getPegawai');
+    Route::post('/storeDetail/{id}', 'GajiController@storeDetail')->name('gaji.storeDetail');
+    Route::get('/slip/{id}', 'GajiController@slip')->name('gaji.slip');
+    Route::get('/slipAll/{id}', 'GajiController@slipAll')->name('gaji.slipAll');
 });

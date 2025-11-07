@@ -15,14 +15,14 @@ class MPegawai extends Model
 
     public $timestamps = false;
 
-    protected $casts = [
-        'IsDel' => 'bool',
-        'CreatedAt' => 'datetime',
-        'UpdateAt' => 'datetime',
-    ];
+    // protected $casts = [
+    //     'IsDel' => 'bool',
+    //     'CreatedAt' => 'datetime',
+    //     'UpdateAt' => 'datetime',
+    // ];
 
-    public function muser()
-    {
-        return $this->hasOne('App\Models\MUser', 'PegawaiID', 'PegawaiID');
-    }
+    // public function muser()
+    // {
+    //     return $this->hasOne('App\Models\MUser', 'PegawaiID', 'PegawaiID');
+    // }
 }
