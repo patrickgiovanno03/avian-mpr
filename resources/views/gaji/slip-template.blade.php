@@ -6,7 +6,7 @@
   <style>
     /* ====== GLOBAL STYLE ====== */
     body {
-      font-family: "Segoe UI", Arial, sans-serif;
+      font-family: Arial;
       margin: 0; /* hilangkan margin body agar penuh */
       background: #f9fafb;
       color: #333;
@@ -80,7 +80,7 @@
     }
 
     table.rincian th, table.rincian td {
-      border: 1px solid #ccc;
+      border: 2px solid #df7979;
       padding: 10px;
       text-align: center;
     }

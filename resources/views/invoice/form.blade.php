@@ -580,6 +580,8 @@ $(document).ready(function () {
             <div class="col-12 mb-3">
                 <div class="card">
                     <div class="card-body">
+                        <input type="hidden" name="type[]" value="create" />
+                        <input type="hidden" name="detailid[]" />
                         <div class="mb-2">
                             <label class="fw-bold">Product</label>
                             <select class="form-control select2-tags product-select" name="product[]">
@@ -605,7 +607,7 @@ $(document).ready(function () {
                         <div class="mb-2">
                             <label class="fw-bold">Dos Luar / Isi</label>
                             <div class="input-group">
-                                <input type="text" class="form-control numeric dos-luar-input" name="dosluar[]" placeholder="Dos" value="1">
+                                <input type="text" class="form-control numeric dos-luar-input" name="dosluar[]" placeholder="Dos" value="0">
                                 <input type="text" class="form-control isi-input" name="isi[]" placeholder="Isi">
                             </div>
                         </div>
@@ -638,7 +640,7 @@ $(document).ready(function () {
                 </td>
                 <td>
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control numeric dos-luar-input" name="dosluar[]" placeholder="Dos" value="1">
+                        <input type="text" class="form-control numeric dos-luar-input" name="dosluar[]" placeholder="Dos" value="0">
                         <input type="text" class="form-control isi-input" name="isi[]" placeholder="Isi">
                     </div>
                 </td>

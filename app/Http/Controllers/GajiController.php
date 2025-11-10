@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DGaji;
 use App\Models\HGaji;
 use App\Models\MGaji;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Spatie\Browsershot\Browsershot;
@@ -137,66 +138,46 @@ class GajiController extends Controller
     {
         //
         $params['hgaji'] = HGaji::with('pegawai', 'dgaji')->findOrFail($id);
-        $html = view('gaji.slip-template', $params)->render();
+        $pdf = Pdf::loadView('gaji.slip-template', $params);
+        $pdf->setPaper([0, 0, 900, 1100]); // lebar A4 (595.28pt) x tinggi custom (2000pt)
 
-        $fileName = 'slip_gaji_' . ($params['hgaji']->pegawai->Nama ?? '') . '.jpg';
-        $path = storage_path("app/public/slip-gaji/{$fileName}");
-
-        // Generate file sementara
-        Browsershot::html($html)
-            ->windowSize(1000, 1400)
-            ->save($path);
-
-        // Kembalikan file untuk di-download
-        return Response::download($path)->deleteFileAfterSend(true);
+        return $pdf->stream('slip_gaji_' . ($params['hgaji']->pegawai->Nama ?? '') . '.pdf');
     }
     
 public function slipAll($gajiId)
 {
     // Ambil semua data HGaji dengan GajiID yang sama
     $hgajis = HGaji::with('pegawai', 'dgaji')
-                ->where('GajiID', $gajiId)
-                ->get();
+        ->where('GajiID', $gajiId)
+        ->get();
 
     if ($hgajis->isEmpty()) {
         return back()->with('error', 'Data gaji tidak ditemukan.');
     }
 
-    // Buat folder sementara
-    $folderPath = storage_path('app/public/slip-gaji-temp');
-    if (!File::exists($folderPath)) {
-        File::makeDirectory($folderPath, 0755, true);
-    }
+    // Gabungkan semua view slip menjadi satu HTML panjang
+    $html = '';
+    foreach ($hgajis as $index => $hgaji) {
+        $params['hgaji'] = $hgaji;
 
-    $zipFileName = 'slip_gaji_semua_' . $gajiId . '.zip';
-    $zipPath = storage_path("app/public/slip-gaji/{$zipFileName}");
+        // Render view slip untuk setiap pegawai
+        $html .= view('gaji.slip-template', $params)->render();
 
-    $zip = new ZipArchive;
-    if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-
-        foreach ($hgajis as $hgaji) {
-            $params['hgaji'] = $hgaji;
-            $html = view('gaji.slip-template', $params)->render();
-
-            $fileName = 'slip_gaji_' . ($hgaji->pegawai->Nama ?? 'pegawai') . '.jpg';
-            $filePath = $folderPath . '/' . $fileName;
-
-            // Generate slip gaji dalam format JPG
-            Browsershot::html($html)
-                ->windowSize(1000, 1400)
-                ->save($filePath);
-
-            // Tambahkan ke ZIP
-            $zip->addFile($filePath, $fileName);
+        // Tambahkan pemisah halaman di antara slip
+        if ($index < $hgajis->count() - 1) {
+            // $html .= '<div style="page-break-after: always;"></div>';
         }
-
-        $zip->close();
     }
 
-    // Hapus file sementara (opsional)
-    File::deleteDirectory($folderPath);
+    // Generate satu PDF dari semua halaman slip
+    $pdf = Pdf::loadHTML($html);
+    $pdf->setPaper([0, 0, 900, 1100]); // ukuran sama seperti slip()
 
-    // Kembalikan file ZIP untuk di-download
-    return Response::download($zipPath)->deleteFileAfterSend(true);
+    $fileName = 'slip_gaji_semua_' . $gajiId . '.pdf';
+
+    // Langsung tampilkan / download
+    return $pdf->stream($fileName);
+    // Jika ingin langsung download, ganti dengan:
+    // return $pdf->download($fileName);
 }
 }

@@ -105,12 +105,12 @@
                 @endphp
                 @foreach($invoice->details ?? [] as $detail)
                 @php
-                    $totalQty['' . $detail->Satuan] = ($totalQty['' . $detail->Satuan] ?? 0) + ($detail->DosLuar == 1 ? $detail->Qty : $detail->DosLuar);
+                    $totalQty['' . $detail->Satuan] = ($totalQty['' . $detail->Satuan] ?? 0) + (($detail->DosLuar == 0) ? $detail->Qty : $detail->DosLuar);
                 @endphp
                 <tr>
-                    <td align="center">{{ $detail->DosLuar == 1 ? $detail->Qty : $detail->DosLuar }}</td>
-                    <td align="center">{{ $detail->DosLuar == 1 ? $detail->Satuan : "dos" }}</td>
-                    <td>{{ $detail->Nama . ($detail->DosLuar == 1 ? "" : " (isi {$detail->Isi} {$detail->Satuan})") }}</td>
+                    <td align="center">{{ ($detail->DosLuar == 0) ? $detail->Qty : $detail->DosLuar }}</td>
+                    <td align="center">{{ ($detail->DosLuar == 0) ? $detail->Satuan : "dos" }}</td>
+                    <td>{{ $detail->Nama . (($detail->DosLuar == 0) ? "" : " (isi {$detail->Isi} {$detail->Satuan})") }}</td>
                 </tr>
                 @endforeach
                 @for($i = count($invoice->details ?? []); $i < (($large ?? false) ? 21 : 13); $i++)
