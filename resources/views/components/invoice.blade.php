@@ -57,6 +57,9 @@
                     $totalPrice = 0;
                 @endphp
                 @foreach($request->product ?? [] as $key => $product)
+                @if($request->issj[$key] ?? 0 == 1)
+                @continue
+                @endif
                 @php
                     $totalPrice += $request->quantity[$key] * (int)str_replace(['.', ','], ['', ''], $request->price[$key]);
                 @endphp

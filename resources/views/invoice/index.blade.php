@@ -57,7 +57,7 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         
                         <div class="col-md-6 col-sm-12">
                             <div class="form-group row">
@@ -78,20 +78,20 @@
                                     </div>
                                 </div>
                             </div>
-                        </div> --}}
-                        {{-- <div class="col-lg-6 col-md-12">
+                        </div>
+                        <div class="col-lg-6 col-md-12">
                             <div class="form-group row">
-                                <label for="department" class="col-sm-3 col-form-label">Departemen</label>
+                                <label for="customer" class="col-sm-3 col-form-label">Customer</label>
                                 <div class="col-sm-9">
-                                    <select id="department" name="department" class="form-control select2">
+                                    <select id="customer" name="customer" class="form-control select2">
                                         <option value="0">ALL</option>
-                                        @foreach($listdepartment as $department)
-                                        <option value="{{ $department->Dept }}">{{ $department->Dept }}</option>
+                                        @foreach($customers as $customer)
+                                        <option value="{{ $customer }}">{{ $customer }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
-                        </div> --}}
+                        </div>
                         {{-- <div class="col-md-6 col-sm-12">
                             <div class="form-group row">
                                 <label for="status" class="col-sm-3 col-form-label">Status</label>

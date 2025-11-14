@@ -20,7 +20,8 @@ class InvoiceController extends Controller
     public function index()
     {
         //
-        return view('invoice.index');
+        $params['customers'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 0)->get()->pluck('Nama');
+        return view('invoice.index', $params);
     }
 
     /**
@@ -111,18 +112,51 @@ class InvoiceController extends Controller
         $invoice->IsSJCustomer = $request->input('IsSJCustomer') ? 1 : 0;
         $invoice->save();
 
-        foreach ($request->input('product') ?? [0] as $index => $productName) {
-            if ($productName) {
-                $dinvoice = new DInvoice();
-                $dinvoice->Nama = $productName;
-                $dinvoice->FormID = $invoice->FormID;
-                $dinvoice->Harga = str_replace('.', '', $request->input('price')[$index]);
-                $dinvoice->Satuan = $request->input('unit')[$index];
-                $dinvoice->Qty = str_replace('.', '', $request->input('quantity')[$index]);
-                $dinvoice->DosLuar = str_replace('.', '', $request->input('dosluar')[$index]);
-                $dinvoice->Isi = str_replace('.', '', $request->input('isi')[$index]);
-                $dinvoice->save();
+        $oldDetailID = 0;
+        foreach ($request->input('product') ?? [] as $index => $productName) {
+            if ($request->input('type')[$index] == 'delete') {
+                if ($request->input('detailid')[$index]) {
+                    $dinvoice = DInvoice::find($request->input('detailid')[$index]);
+                    if ($dinvoice)
+                        $dinvoice->delete();
+                }
+                continue;
             }
+            if ($productName) {
+                if ($request->input('type')[$index] == 'update' && $request->input('detailid')[$index]) {
+                    $dinvoice = DInvoice::find($request->input('detailid')[$index]);
+                } else {
+                    if ($request->input('issj')[$index] == 1 && $oldDetailID != 0) {
+                        // check if previous detail was SJ, if yes, update that instead of creating new
+                        $dinvoice = DInvoice::find($oldDetailID);
+                    } else {
+                        $dinvoice = new DInvoice();
+                    }
+                }
+                $dinvoice->FormID = $invoice->FormID;
+                if ($request->input('issj')[$index] == 1) {
+                    $dinvoice->IsSJ = 1;
+                    $dinvoice->NamaSJ = $productName;
+                    $dinvoice->SatuanSJ = $request->input('unit')[$index];
+                    $dinvoice->QtySJ = $request->input('quantity')[$index] != null ? str_replace('.', '', $request->input('quantity')[$index]) : 0;
+                } else { // detail inv
+                    $dinvoice->IsSJ = 0;
+                    $dinvoice->Nama = $productName;
+                    $dinvoice->Harga = $request->input('price')[$index] != null ? str_replace('.', '', $request->input('price')[$index]) : 0;
+                    $dinvoice->Satuan = $request->input('unit')[$index];
+                    $dinvoice->Qty = $request->input('quantity')[$index] != null ? str_replace('.', '', $request->input('quantity')[$index]) : 0;
+                    $dinvoice->DosLuar = $request->input('dosluar')[$index] != null ? str_replace('.', '', $request->input('dosluar')[$index]) : 0;
+                    $dinvoice->Isi = $request->input('isi')[$index] != null ? str_replace('.', '', $request->input('isi')[$index]) : 0;
+                }
+                $dinvoice->IsHidden = $request->input('hidden')[$index] == 1 ? 1 : 0;
+                $dinvoice->save();
+
+                $oldDetailID = $dinvoice->DetailID;
+            }
+        }
+        if ($request->toPDF == '1') {
+            return redirect()
+                ->route('invoice.previewdynamic', $invoice->FormID);
         }
 
         return redirect()
@@ -220,21 +254,46 @@ class InvoiceController extends Controller
         $invoice->IsSJCustomer = $request->input('IsSJCustomer') ? 1 : 0;
         $invoice->save();
 
-        foreach ($request->input('product') ?? [0] as $index => $productName) {
+        $oldDetailID = 0;
+        foreach ($request->input('product') ?? [] as $index => $productName) {
+            if ($request->input('type')[$index] == 'delete') {
+                if ($request->input('detailid')[$index]) {
+                    $dinvoice = DInvoice::find($request->input('detailid')[$index]);
+                    if ($dinvoice)
+                        $dinvoice->delete();
+                }
+                continue;
+            }
             if ($productName) {
                 if ($request->input('type')[$index] == 'update' && $request->input('detailid')[$index]) {
                     $dinvoice = DInvoice::find($request->input('detailid')[$index]);
                 } else {
-                    $dinvoice = new DInvoice();
+                    if ($request->input('issj')[$index] == 1 && $oldDetailID != 0) {
+                        // check if previous detail was SJ, if yes, update that instead of creating new
+                        $dinvoice = DInvoice::find($oldDetailID);
+                    } else {
+                        $dinvoice = new DInvoice();
+                    }
                 }
-                $dinvoice->Nama = $productName;
                 $dinvoice->FormID = $invoice->FormID;
-                $dinvoice->Harga = str_replace('.', '', $request->input('price')[$index]);
-                $dinvoice->Satuan = $request->input('unit')[$index];
-                $dinvoice->Qty = str_replace('.', '', $request->input('quantity')[$index]);
-                $dinvoice->DosLuar = str_replace('.', '', $request->input('dosluar')[$index]);
-                $dinvoice->Isi = str_replace('.', '', $request->input('isi')[$index]);
+                if ($request->input('issj')[$index] == 1) {
+                    $dinvoice->IsSJ = 1;
+                    $dinvoice->NamaSJ = $productName;
+                    $dinvoice->SatuanSJ = $request->input('unit')[$index];
+                    $dinvoice->QtySJ = $request->input('quantity')[$index] != null ? str_replace('.', '', $request->input('quantity')[$index]) : 0;
+                } else { // detail inv
+                    $dinvoice->IsSJ = 0;
+                    $dinvoice->Nama = $productName;
+                    $dinvoice->Harga = $request->input('price')[$index] != null ? str_replace('.', '', $request->input('price')[$index]) : 0;
+                    $dinvoice->Satuan = $request->input('unit')[$index];
+                    $dinvoice->Qty = $request->input('quantity')[$index] != null ? str_replace('.', '', $request->input('quantity')[$index]) : 0;
+                    $dinvoice->DosLuar = $request->input('dosluar')[$index] != null ? str_replace('.', '', $request->input('dosluar')[$index]) : 0;
+                    $dinvoice->Isi = $request->input('isi')[$index] != null ? str_replace('.', '', $request->input('isi')[$index]) : 0;
+                }
+                $dinvoice->IsHidden = $request->input('hidden')[$index] == 1 ? 1 : 0;
                 $dinvoice->save();
+
+                $oldDetailID = $dinvoice->DetailID;
             }
         }
 
@@ -268,7 +327,20 @@ class InvoiceController extends Controller
     public function datatable(Request $request)
     {
         //
-        $data = HInvoice::get();
+        $data = HInvoice::query();
+
+        if ($request->has('customer') && $request->customer != '0') {
+            $data->where('NamaCustomer', $request->customer);
+        }
+
+        if (request()->has('startdate') && request()->has('enddate') && request()->startdate != null && request()->enddate != null) {
+            $data = $data->whereBetween('InvoiceDate', [
+                Carbon::createFromFormat('d/m/Y', request()->startdate)->format('Y-m-d'),
+                Carbon::createFromFormat('d/m/Y', request()->enddate)->format('Y-m-d'),
+            ]);
+        }
+
+        $data = $data->orderBy('FormID', 'desc')->get();
         
         return datatables()->of($data)
             ->addIndexColumn()

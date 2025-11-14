@@ -67,6 +67,7 @@
                             height="900px" /> --}}
                     </div>
                     <div class="col-md-6 order-1 order-md-2" id="form-container">
+                        <input type="hidden" id="toPDF" name="toPDF" value="0">
                         <div class="form-group row">
 							<label for="" class="col-sm-3 col-form-label">Tipe Form</label>
 							<div class="col-sm-9 d-flex flex-row flex-wrap align-items-center">
@@ -304,15 +305,17 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
-                        <table class="dataTable table table-striped table-hover table-bordered w-100">
+                        <table class="dataTable table table-striped table-hover table-bordered w-100 responsive-table" id="product-list-table">
                             <thead>
                             <tr>
                                 <th width="600">Product</th>
                                 <th>Quantity</th>
                                 <th>Unit</th>
-                                <th>Price</th>
-                                <th>Total</th>
+                                <th width="100">Price</th>
+                                <th width="150">Total</th>
                                 <th>Dos Luar / Isi</th>
+                                <th>SJ</th>
+                                <th>Action</th>
                             </tr>
                             </thead>
                             <tbody id="product-list-body"></tbody>
@@ -328,77 +331,54 @@
     li.select2-results__option {
   white-space: nowrap;
 }
-@media (max-width: 768px) {
-  table.dataTable thead {
-    display: none;
+
+/* --- Versi Responsive --- */
+@media (max-width: 1200px) {
+  .responsive-table thead {
+    display: none; /* sembunyikan header tabel */
   }
 
-  table.dataTable, 
-  table.dataTable tbody, 
-  table.dataTable tr, 
-  table.dataTable td {
+  .responsive-table tr {
     display: block;
-    width: 100%;
-  }
-
-  table.dataTable tr {
     margin-bottom: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 0.75rem;
   }
 
-  table.dataTable td {
-    text-align: right;
-    position: relative;
-    padding-left: 50%;
+  .responsive-table td {
+    display: block; /* biar vertikal */
+    border: none;
+    padding: 0.5rem 0;
   }
 
-  table.dataTable td::before {
+  .responsive-table td::before {
     content: attr(data-label);
-    position: absolute;
-    left: 10px;
-    top: 10px;
-    width: 45%;
-    white-space: nowrap;
-    text-align: left;
-    font-weight: bold;
-  }
-  table.dataTable th, table.dataTable td {
-  white-space: nowrap;
-  vertical-align: middle;
-}
-
-@media (max-width: 768px) {
-  table.dataTable th, table.dataTable td {
-    white-space: normal;
-  }
-}
-@media (max-width: 768px) {
-  .table-responsive {
-    width: 100%;
-    overflow-x: auto;
+    display: block;
+    font-weight: 600;
+    text-transform: capitalize;
+    color: #555;
+    margin-bottom: 4px; /* beri jarak antara label dan input */
   }
 
-  .table {
-    width: 100% !important;
-    margin: 0 !important;
+  .responsive-table td input,
+  .responsive-table td select {
+    width: 100%; /* isi penuh */
+    font-size: 0.9rem;
   }
 
-  .card {
-    width: 100% !important;
-    margin: 0 auto 10px auto !important;
-    box-sizing: border-box;
+  .responsive-table td[data-label="Dos / Isi"] .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px; /* jarak antar input */
+    margin-bottom: 0;
   }
 
-  .card-body {
-    padding: 10px;
+  .responsive-table td[data-label="Dos / Isi"] .input-group input {
+    width: 100%; /* isi penuh */
   }
-
-  .form-control {
-    width: 100%;
-  }
-}
 
 }
 
@@ -443,11 +423,17 @@ $(document).ready(function () {
             title: 'Apakah anda yakin untuk menyimpan data?',
             icon: 'warning',
             showCancelButton: true,
+            showDenyButton: true,
             confirmButtonColor: '#3085d6',
+            denyButtonColor: '#6c757d',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes!'
+            confirmButtonText: 'Yes!',
+            denyButtonText: `Save & PDF`
         }).then((result) => {
-            if (result.value) {
+            if (result.isConfirmed) {
+                this.submit();
+            } else if (result.isDenied) {
+                $('#toPDF').val('1');
                 this.submit();
             } else {
                 return false;
@@ -520,6 +506,28 @@ $(document).ready(function () {
         }
     });
 
+    $('#categorycustomer').on('change', function() {
+        // kalau tidak ada product di form, jangan tanya
+        if ($('.product-select').length === 0) {
+            return;
+        }
+        Swal.fire({
+            title: 'Kategori Customer diubah. Apakah Anda ingin memperbarui harga produk sesuai kategori baru?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Perbarui Harga',
+            cancelButtonText: 'Tidak'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('.product-select').each(function() {
+                    handleProductSelect($(this));
+                });
+            }
+        });
+    });
+
     $(document).on('change', 'input, select, textarea', function (e) {
         embedPreviewData();
         isChanged = true;
@@ -531,9 +539,9 @@ $(document).ready(function () {
         $('#print_preview').attr('src', uri + '&t=' + new Date().getTime());
     }
 
-    function addProduct() {
+    function addProduct(isSJ = false) {
         //
-        const productRow = getProductRow();
+        const productRow = getProductRow(isSJ);
         $('#product-list-body').append(productRow);
 
         $('.numeric').inputmask({
@@ -541,6 +549,7 @@ $(document).ready(function () {
             radixPoint: ',',
             groupSeparator: '.',
         });
+        
         $('.product-select').select2({
             placeholder: 'Pilih...',
             theme: 'bootstrap4',
@@ -573,83 +582,86 @@ $(document).ready(function () {
         }, 200);
     }
 
-    function getProductRow() {
-        if (window.innerWidth <= 768) {
-            // 📱 Tampilan HP (Card)
-            return `
-            <div class="col-12 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <input type="hidden" name="type[]" value="create" />
-                        <input type="hidden" name="detailid[]" />
-                        <div class="mb-2">
-                            <label class="fw-bold">Product</label>
-                            <select class="form-control select2-tags product-select" name="product[]">
-                                <option value="">Pilih Product</option>
-                            </select>
-                        </div>
-                        <div class="mb-2">
-                            <label class="fw-bold">Quantity</label>
-                            <input type="text" class="form-control numeric quantity-input" name="quantity[]" />
-                        </div>
-                        <div class="mb-2">
-                            <label class="fw-bold">Unit</label>
-                            <input type="text" class="form-control" name="unit[]" />
-                        </div>
-                        <div class="mb-2">
-                            <label class="fw-bold">Price</label>
-                            <input type="text" class="form-control numeric price-input" name="price[]" />
-                        </div>
-                        <div class="mb-2">
-                            <label class="fw-bold">Total</label>
-                            <input type="text" class="form-control numeric" name="total[]" readonly />
-                        </div>
-                        <div class="mb-2">
-                            <label class="fw-bold">Dos Luar / Isi</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control numeric dos-luar-input" name="dosluar[]" placeholder="Dos" value="0">
-                                <input type="text" class="form-control isi-input" name="isi[]" placeholder="Isi">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            `;
-        } else {
-            // 💻 Tampilan Desktop (Table row)
-            return `
+    function getProductRow(isSJ = false) {
+        
+        var row = `
             <tr>
                 <input type="hidden" name="type[]" value="create" />
                 <input type="hidden" name="detailid[]" />
-                <td>
+                <input type="hidden" name="issj[]" />
+                ${!isSJ ? `
+                <td data-label="Product">
                     <select class="form-control select2-tags product-select" name="product[]">
                         <option value="">Pilih Product</option>
                     </select>
                 </td>
-                <td>
+                ` : `
+                <td data-label="Product">
+                    <input type="text" class="form-control product-input" name="product[]" />
+                </td>
+                `}
+                <td data-label="Quantity">
                     <input type="text" class="form-control numeric quantity-input" name="quantity[]" />
                 </td>
-                <td>
+                <td data-label="Unit">
                     <input type="text" class="form-control" name="unit[]" />
                 </td>
-                <td>
+                ${!isSJ ? `
+                <td data-label="Price">
                     <input type="text" class="form-control numeric price-input" name="price[]" />
                 </td>
-                <td>
+                <td data-label="Total">
                     <input type="text" class="form-control numeric" name="total[]" readonly />
                 </td>
-                <td>
+                <td data-label="Dos / Isi">
                     <div class="input-group mb-3">
                         <input type="text" class="form-control numeric dos-luar-input" name="dosluar[]" placeholder="Dos" value="0">
                         <input type="text" class="form-control isi-input" name="isi[]" placeholder="Isi">
                     </div>
                 </td>
+                <td data-label="SJ">
+                    <input type="checkbox" class="form-control sj-checkbox" name="sj[]" />
+                </td>
+                <td data-label="Aksi">
+                    <input type="hidden" name="hidden[]" value="0" />
+                    <button type="button" class="btn btn-sm btn-danger btn-remove-product">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+                ` : `
+                <td class="d-none"><input type="text" class="form-control numeric price-input" name="price[]" /></td>
+                <td class="d-none"><input type="text" class="form-control numeric" name="total[]" readonly /></td>
+                <td class="d-none">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control numeric dos-luar-input" name="dosluar[]" placeholder="Dos" value="0">
+                        <input type="text" class="form-control isi-input" name="isi[]" placeholder="Isi">
+                    </div>
+                </td>
+                <td class="d-none"><input type="checkbox" class="form-control sj-checkbox" name="sj[]" /></td>
+                <td colspan="4" class="text-center pt-3 text-secondary">-- SJ Item --</td>
+                <td data-label="Aksi">
+                    <input type="hidden" name="hidden[]" value="0" />
+                    <button type="button" class="btn btn-sm btn-warning btn-hide-product">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+                `}
             </tr>`;
-        }
+
+        return row;
     }
 
     function reorderTabIndex() {
-        const columns = ['select2-tags', 'numeric[name="quantity[]"]', 'form-control[name="unit[]"]', 'numeric[name="price[]"]', 'form-control[name="total[]"]', 'numeric[name="dosluar[]"]', 'form-control[name="isi[]"]'];
+        const columns = ['select2-tags',
+        'numeric[name="quantity[]"]',
+        'form-control[name="unit[]"]',
+        'numeric[name="price[]"]',
+        'form-control[name="total[]"]',
+        'numeric[name="dosluar[]"]',
+        'form-control[name="isi[]"]',
+        'form-control[name="sj[]"]',
+        'btn-remove-product',
+        'btn-hide-product'];
 
         let tabIndex = 1;
 
@@ -846,26 +858,30 @@ $(document).ready(function () {
         if (isLocked) {
             return;
         }
-        var selectedProduct = e.params.data.text;
-        var $selectElement = $(this);
+        handleProductSelect($(this));
+    });
+
+    function handleProductSelect($selectElement) {
+        var selectedProduct = $selectElement.find('option:selected').text();
 
         getProductDetails(selectedProduct, function(productDetails) {
             if (productDetails) {
-                // Isi field lain berdasarkan productDetails
                 var $row = $selectElement.closest('.card-body, tr');
                 $row.find('input[name="unit[]"]').val(productDetails.Satuan);
-                if ($('#categorycustomer').val() == '1') {
+
+                var category = $('#categorycustomer').val();
+                if (category == '1') {
                     $row.find('input[name="price[]"]').val(productDetails.price.PriceKonsumen).trigger('change');
-                } else if ($('#categorycustomer').val() == '2') {
+                } else if (category == '2') {
                     $row.find('input[name="price[]"]').val(productDetails.price.PriceSup1).trigger('change');
-                } else if ($('#categorycustomer').val() == '3') {
+                } else if (category == '3') {
                     $row.find('input[name="price[]"]').val(productDetails.price.PriceSup2).trigger('change');
-                } else if ($('#categorycustomer').val() == '4') {
+                } else if (category == '4') {
                     $row.find('input[name="price[]"]').val(productDetails.price.PriceDistributor).trigger('change');
                 }
             }
         });
-    });
+    }
 
     $(document).on('select2:open', function () {
         document.querySelector('.select2-search__field').focus();
@@ -885,6 +901,66 @@ $(document).ready(function () {
         var price = parseFloat($row.find('.price-input').inputmask('unmaskedvalue')) || 0;
         var total = quantity * price;
         $row.find('input[name="total[]"]').val(total);
+    });
+
+    $(document).on('change', '.sj-checkbox', function (e) {
+        // tambahkan row baru dibawah row ini
+        var row = $(this).closest('.card-body, tr');
+        if ($(this).is(':checked')) {
+            addProduct(true);
+            var newRow = $('#product-list-body tr').last();
+            newRow.insertAfter(row);
+            // buat backgroundnya beda warna
+            newRow.css('background-color', '#e9f7ef');
+            // assign data seperti data diatas ini
+            newRow.find('input[name="type[]"]').val('update');
+            newRow.find('input[name="issj[]"]').val('1');
+            newRow.find('input[name="detailid[]"]').val(row.find('input[name="detailid[]"]').val());
+            newRow.find('.product-input').val(row.find('.product-select').val());
+            newRow.find('.quantity-input').val(row.find('.quantity-input').val());
+            newRow.find('input[name="unit[]"]').val(row.find('input[name="unit[]"]').val());
+        } else {
+            var nextRow = row.next('tr');
+            if (nextRow.length > 0 && nextRow.find('input[name="issj[]"]').val() == '1') {
+                nextRow.find('input[name="type[]"]').val('delete');
+                nextRow.hide();
+            }
+        }
+        embedPreviewData();
+    });
+
+    $(document).on('click', '.btn-remove-product', function (e) {
+        e.preventDefault();
+        var row = $(this).closest('tr, .card');
+        row.find('input[name="type[]"]').val('delete');
+        row.hide();
+
+        // jika ada row sj dibawahnya, hapus juga
+        var $nextRow = row.next('tr');
+        if ($nextRow.find('input[name="issj[]"]').val() == '1') {
+            $nextRow.find('input[name="type[]"]').val('delete');
+            $nextRow.hide();
+        }
+        embedPreviewData();
+    });
+
+    $(document).on('click', '.btn-hide-product', function (e) {
+        e.preventDefault();
+        var row = $(this).closest('tr, .card');
+        oldVal = row.find('input[name="hidden[]"]').val();
+        if (oldVal == '1') {
+            // ubah jadi 0
+            row.find('input[name="hidden[]"]').val('0');
+            // ubah iconnya jadi fa-eye dan warna jadi warning
+            $(this).find('i').removeClass('fa-eye-slash').addClass('fa-eye');
+            $(this).removeClass('btn-secondary').addClass('btn-warning');
+        } else {
+            row.find('input[name="hidden[]"]').val('1');
+            // ubah iconnya jadi fa-eye-slash dan warna jadi secondary
+            $(this).find('i').removeClass('fa-eye').addClass('fa-eye-slash');
+            $(this).removeClass('btn-warning').addClass('btn-secondary');
+        }
+        embedPreviewData();
     });
 
     function getProductDetailsAsync(productName) {
@@ -939,6 +1015,18 @@ $(document).ready(function () {
             $lastRow.find('.isi-input').val('{{ $detail->DosLuar == 1 ? $detail->Qty : $detail->Isi }}');
             $lastRow.find('input[name="detailid[]"]').val('{{ $detail->DetailID }}');
             $lastRow.find('input[name="type[]"]').val('update');
+            @if($detail->IsSJ ?? 0 == 1)
+                $lastRow.find('.sj-checkbox').prop('checked', true).trigger('change');
+                $lastRow.next('tr').find('.product-input').val('{{ $detail->NamaSJ }}');
+                $lastRow.next('tr').find('.quantity-input').val('{{ number_format($detail->QtySJ, 0, ",", ".") }}');
+                $lastRow.next('tr').find('input[name="unit[]"]').val('{{ $detail->SatuanSJ }}');
+            @endif
+            $lastRow.next('tr').find('input[name="hidden[]"]').val('{{ $detail->IsHidden }}');
+            // set hide button state
+            @if($detail->IsHidden ?? 0 == 1)
+                $lastRow.next('tr').find('.btn-hide-product').find('i').removeClass('fa-eye').addClass('fa-eye-slash');
+                $lastRow.next('tr').find('.btn-hide-product').removeClass('btn-warning').addClass('btn-secondary');
+            @endif
         @endforeach
     @else
         // @for($i = 0; $i < 13; $i++)

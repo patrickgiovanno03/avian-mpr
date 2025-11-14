@@ -8,7 +8,7 @@
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex flex-row justify-content-between">
-                        <div>List Gaji Mingguan</div>
+                        <div>List Gaji Karyawan</div>
                         <div class="btn-group">
                             <button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="collapse" data-target="#filter" aria-expanded="false" aria-controls="filter">
                                 <i class="fas fa-filter mr-lg-2"></i><span class="d-none d-lg-inline">Filter</span>
@@ -16,9 +16,9 @@
                             <button type="button" class="btn btn-sm btn-outline-secondary btn-reload">
                                 <i class="fas fa-sync mr-lg-2"></i><span class="d-none d-lg-inline">Reload</span>
                             </button>
-                            <a href="{{ route('gaji.create') }}" class="btn btn-sm btn-avian-primary">
-                                <i class="fas fa-plus mr-2"></i>New<span class="d-none d-lg-inline"> Gaji Mingguan</span>
-                            </a>
+                            <button class="btn btn-sm btn-avian-primary btn-add" data-toggle="modal" data-target="#addModal">
+                                <i class="fas fa-plus mr-2"></i>Add<span class="d-none d-lg-inline"> Karyawan</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -110,16 +110,54 @@
                     <table class="dataTable table table-striped table-hover table-bordered w-100">
                         <thead>
                             <tr>
-                                <th class="text-center align-middle" data-priority="1">Tanggal</th>
-                                <th class="text-center align-middle">Jumlah (Rp)</th>
-                                <th class="text-center align-middle" data-priority="2">Jumlah Karyawan</th>
-                                <th class="text-center align-middle" data-priority="3">Action</th>
+                                <th class="text-center align-middle" data-priority="1">Nama</th>
+                                <th class="text-center align-middle" data-priority="3">Gaji Pokok</th>
+                                <th class="text-center align-middle">Gaji Lembur</th>
+                                <th class="text-center align-middle" data-priority="2">Action</th>
                             </tr>
                         </thead>
                     </table>
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addModal" data-backdrop="static" data-keyboard="false" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <form id="formItem" class="modal-content" method="post" action="{{ route('pegawai.store') }}" autocomplete="off">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Add Karyawan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @csrf
+                <div class="form-group row">
+                    <label for="name" class="col-sm-3 col-form-label">Nama</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="name" name="name">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="gajipokok" class="col-sm-3 col-form-label">Gaji Pokok</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control numeric" id="gajipokok" name="gajipokok">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="gajilembur" class="col-sm-3 col-form-label">Gaji Lembur</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control numeric" id="gajilembur" name="gajilembur">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-avian-secondary">Simpan</button>
+            </div>
+        </form>
     </div>
 </div>
 @endsection
@@ -157,22 +195,25 @@
 
 @section('js')
 <script>
-    var baseurl = "{{route('gaji.datatable')}}";
+    var baseurl = "{{route('pegawai.datatable')}}";
     let table = $('.dataTable').DataTable({
         processing: true,
+        orderClasses: false,
         responsive: true,
-        pageLength: 100,
         serverSide: true,
+        pageLength: 25,
         ajax: baseurl + '?' + $('#filter').serialize(),
         columns: [
-            {data: 'Tanggal', name: 'Tanggal', className: 'text-center'},
-            {data: 'JumlahRp', name: 'JumlahRp', className: 'text-center'},
-            {data: 'JumlahKaryawan', name: 'JumlahKaryawan', className: 'text-center'},
+            {data: 'Nama', name: 'Nama'},
+            {data: 'GajiPokok', name: 'GajiPokok', className: 'text-center'},
+            {data: 'GajiLembur', name: 'GajiLembur', className: 'text-center'},
             {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center'},
         ],
-        order: [],
+        order: [0, 'asc'],
         rowCallback: function (row, data, index) {
-            $('td:eq(0)', row).html(moment(data.Tanggal).format('DD/MM/YYYY'));
+            // console.log(data);
+            // $('td:eq(4)', row).html(data.TanggalForm != null ? moment(data.TanggalForm).format('DD MMM YYYY') : '-');
+            // $('td:eq(5)', row).html(data.PIC != null ? data.PIC : '-');
         },
 
     });
@@ -197,6 +238,31 @@
         $('#filter #startdate, #filter #enddate').prop('disabled', $(this).is(':checked'));
 
         reloadData();
+    });
+
+    $('.btn-add').on('click', function (e) {
+        e.preventDefault();
+
+        $('#formItem')[0].reset();
+        $('#addModalLabel').text('Add Pegawai');
+        $('#formItem').attr('action', "{{ route('pegawai.store') }}");
+        $('#formItem').attr('method', 'POST');
+        $('#formItem').find('input[name="_method"]').remove();
+    });
+
+    $('.dataTable').on('click', '.btn-edit', function (e) {
+        e.preventDefault();
+
+        let data = table.row($(this).parents('tr')).data();
+        $('#formItem #name').val(data.Nama);
+        $('#formItem #gajipokok').val(String(data.GajiPokok ?? '').replace(/\./g, ','));
+        $('#formItem #gajilembur').val(String(data.GajiLembur ?? '').replace(/\./g, ','));
+        $('#addModalLabel').text('Edit Pegawai');
+        $('#addModal').modal('show');
+        $('#formItem').attr('action', "{{ route('pegawai.update', '@id') }}".replace('@id', data.PegawaiID));
+        $('#formItem').attr('method', 'POST');
+        $('#formItem').find('input[name="_method"]').remove();
+        $('#formItem').append('<input type="hidden" name="_method" value="PUT">');
     });
 
     $('.dataTable').on('click', '.btn-delete', function (e) {
@@ -246,33 +312,6 @@
                 }
                 });
             }
-        });
-    });
-
-    $('.dataTable').on('click', '.btn-copy', function (e) {
-        e.preventDefault();
-
-        const rowData = table.row($(this).closest('tr')).data();
-        const invoiceNo = rowData.InvoiceNo;
-        const sjNo = rowData.SJNo;
-        const namaCustomer = rowData.NamaCustomer;
-        const kodeCustomer = rowData.Kode;
-        const link = window.location.origin + '/invoice/previewdynamic/' + rowData.FormID;
-        const textToCopy = `Invoice No.: ${invoiceNo}\nSurat Jalan No.: ${sjNo}\nCustomer: ${namaCustomer} (${kodeCustomer})\nLink: ${link}`;
-        navigator.clipboard.writeText(textToCopy).then(function() {
-            Swal.fire({
-                title: 'Copied!',
-                text: 'Invoice details have been copied to clipboard.',
-                icon: 'success',
-                timer: 1000,
-                showConfirmButton: false
-            });
-        }, function(err) {
-            Swal.fire(
-                'Error!',
-                'Could not copy text: ' + err,
-                'error'
-            );
         });
     });
 </script>

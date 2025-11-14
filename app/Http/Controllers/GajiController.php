@@ -34,6 +34,7 @@ class GajiController extends Controller
     {
         //
         $params['mgaji'] = null;
+        $params['upload'] = false;
         return view('gaji.form', $params);
     }
 
@@ -57,6 +58,9 @@ class GajiController extends Controller
     public function show($id)
     {
         //
+        $params['mgaji'] = MGaji::with('hgaji')->findOrFail($id);
+        $params['upload'] = true;
+        return view('gaji.form', $params);
     }
 
     /**
@@ -69,6 +73,7 @@ class GajiController extends Controller
     {
         //
         $params['mgaji'] = MGaji::with('hgaji')->findOrFail($id);
+        $params['upload'] = false;
         return view('gaji.form', $params);
     }
 
@@ -93,13 +98,61 @@ class GajiController extends Controller
     public function destroy($id)
     {
         //
+        $gaji = MGaji::findOrFail($id);
+        foreach ($gaji->hgaji as $hgaji) {
+            if (File::exists(storage_path('app/public/' . $hgaji->URL))) {
+                File::delete(storage_path('app/public/' . $hgaji->URL));
+            }
+            foreach ($hgaji->dgaji as $dgaji) {
+                $dgaji->delete();
+            }
+            $hgaji->delete();
+        }
+        $gaji->delete();
+
+        return response()->json(['success' => true, 'message' => 'Gaji deleted successfully.']);
+    }
+
+    public function datatable(Request $request)
+    {
+        //
+        $data = MGaji::with('hgaji')->get();
+        
+        return datatables()->of($data)
+            ->addIndexColumn()
+            ->addColumn('JumlahRp', function ($row) {
+                return number_format($row->hgaji->sum(function($hgaji) {
+                    return $hgaji->dgaji->sum(function($dgaji) {
+                        return ($dgaji->Pokok + ($dgaji->Lembur));
+                    }) + $hgaji->Bonus;
+                })*1000, 0, ',', '.');
+            })
+            ->addColumn('JumlahKaryawan', function ($row) {
+                return $row->hgaji->count();
+            })
+            ->addColumn('action', function ($row) {
+                $edit = '<a href="' . route('gaji.edit', $row->GajiID) . '" class="btn btn-avian-primary btn-sm btn-edit"><i class="fa fa-edit"></i></a>';
+                $delete = "<button data-url='" . route('gaji.destroy', $row->GajiID) . "' class='btn-action btn btn-sm btn-danger btn-delete' data-id='" . $row->GajiID . "' title='Delete'><i class='fa fa-trash'></i></button>";
+
+                return '
+                    <div class="btn-group" role="group" aria-label="Action Buttons">
+                        '.$edit.'
+                        '.$delete.'
+                    </div>';
+            })
+            ->rawColumns(['action'])
+            ->make(true);
     }
 
     public function upload(Request $request)
     {
         //
-        $mgaji = new MGaji();
-        $mgaji->Tanggal = now();
+        if ($request->has('gajiid') && $request->input('gajiid') != 0) {
+            $mgaji = MGaji::findOrFail($request->input('gajiid'));
+        } else {
+            $mgaji = new MGaji();
+            $mgaji->Tanggal = now();
+        }
         $mgaji->save();
 
         foreach ($request->file('photos') as $photo) {
@@ -143,41 +196,41 @@ class GajiController extends Controller
 
         return $pdf->stream('slip_gaji_' . ($params['hgaji']->pegawai->Nama ?? '') . '.pdf');
     }
-    
-public function slipAll($gajiId)
-{
-    // Ambil semua data HGaji dengan GajiID yang sama
-    $hgajis = HGaji::with('pegawai', 'dgaji')
-        ->where('GajiID', $gajiId)
-        ->get();
+        
+    public function slipAll($gajiId)
+    {
+        // Ambil semua data HGaji dengan GajiID yang sama
+        $hgajis = HGaji::with('pegawai', 'dgaji', 'mgaji')
+            ->where('GajiID', $gajiId)
+            ->get();
 
-    if ($hgajis->isEmpty()) {
-        return back()->with('error', 'Data gaji tidak ditemukan.');
-    }
-
-    // Gabungkan semua view slip menjadi satu HTML panjang
-    $html = '';
-    foreach ($hgajis as $index => $hgaji) {
-        $params['hgaji'] = $hgaji;
-
-        // Render view slip untuk setiap pegawai
-        $html .= view('gaji.slip-template', $params)->render();
-
-        // Tambahkan pemisah halaman di antara slip
-        if ($index < $hgajis->count() - 1) {
-            // $html .= '<div style="page-break-after: always;"></div>';
+        if ($hgajis->isEmpty()) {
+            return back()->with('error', 'Data gaji tidak ditemukan.');
         }
+
+        // Gabungkan semua view slip menjadi satu HTML panjang
+        $html = '';
+        foreach ($hgajis as $index => $hgaji) {
+            $params['hgaji'] = $hgaji;
+
+            // Render view slip untuk setiap pegawai
+            $html .= view('gaji.slip-template', $params)->render();
+
+            // Tambahkan pemisah halaman di antara slip
+            if ($index < $hgajis->count() - 1) {
+                // $html .= '<div style="page-break-after: always;"></div>';
+            }
+        }
+
+        // Generate satu PDF dari semua halaman slip
+        $pdf = Pdf::loadHTML($html);
+        $pdf->setPaper([0, 0, 900, 1100]); // ukuran sama seperti slip()
+
+        $fileName = 'slip_gaji_semua_' . $gajiId . '.pdf';
+
+        // Langsung tampilkan / download
+        return $pdf->stream($fileName);
+        // Jika ingin langsung download, ganti dengan:
+        // return $pdf->download($fileName);
     }
-
-    // Generate satu PDF dari semua halaman slip
-    $pdf = Pdf::loadHTML($html);
-    $pdf->setPaper([0, 0, 900, 1100]); // ukuran sama seperti slip()
-
-    $fileName = 'slip_gaji_semua_' . $gajiId . '.pdf';
-
-    // Langsung tampilkan / download
-    return $pdf->stream($fileName);
-    // Jika ingin langsung download, ganti dengan:
-    // return $pdf->download($fileName);
-}
 }

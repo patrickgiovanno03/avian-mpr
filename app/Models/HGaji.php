@@ -24,4 +24,9 @@ class HGaji extends Model
     {
         return $this->belongsTo(MPegawai::class, 'PegawaiID', 'PegawaiID');
     }
+
+    public function mgaji()
+    {
+        return $this->belongsTo(MGaji::class, 'GajiID', 'GajiID');
+    }
 }

@@ -71,13 +71,16 @@ Route::resource('customer', 'CustomerController');
 // GAJI
 Route::prefix('gaji')->group(function () {
     Route::post('/upload', 'GajiController@upload')->name('gaji.upload');
+    Route::post('/storeDetail/{id}', 'GajiController@storeDetail')->name('gaji.storeDetail');
+    Route::get('/slip/{id}', 'GajiController@slip')->name('gaji.slip');
+    Route::get('/slipAll/{id}', 'GajiController@slipAll')->name('gaji.slipAll');
+    Route::get('/datatable', 'GajiController@datatable')->name('gaji.datatable');
 });
 Route::resource('gaji', 'GajiController');
 
 // PEGAWAI
 Route::prefix('pegawai')->group(function () {
     Route::get('/getPegawai', 'PegawaiController@getPegawai')->name('pegawai.getPegawai');
-    Route::post('/storeDetail/{id}', 'GajiController@storeDetail')->name('gaji.storeDetail');
-    Route::get('/slip/{id}', 'GajiController@slip')->name('gaji.slip');
-    Route::get('/slipAll/{id}', 'GajiController@slipAll')->name('gaji.slipAll');
+    Route::get('/datatable', 'PegawaiController@datatable')->name('pegawai.datatable');
 });
+Route::resource('pegawai', 'PegawaiController');

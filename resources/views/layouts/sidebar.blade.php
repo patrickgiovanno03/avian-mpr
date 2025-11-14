@@ -80,8 +80,8 @@
                     </li>
                 </ul>
             </li>
-            <li class="nav-item has-treeview {{ Route::is('invoice.*') ? 'menu-open' : '' }}">
-                <a href="#" class="nav-link {{ Route::is('invoice.*') ? 'active' : '' }}">
+            <li class="nav-item has-treeview {{ (Route::is('gaji.*') || Route::is('pegawai.*')) ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ (Route::is('gaji.*') || Route::is('pegawai.*')) ? 'active' : '' }}">
                     <i class="nav-icon fas fa-sack-dollar"></i>
                     <p>
                         Gaji
@@ -90,9 +90,13 @@
                 </a>
                 <ul class="nav nav-treeview">
                     <li class="nav-item">
-                        <a href="{{ route('gaji.index') }}" class="nav-link {{ (Route::is('gaji.*') && !Route::is('gaji.create')) ? 'active' : '' }}">
+                        <a href="{{ route('gaji.index') }}" class="nav-link {{ (Route::is('gaji.*')) ? 'active' : '' }}">
                             <i class="fas fa-file-invoice-dollar nav-icon"></i>
                             <p>Gaji</p>
+                        </a>
+                        <a href="{{ route('pegawai.index') }}" class="nav-link {{ (Route::is('pegawai.*')) ? 'active' : '' }}">
+                            <i class="fas fa-user-tag nav-icon"></i>
+                            <p>Gaji Karyawan</p>
                         </a>
                     </li>
                 </ul>

@@ -6,7 +6,7 @@
   <style>
     /* ====== GLOBAL STYLE ====== */
     body {
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       margin: 0; /* hilangkan margin body agar penuh */
       background: #f9fafb;
       color: #333;
@@ -19,7 +19,6 @@
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding: 20px;
       box-sizing: border-box;
     }
 
@@ -44,7 +43,7 @@
 
     .header h2 {
       margin: 0;
-      font-size: 36px;
+      font-size: 54px;
       color: #d62828;
     }
 
@@ -55,6 +54,7 @@
     /* ====== INFO TABLE ====== */
     .info {
       margin-bottom: 25px;
+      font-size: 24px;
     }
 
     .info table {
@@ -76,19 +76,26 @@
     table.rincian {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
+      font-size: 24px;
     }
 
     table.rincian th, table.rincian td {
       border: 2px solid #df7979;
-      padding: 10px;
+      padding: 5px;
       text-align: center;
     }
 
     table.rincian th {
       background: #d62828;
+      border: 2px solid #d62828!important;
       color: #fff;
-      font-weight: 600;
+      font-weight: bold;
+    }
+
+    table.rincian tfoot td {
+      font-weight: bold;
+      background: #e2e2e2;
     }
 
     table.rincian tr:nth-child(even) {
@@ -102,7 +109,7 @@
     /* ====== TOTAL ====== */
     .totals {
       text-align: right;
-      margin-top: 15px;
+      margin-top: 10px;
     }
 
     .totals p {
@@ -128,31 +135,21 @@
     .lampiran {
       margin-top: 40px;
       border-top: 2px dashed #ccc;
-      padding-top: 20px;
     }
 
     .lampiran h3 {
       color: #d62828;
-      font-size: 16px;
+      font-size: 24px;
       margin-bottom: 10px;
     }
 
     .lampiran img {
       max-width: 100%;
+      max-height: 550px;
       border: 1px solid #ddd;
       border-radius: 6px;
       margin-top: 10px;
       display: block;
-    }
-
-    /* ====== FOOTER ====== */
-    .footer {
-      margin-top: 40px;
-      text-align: center;
-      font-size: 12px;
-      color: #777;
-      border-top: 1px solid #eee;
-      padding-top: 10px;
     }
 
     /* ====== PRINT MODE ====== */
@@ -206,14 +203,13 @@
     <div class="slip-container">
       <div class="header">
         <h2>Slip Gaji Pegawai</h2>
-        <small>Periode: {{ $hgaji->Periode ?? '-' }}</small>
       </div>
 
       <div class="info">
         <table>
           <tr>
             <td><strong>Nama Pegawai:</strong> {{ $hgaji->pegawai->Nama ?? '' }}</td>
-            <td><strong>Tanggal Cetak:</strong> {{ now()->format('d-m-Y') }}</td>
+            <td style="text-align: right;"><strong>Tanggal:</strong> {{ \Carbon\Carbon::createFromFormat('Y-m-d', $hgaji->mgaji->Tanggal)->format('d F Y') }}</td>
           </tr>
         </table>
       </div>
@@ -224,16 +220,19 @@
             <th>Hari Ke</th>
             <th>Gaji Pokok (Rp)</th>
             <th>Jam Lembur</th>
-            <th>Gaji Lembur (Rp)</th>
+            <th>Gaji Lembur Total (Rp)</th>
             <th>Total Hari Ini (Rp)</th>
           </tr>
         </thead>
         <tbody>
-          @php $totalGaji = 0; @endphp
+          @php $totalGaji = 0; $totalPokok = 0; $totalJamLembur = 0; $totalLembur = 0; @endphp
           @foreach ($hgaji->dgaji as $index => $gaji)
             @php
-              $harian = $gaji->Pokok + ($gaji->Jam * $gaji->Lembur);
+              $harian = $gaji->Pokok + ($gaji->Lembur);
               $totalGaji += $harian;
+              $totalPokok += $gaji->Pokok;
+              $totalJamLembur += $gaji->Jam;
+              $totalLembur += $gaji->Lembur;
             @endphp
             <tr>
               <td>{{ $index + 1 }}</td>
@@ -244,22 +243,27 @@
             </tr>
           @endforeach
         </tbody>
+        <tfoot>
+            <tr>
+              <td>Total</td>
+              <td>{{ number_format($totalPokok*1000, 0, ',', '.') }}</td>
+              <td>{{ $totalJamLembur }}</td>
+              <td>{{ number_format($totalLembur*1000, 0, ',', '.') }}</td>
+              <td>{{ number_format($totalGaji*1000, 0, ',', '.') }}</td>
+            </tr>
+        </tfoot>
       </table>
 
       <div class="totals">
-        <p><span>Bonus:</span> Rp {{ number_format($hgaji->Bonus*1000, 0, ',', '.') }}</p>
-        <p class="total"><span>Total Gaji:</span> Rp {{ number_format(($totalGaji + $hgaji->Bonus)*1000, 0, ',', '.') }}</p>
+        <p><strong>Uang Makan:</strong> Rp {{ number_format($hgaji->UangMakan*1000, 0, ',', '.') }}</p>
+        <p><strong>Bonus:</strong> Rp {{ number_format($hgaji->Bonus*1000, 0, ',', '.') }}</p>
+        <p class="total"><strong>Total Gaji:</strong> Rp {{ number_format(($totalGaji + $hgaji->Bonus + $hgaji->UangMakan)*1000, 0, ',', '.') }}</p>
       </div>
 
       <!-- ====== BAGIAN LAMPIRAN ====== -->
       <div class="lampiran">
         <h3>Lampiran</h3>
         <img src="{{ asset('storage/' . $hgaji->URL) }}" alt="Lampiran Slip Gaji">
-      </div>
-
-      <div class="footer">
-        {{-- <p>Slip ini dicetak otomatis oleh sistem — tidak memerlukan tanda tangan.</p>
-        <p>© {{ date('Y') }} Perusahaan Anda. Semua hak dilindungi.</p> --}}
       </div>
     </div>
   </div>
