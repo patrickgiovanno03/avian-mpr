@@ -13,6 +13,9 @@
                             <button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="collapse" data-target="#filter" aria-expanded="false" aria-controls="filter">
                                 <i class="fas fa-filter mr-lg-2"></i><span class="d-none d-lg-inline">Filter</span>
                             </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary btn-show-total">
+                                <i class="fas fa-eye mr-lg-2"></i><span class="d-none d-lg-inline">Show Total</span>
+                            </button>
                             <button type="button" class="btn btn-sm btn-outline-secondary btn-reload">
                                 <i class="fas fa-sync mr-lg-2"></i><span class="d-none d-lg-inline">Reload</span>
                             </button>
@@ -114,6 +117,7 @@
                                 <th class="text-center align-middle" data-priority="2">Surat Jalan No.</th>
                                 <th class="text-center align-middle">Kode</th>
                                 <th class="text-center align-middle">Customer</th>
+                                <th class="text-center align-middle">Total</th>
                                 <th class="text-center align-middle">Tanggal</th>
                                 <th class="text-center align-middle" data-priority="3">Action</th>
                             </tr>
@@ -160,6 +164,7 @@
 @section('js')
 <script>
     var baseurl = "{{route('invoice.datatable')}}";
+    var showTotal = false;
     let table = $('.dataTable').DataTable({
         processing: true,
         responsive: true,
@@ -171,6 +176,7 @@
             {data: 'SJNo', name: 'SJNo', className: 'text-center'},
             {data: 'Kode', name: 'Kode', className: 'text-center'},
             {data: 'NamaCustomer', name: 'NamaCustomer', className: 'text-left'},
+            {data: 'Total', name: 'Total', className: 'text-right'},
             {data: 'InvoiceDate', name: 'InvoiceDate', className: 'text-center'},
             {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center'},
         ],
@@ -279,5 +285,26 @@
             );
         });
     });
+
+    $('.btn-show-total').on('click', function () {
+        toggleShowTotal();
+    });
+
+    function toggleShowTotal() {
+        var column = table.column(4);
+
+        column.visible(!column.visible());
+
+        // ubah icon & text
+        if (column.visible()) {
+            $('.btn-show-total').find('i').removeClass('fa-eye').addClass('fa-eye-slash');
+            $('.btn-show-total').find('span').text('Hide Total');
+        } else {
+            $('.btn-show-total').find('i').removeClass('fa-eye-slash').addClass('fa-eye');
+            $('.btn-show-total').find('span').text('Show Total');
+        }
+    }
+
+    toggleShowTotal();
 </script>
 @endsection

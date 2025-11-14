@@ -346,6 +346,10 @@ class InvoiceController extends Controller
         
         return datatables()->of($data)
             ->addIndexColumn()
+            ->addColumn('Total', function ($row) {
+                $total = $row->details()->where('IsSJ', 0)->sum(\DB::raw('Harga * Qty')) - $row->Discount;
+                return number_format($total, 0, ',', '.');
+            })
             ->addColumn('action', function ($row) {
                 $edit = '<a href="' . route('invoice.edit', $row->FormID) . '" class="btn btn-avian-primary btn-sm btn-edit"><i class="fa fa-edit"></i></a>';
                 $duplicate = '<a href="' . route('invoice.create', ['id' => $row->FormID]) . '" class="btn btn-avian-secondary btn-sm btn-duplicate"><i class="fa fa-copy"></i></a>';
