@@ -23,18 +23,18 @@
                         </div>
                     </div>
                 </div>
-                <form id="formInput" method="post" action="{{ route('gaji.upload') }}" enctype="multipart/form-data" autocomplete="off">
-                    @csrf
                 <div class="card-body row">
                 @if (!$mgaji || $upload)
-                    <!-- ====================== UPLOAD FORM ====================== -->
-                    <div class="mx-auto">
-                        <input type="text" id="gajiid" name="gajiid" value="{{ $mgaji->GajiID ?? 0 }}">
+                <!-- ====================== UPLOAD FORM ====================== -->
+                <div class="mx-auto">
+                        <form id="formInput" method="post" action="{{ route('gaji.upload') }}" enctype="multipart/form-data" autocomplete="off">
+                            @csrf
+                        <input type="hidden" id="gajiid" name="gajiid" value="{{ $mgaji->GajiID ?? 0 }}">
                         <div class="form-group row">
-                            <label for="invoicedate" class="form-label col-md-3">Tanggal Gaji</label>
+                            <label for="tanggal" class="form-label col-md-3">Tanggal Gaji</label>
                             <div class="col-md-9">
-                                <input type="text" class="form-control datepicker" id="invoicedate" name="invoicedate" {{ $upload ? 'disabled' : '' }}
-                                    value="{{ Carbon\Carbon::now()->format('d/m/Y') }}">
+                                <input type="text" class="form-control datepicker" id="tanggal" name="tanggal" {{ $upload ? 'disabled' : '' }}
+                                    value="{{ $mgaji ? Carbon\Carbon::parse($mgaji->Tanggal)->format('d/m/Y') : Carbon\Carbon::now()->format('d/m/Y') }}">
                             </div>
                         </div>
                       <div class="card shadow-lg border-0">
@@ -69,9 +69,8 @@
                                 </button>
                         </div>
                     </div>
+                </form>
                     </div>
-                    </form>
-
                     @else
                     <!-- ====================== DAFTAR SLIP GAJI ====================== -->
                       <div class="row g-4">
@@ -85,13 +84,17 @@
                                       <h5 class="fw-bold mb-1 text-muted">{{ $gaji->pegawai->Nama ?? 'Belum diisi' }}</h5>
                                       <p class="text-muted small mb-0"></p>
                                       <div class="">
-                                        <button class="btn btn-light btn-sm me-2 btn-isi-data" data-toggle="modal" data-target="#modalGaji" data-id="{{ $gaji->HeaderID }}">
-                                            <i class="fas fa-edit mr-2"></i>Isi Data
-                                        </button>
                                         @if($gaji->PegawaiID != null)
-                                        <a href="{{ route('gaji.slip', $gaji->HeaderID) }}" target="_blank" class="btn btn-avian-secondary btn-sm">
-                                            <i class="fas fa-file-pdf mr-2"></i>Slip PDF
-                                        </a>
+                                            <button class="btn btn-light btn-sm me-2 btn-isi-data" data-toggle="modal" data-type="edit" data-target="#modalGaji" data-id="{{ $gaji->HeaderID }}" data-data="{{ json_encode($gaji) }}">
+                                                <i class="fas fa-edit mr-2"></i>Edit Data
+                                            </button>
+                                            <a href="{{ route('gaji.slip', $gaji->HeaderID) }}" target="_blank" class="btn btn-avian-secondary btn-sm">
+                                                <i class="fas fa-file-pdf mr-2"></i>Slip PDF
+                                            </a>
+                                        @else
+                                            <button class="btn btn-light btn-sm me-2 btn-isi-data" data-toggle="modal" data-type="create" data-target="#modalGaji" data-id="{{ $gaji->HeaderID }}">
+                                                <i class="fas fa-edit mr-2"></i>Isi Data
+                                            </button>
                                         @endif
                                       </div>
                                   </div>
@@ -235,15 +238,6 @@ $(document).ready(function () {
     $('#formInput').on('submit', function(e) {
         e.preventDefault();
 
-        // cek kalau semua asset sudah dipilih
-        if(false){
-            Swal.fire({
-                icon: 'error',
-                title: 'Anda belum menambahkan data detail',
-            });
-            return false;
-
-        }
         Swal.fire({
             title: 'Apakah anda yakin untuk menyimpan data?',
             icon: 'warning',
@@ -263,31 +257,31 @@ $(document).ready(function () {
 
 });
 
+const inputGajiPokok = document.getElementById(`gaji_pokok`);
+const inputGajiLembur = document.getElementById(`gaji_lembur`);
+const inputJumlahHari = document.getElementById(`jumlah_hari`);
+const inputBonus = document.getElementById(`bonus`);
+const inputMakan = document.getElementById(`uangmakan`);
+const tabelBody = document.querySelector(`#tabelGaji tbody`);
+const inputTotal = document.getElementById(`total_gaji`);
+
+// Hitung total keseluruhan
+function hitungTotal() {
+    let total = 0;
+    tabelBody.querySelectorAll('tr').forEach(row => {
+        const pokok = parseFloat(row.querySelector('.pokok').value) || 0;
+        const lembur = parseFloat(row.querySelector('.lembur').value) || 0;
+        const subtotal = pokok + lembur;
+        row.querySelector('.total').value = subtotal.toFixed(1);
+        total += subtotal;
+    });
+
+    const bonus = parseFloat(inputBonus.value) || 0;
+    const makan = parseFloat(inputMakan.value) || 0;
+    inputTotal.value = (total + bonus + makan).toFixed(1);
+}
 document.addEventListener('DOMContentLoaded', function () {
 
-    const inputGajiPokok = document.getElementById(`gaji_pokok`);
-    const inputGajiLembur = document.getElementById(`gaji_lembur`);
-    const inputJumlahHari = document.getElementById(`jumlah_hari`);
-    const inputBonus = document.getElementById(`bonus`);
-    const inputMakan = document.getElementById(`uangmakan`);
-    const tabelBody = document.querySelector(`#tabelGaji tbody`);
-    const inputTotal = document.getElementById(`total_gaji`);
-
-    // Hitung total keseluruhan
-    function hitungTotal() {
-        let total = 0;
-        tabelBody.querySelectorAll('tr').forEach(row => {
-            const pokok = parseFloat(row.querySelector('.pokok').value) || 0;
-            const lembur = parseFloat(row.querySelector('.lembur').value) || 0;
-            const subtotal = pokok + lembur;
-            row.querySelector('.total').value = subtotal.toFixed(1);
-            total += subtotal;
-        });
-
-        const bonus = parseFloat(inputBonus.value) || 0;
-        const makan = parseFloat(inputMakan.value) || 0;
-        inputTotal.value = (total + bonus + makan).toFixed(1);
-    }
 
     // Generate tabel otomatis saat jumlah hari berubah
     inputJumlahHari.addEventListener('input', function() {
@@ -369,11 +363,39 @@ $('.pegawai-select').on('select2:select', function (e) {
 
 $('.btn-isi-data').on('click', function() {
     var gajiId = $(this).data('id');
-    // reset form
+    var type = $(this).data('type');
+
     $('#formItem')[0].reset();
     $('#tabelGaji tbody').empty();
     $('#total_gaji').val('');
     $('#formItem').attr('action', '{{ route("gaji.storeDetail", ":id") }}'.replace(':id', gajiId));
+    if (type == 'edit') {
+        // isi dengan data
+        var dataGaji = $(this).data('data');
+        console.log(dataGaji);
+        $('.modal-title').text('Form Gaji - ' + (dataGaji.pegawai ? dataGaji.pegawai.Nama : 'Karyawan'));
+        $('#pegawai').append(new Option(dataGaji.pegawai.Nama, dataGaji.PegawaiID, true, true)).trigger('change');
+        $('#gaji_pokok').val(dataGaji.dgaji.length > 0 ? dataGaji.dgaji[0].Pokok : 0);
+        $('#gaji_lembur').val(dataGaji.pegawai ? dataGaji.pegawai.GajiLembur : 0);
+        $('#jumlah_hari').val(dataGaji.dgaji.length);
+        $('#bonus').val(dataGaji.Bonus);
+        $('#uangmakan').val(dataGaji.UangMakan);
+
+        hitungTotal();
+
+        // generate tabel
+        dataGaji.dgaji.forEach(function(item, index) {
+            var row = `<tr>
+                <td>Hari ${index + 1}</td>
+                <td><input type="number" step="any" name="pokok[]" class="form-control text-end pokok" value="${item.Pokok}"></td>
+                <td><input type="number" step="any" name="jam[]" class="form-control text-end jam" value="${item.Jam}" min="0" placeholder="Jam lembur"></td>
+                <td><input type="number" step="any" name="lembur[]" class="form-control text-end lembur" value="${item.Lembur.toFixed(2)}" readonly></td>
+                <td><input type="number" step="any" class="form-control text-end total" value="${(item.Pokok + item.Lembur).toFixed(1)}" readonly></td>
+            </tr>`;
+            $('#tabelGaji tbody').append(row);
+        });
+        hitungTotal();
+    }
 });
 
 

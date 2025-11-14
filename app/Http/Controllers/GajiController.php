@@ -6,6 +6,7 @@ use App\Models\DGaji;
 use App\Models\HGaji;
 use App\Models\MGaji;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Spatie\Browsershot\Browsershot;
@@ -72,7 +73,7 @@ class GajiController extends Controller
     public function edit($id)
     {
         //
-        $params['mgaji'] = MGaji::with('hgaji')->findOrFail($id);
+        $params['mgaji'] = MGaji::with('hgaji', 'hgaji.dgaji')->findOrFail($id);
         $params['upload'] = false;
         return view('gaji.form', $params);
     }
@@ -124,7 +125,7 @@ class GajiController extends Controller
                 return number_format($row->hgaji->sum(function($hgaji) {
                     return $hgaji->dgaji->sum(function($dgaji) {
                         return ($dgaji->Pokok + ($dgaji->Lembur));
-                    }) + $hgaji->Bonus;
+                    }) + $hgaji->Bonus + $hgaji->UangMakan;
                 })*1000, 0, ',', '.');
             })
             ->addColumn('JumlahKaryawan', function ($row) {
@@ -151,11 +152,11 @@ class GajiController extends Controller
             $mgaji = MGaji::findOrFail($request->input('gajiid'));
         } else {
             $mgaji = new MGaji();
-            $mgaji->Tanggal = now();
+            $mgaji->Tanggal = Carbon::createFromFormat('d/m/Y', $request->input('tanggal'))->format('Y-m-d');
         }
         $mgaji->save();
 
-        foreach ($request->file('photos') as $photo) {
+        foreach ($request->file('photos') ?? [] as $photo) {
             $path = $photo->store('gaji/'.$mgaji->GajiID, 'public');
             $hgaji = new HGaji();
             $hgaji->GajiID = $mgaji->GajiID;
@@ -171,6 +172,7 @@ class GajiController extends Controller
         //
         $hgaji = HGaji::findOrFail($id);
         $hgaji->Bonus = $request->input('bonus', 0);
+        $hgaji->UangMakan = $request->input('uangmakan', 0);
         $hgaji->PegawaiID = $request->input('pegawai');
         $hgaji->save();
         DGaji::where('HeaderID', $hgaji->HeaderID)->delete();

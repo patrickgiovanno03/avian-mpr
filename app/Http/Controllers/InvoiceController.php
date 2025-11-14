@@ -20,7 +20,9 @@ class InvoiceController extends Controller
     public function index()
     {
         //
-        $params['customers'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 0)->get()->pluck('Nama');
+        $params['customers'] = HInvoice::select('NamaCustomer')->whereNotNull('NamaCustomer')
+            ->distinct()
+            ->pluck('NamaCustomer');
         return view('invoice.index', $params);
     }
 
