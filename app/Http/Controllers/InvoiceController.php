@@ -149,6 +149,7 @@ class InvoiceController extends Controller
                     $dinvoice->Qty = $request->input('quantity')[$index] != null ? str_replace('.', '', $request->input('quantity')[$index]) : 0;
                     $dinvoice->DosLuar = $request->input('dosluar')[$index] != null ? str_replace('.', '', $request->input('dosluar')[$index]) : 0;
                     $dinvoice->Isi = $request->input('isi')[$index] != null ? str_replace('.', '', $request->input('isi')[$index]) : 0;
+                    $dinvoice->DosGabung = $request->input('dosgabung')[$index] != null ? str_replace('.', '', $request->input('dosgabung')[$index]) : 0;
                 }
                 $dinvoice->IsHidden = $request->input('hidden')[$index] == 1 ? 1 : 0;
                 $dinvoice->save();
@@ -291,6 +292,7 @@ class InvoiceController extends Controller
                     $dinvoice->Qty = $request->input('quantity')[$index] != null ? str_replace('.', '', $request->input('quantity')[$index]) : 0;
                     $dinvoice->DosLuar = $request->input('dosluar')[$index] != null ? str_replace('.', '', $request->input('dosluar')[$index]) : 0;
                     $dinvoice->Isi = $request->input('isi')[$index] != null ? str_replace('.', '', $request->input('isi')[$index]) : 0;
+                    $dinvoice->DosGabung = $request->input('dosgabung')[$index] != null ? str_replace('.', '', $request->input('dosgabung')[$index]) : 0;
                 }
                 $dinvoice->IsHidden = $request->input('hidden')[$index] == 1 ? 1 : 0;
                 $dinvoice->save();

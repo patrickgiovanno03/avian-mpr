@@ -109,8 +109,8 @@
     </div>
 </div>
 <!-- Modal Form Gaji -->
-<div class="modal fade" id="modalGaji" data-backdrop="static" data-keyboard="false" aria-labelledby="modalGajiLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+<div class="modal fade modal-draggable" id="modalGaji" data-backdrop="false" data-keyboard="false" aria-labelledby="modalGajiLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <form id="formItem" class="modal-content" method="post" action="{{ route('gaji.storeDetail', $gaji->GajiID ?? 0) }}" autocomplete="off">
             <div class="modal-header bg-warning">
                 <h5 class="modal-title" id="addModalLabel">Form Gaji - {{ $gaji->NamaKaryawan ?? 'Karyawan' }}</h5>
@@ -151,6 +151,7 @@
                       <thead class="table-light">
                       <tr>
                           <th>Hari</th>
+                          <th>Tanggal</th>
                           <th>Gaji Pokok</th>
                           <th>Jam Lembur</th>
                           <th>Gaji Lembur Total</th>
@@ -202,8 +203,12 @@
         object-fit: cover;
         border-radius: 10px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
+    }
+    
+    body.modal-open {
+        overflow: auto !important;     /* supaya halaman bisa scroll */
+        padding-right: 0 !important;
+    }
 </style>
 @endsection
 
@@ -281,17 +286,23 @@ function hitungTotal() {
     inputTotal.value = (total + bonus + makan).toFixed(1);
 }
 document.addEventListener('DOMContentLoaded', function () {
-
-
     // Generate tabel otomatis saat jumlah hari berubah
     inputJumlahHari.addEventListener('input', function() {
         const jml = parseInt(this.value) || 0;
         tabelBody.innerHTML = '';
         if (jml > 0) {
             for (let i = 1; i <= jml; i++) {
+
+                // Hitung tanggal dengan JS
+                const date = new Date("{{ \Carbon\Carbon::parse($mgaji->Tanggal)->format('Y-m-d') }}");
+                date.setDate(date.getDate() - (8 - (i <= 2 ? i : (i+1)))); // ← ini 8 - i
+
+                const formatted = date.toLocaleDateString('id-ID'); // format dd/mm/yyyy
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>Hari ${i}</td>
+                    <td>${i}</td>
+                    <td><input type="text" name="tanggal[]" class="form-control tanggal datepicker" value="${formatted}"></td>
                     <td><input type="number" step="any" name="pokok[]" class="form-control text-end pokok" value="${inputGajiPokok.value || 0}"></td>
                     <td><input type="number" step="any" name="jam[]" class="form-control text-end jam" value="0" min="0" placeholder="Jam lembur"></td>
                     <td><input type="number" step="any" name="lembur[]" class="form-control text-end lembur" value="0" readonly></td>
@@ -300,6 +311,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 tabelBody.appendChild(row);
             }
         }
+
+        // Inisialisasi datepicker untuk input tanggal
+        $('.tanggal').datepicker({
+            dateFormat: 'dd/mm/yy',
+        });
         hitungTotal();
     });
 
@@ -386,7 +402,8 @@ $('.btn-isi-data').on('click', function() {
         // generate tabel
         dataGaji.dgaji.forEach(function(item, index) {
             var row = `<tr>
-                <td>Hari ${index + 1}</td>
+                <td>${index + 1}</td>
+                <td><input type="text" name="tanggal[]" class="form-control tanggal datepicker" value="${(item.Tanggal.split('-').reverse().join('/')) || ''}"></td>
                 <td><input type="number" step="any" name="pokok[]" class="form-control text-end pokok" value="${item.Pokok}"></td>
                 <td><input type="number" step="any" name="jam[]" class="form-control text-end jam" value="${item.Jam}" min="0" placeholder="Jam lembur"></td>
                 <td><input type="number" step="any" name="lembur[]" class="form-control text-end lembur" value="${item.Lembur.toFixed(2)}" readonly></td>
@@ -394,10 +411,18 @@ $('.btn-isi-data').on('click', function() {
             </tr>`;
             $('#tabelGaji tbody').append(row);
         });
+        $('.tanggal').datepicker({
+            dateFormat: 'dd/mm/yy',
+        });
         hitungTotal();
     }
 });
 
+$('#modalGaji').on('shown.bs.modal', function () {
+    $(this).find('.modal-dialog').draggable({
+        handle: ".modal-header"
+    });
+});
 
 </script>
 @endsection

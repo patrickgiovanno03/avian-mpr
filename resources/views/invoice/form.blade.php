@@ -25,7 +25,7 @@
                             </button>
                             @if($invoice != null)
                             <a target="_blank" href="{{ route('invoice.previewdynamic', $invoice->FormID) }}" type="button" class="btn btn-sm btn-outline-secondary btn-pdf">
-                                <i class="fas fa-file-pdf mr-lg-2"></i><span class="d-none d-lg-inline">PDF</span>
+                                <i class="fas fa-file-pdf mr-lg-2"></i><span class="d-none d-lg-inline">Save & PDF</span>
                             </a>
                             @endif
                             <button type="submit" class="btn btn-sm btn-avian-secondary btn-submit"><i class="fas fa-save mr-2"></i>Save</button>
@@ -314,6 +314,7 @@
                                 <th width="100">Price</th>
                                 <th width="150">Total</th>
                                 <th>Dos Luar / Isi</th>
+                                <th>Dos Gabung</th>
                                 <th>SJ</th>
                                 <th>Action</th>
                             </tr>
@@ -473,37 +474,18 @@ $(document).ready(function () {
     $('.btn-pdf').on('click', function(e) {
         e.preventDefault();
         var href = $(this).attr('href');
-        if (!isChanged) {
-            window.open(href, '_blank');
-        } else {
-            Swal.fire({
-                title: 'Data telah diubah. Apakah Anda ingin menyimpan perubahan sebelum melanjutkan?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Simpan dan buka PDF',
-                cancelButtonText: 'Buka PDF tanpa Menyimpan'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: $('#formInput').attr('action'),
-                        method: $('#formInput').attr('method'),
-                        data: $('#formInput').serialize(),
-                        success: function (response) {
-                            window.open(href, '_blank');
-                            isChanged = false;
-                        },
-                        error: function (xhr) {
-                            Swal.fire('Gagal!', 'Terjadi kesalahan saat menyimpan data.', 'error');
-                        }
-                    });
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    // Lanjutkan tanpa menyimpan
-                    window.open(href, '_blank');
-                }
-            });
-        }
+        $.ajax({
+            url: $('#formInput').attr('action'),
+            method: $('#formInput').attr('method'),
+            data: $('#formInput').serialize(),
+            success: function (response) {
+                window.open(href, '_blank');
+                isChanged = false;
+            },
+            error: function (xhr) {
+                Swal.fire('Gagal!', 'Terjadi kesalahan saat menyimpan data.', 'error');
+            }
+        });
     });
 
     $('#categorycustomer').on('change', function() {
@@ -548,6 +530,13 @@ $(document).ready(function () {
             alias: 'decimal',
             radixPoint: ',',
             groupSeparator: '.',
+        });
+
+        // foreach class numeric, kalau kosong diisi 0
+        $('.numeric').each(function() {
+            if ($(this).val() === '') {
+                $(this).val('0');
+            }
         });
         
         $('.product-select').select2({
@@ -619,6 +608,9 @@ $(document).ready(function () {
                         <input type="text" class="form-control isi-input" name="isi[]" placeholder="Isi">
                     </div>
                 </td>
+                <td data-label="Dos Gabung">
+                    <input type="text" class="form-control numeric dos-gabung-input" name="dosgabung[]" />
+                </td>
                 <td data-label="SJ">
                     <input type="checkbox" class="form-control sj-checkbox" name="sj[]" />
                 </td>
@@ -637,8 +629,11 @@ $(document).ready(function () {
                         <input type="text" class="form-control isi-input" name="isi[]" placeholder="Isi">
                     </div>
                 </td>
+                <td class="d-none">
+                    <input type="text" class="form-control numeric dos-gabung-input" name="dosgabung[]" />
+                </td>
                 <td class="d-none"><input type="checkbox" class="form-control sj-checkbox" name="sj[]" /></td>
-                <td colspan="4" class="text-center pt-3 text-secondary">-- SJ Item --</td>
+                <td colspan="5" class="text-center pt-3 text-secondary">-- SJ Item --</td>
                 <td data-label="Aksi">
                     <input type="hidden" name="hidden[]" value="0" />
                     <button type="button" class="btn btn-sm btn-warning btn-hide-product">
@@ -850,10 +845,6 @@ $(document).ready(function () {
         $('#sjdate').val($(this).val());
     });
 
-    $(document).on('focus', '.select2-selection--single', function (e) {
-        $(this).closest('.select2-container').prev('select').select2('open');
-    });
-
     $(document).on('select2:select', '.product-select', function (e) {
         if (isLocked) {
             return;
@@ -887,7 +878,7 @@ $(document).ready(function () {
         document.querySelector('.select2-search__field').focus();
     });
 
-    $(document).on('change', '.dos-luar-input', function (e) {
+    $(document).on('keyup', '.dos-luar-input', function (e) {
         var row = $(this).closest('.card-body, tr');
         qty = parseFloat(row.find('.quantity-input').inputmask('unmaskedvalue')) || 0;
         dosLuar = parseFloat(row.find('.dos-luar-input').inputmask('unmaskedvalue')) || 1;
@@ -895,7 +886,7 @@ $(document).ready(function () {
         row.find('.isi-input').val(isi);
     });
 
-    $(document).on('change', '.price-input, .quantity-input', function (e) {
+    $(document).on('keyup', '.price-input, .quantity-input', function (e) {
         var $row = $(this).closest('.card-body, tr');
         var quantity = parseFloat($row.find('.quantity-input').inputmask('unmaskedvalue')) || 0;
         var price = parseFloat($row.find('.price-input').inputmask('unmaskedvalue')) || 0;
@@ -1013,6 +1004,7 @@ $(document).ready(function () {
             $lastRow.find('input[name="total[]"]').val('{{ number_format($detail->Harga * $detail->Qty, 0, ",", ".") }}');
             $lastRow.find('.dos-luar-input').val('{{ $detail->DosLuar == 1 ? 1 : $detail->DosLuar }}');
             $lastRow.find('.isi-input').val('{{ $detail->DosLuar == 1 ? $detail->Qty : $detail->Isi }}');
+            $lastRow.find('.dos-gabung-input').val('{{ $detail->DosGabung }}');
             $lastRow.find('input[name="detailid[]"]').val('{{ $detail->DetailID }}');
             $lastRow.find('input[name="type[]"]').val('update');
             @if($detail->IsSJ ?? 0 == 1)

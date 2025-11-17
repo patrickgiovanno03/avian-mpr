@@ -105,20 +105,34 @@
             @else
                 @php
                     $totalQty = [];
+                    $totalDosGabung = [];
                 @endphp
                 @foreach($invoice->details ?? [] as $detail)
-                @if($detail->IsHidden ?? 0 == 1)
-                @continue
-                @endif
+                    @if($detail->IsHidden ?? 0 == 1)
+                        @continue
+                    @endif
                 @php
                     if ($detail->IsSJ ?? 0 == 1) {
                         $totalQty['' . $detail->SatuanSJ] = ($totalQty['' . $detail->SatuanSJ] ?? 0) + $detail->QtySJ;
                     } else {
-                        $unit = ($detail->DosLuar == 0) ? $detail->Satuan : "dos";
-                        $qty = ($detail->DosLuar == 0) ? $detail->Qty : $detail->DosLuar;
-                        $totalQty['' . $unit] = ($totalQty['' . $unit] ?? 0) + $qty;
+                        if ($detail->DosGabung != null && $detail->DosGabung != 0) {
+                            if (($totalDosGabung[$detail->DosGabung] ?? null) == null) {
+                                $totalDosGabung[$detail->DosGabung] = [];
+                                $totalQty['dos'] = ($totalQty['dos'] ?? 0) + 1;
+                            }
+                            $desc = ['Nama' => $detail->Nama, 'Qty' => $detail->Qty, 'Satuan' => $detail->Satuan];
+                            array_push($totalDosGabung[$detail->DosGabung], $desc);
+                        } else {
+                            $unit = ($detail->DosLuar == 0) ? $detail->Satuan : "dos";
+                            $qty = ($detail->DosLuar == 0) ? $detail->Qty : $detail->DosLuar;
+                            $totalQty['' . $unit] = ($totalQty['' . $unit] ?? 0) + $qty;
+                        }
                     }
                 @endphp
+                {{-- Kalau digabung dos luar, maka tidak di print --}}
+                @if ($detail->DosGabung != null && $detail->DosGabung != 0)
+                    @continue
+                @endif
                 <tr>
                     @if ($detail->IsSJ ?? 0 == 1)
                         <td align="center">{{ $detail->QtySJ }}</td>
@@ -130,6 +144,22 @@
                         <td>{{ $detail->Nama . (($detail->DosLuar == 0) ? "" : " (isi {$detail->Isi} {$detail->Satuan})") }}</td>
                     @endif
                 </tr>
+                @endforeach
+                @foreach($totalDosGabung as $dosGabung => $items)
+                    <tr>
+                        <td rowspan="{{ count($items) + 1 }}" align="center">1</td>
+                        <td rowspan="{{ count($items) + 1 }}" align="center">dos</td>
+                        <td>
+                            isi :
+                        </td>
+                    </tr>
+                    @foreach($items as $item)
+                    <tr>
+                        <td>
+                            - {{ $item['Qty'] }} {{ $item['Satuan'] }} {{ $item['Nama'] }}
+                        </td>
+                    </tr>
+                    @endforeach
                 @endforeach
                 @for($i = count($invoice->details ?? []); $i < (($large ?? false) ? 21 : 13); $i++)
                 <tr>

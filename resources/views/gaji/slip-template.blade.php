@@ -218,6 +218,7 @@
         <thead>
           <tr>
             <th>Hari Ke</th>
+            <th>Tanggal</th>
             <th>Gaji Pokok (Rp)</th>
             <th>Jam Lembur</th>
             <th>Gaji Lembur Total (Rp)</th>
@@ -236,6 +237,7 @@
             @endphp
             <tr>
               <td>{{ $index + 1 }}</td>
+              <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $gaji->Tanggal)->format('d/m/Y') }}</td>
               <td>{{ number_format($gaji->Pokok*1000, 0, ',', '.') }}</td>
               <td>{{ $gaji->Jam }}</td>
               <td>{{ number_format($gaji->Lembur*1000, 0, ',', '.') }}</td>
@@ -245,7 +247,7 @@
         </tbody>
         <tfoot>
             <tr>
-              <td>Total</td>
+              <td colspan="2">Total</td>
               <td>{{ number_format($totalPokok*1000, 0, ',', '.') }}</td>
               <td>{{ $totalJamLembur }}</td>
               <td>{{ number_format($totalLembur*1000, 0, ',', '.') }}</td>

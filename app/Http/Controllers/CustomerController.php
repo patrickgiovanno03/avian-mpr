@@ -39,6 +39,23 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         //
+        $customer = new MCustomer();
+        $customer->Nama = $request->nama;
+        $customer->Alamat = $request->alamat;
+        $customer->Telp = $request->telp;
+        $customer->JatuhTempo = $request->JatuhTempo;
+        $customer->JatuhTempoSatuan = $request->JatuhTempoSatuan;
+        $customer->PriceCategory = $request->pricecategory;
+        $customer->IsEkspedisi = $request->isEkspedisi ? 1 : 0;
+        $customer->IsKonsinyasi = $request->isKonsinyasi ? 1 : 0;
+        $customer->save();
+
+        return redirect()
+            ->route('customer.index')
+            ->with('result', (object)[
+                'type' => 'success',
+                'message' => 'Customer created successfully.',
+            ]);
     }
 
     /**
@@ -73,6 +90,23 @@ class CustomerController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $customer = MCustomer::findOrFail($id);
+        $customer->Nama = $request->nama;
+        $customer->Alamat = $request->alamat;
+        $customer->Telp = $request->telp;
+        $customer->JatuhTempo = $request->JatuhTempo;
+        $customer->JatuhTempoSatuan = $request->JatuhTempoSatuan;
+        $customer->PriceCategory = $request->pricecategory;
+        $customer->IsEkspedisi = $request->isEkspedisi ? 1 : 0;
+        $customer->IsKonsinyasi = $request->isKonsinyasi ? 1 : 0;
+        $customer->save();
+
+        return redirect()
+            ->route('customer.index')
+            ->with('result', (object)[
+                'type' => 'success',
+                'message' => 'Customer updated successfully.',
+            ]);
     }
 
     /**

@@ -183,6 +183,7 @@ class GajiController extends Controller
             $dgaji->Pokok = $pokok;
             $dgaji->Jam = $request->input('jam')[$index];
             $dgaji->Lembur = $request->input('lembur')[$index];
+            $dgaji->Tanggal = $request->input('tanggal')[$index] != null ? (Carbon::createFromFormat('d/m/Y', $request->input('tanggal')[$index])->format('Y-m-d') ?? null) : null;
             $dgaji->save();
         }
 

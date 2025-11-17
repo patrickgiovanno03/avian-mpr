@@ -143,6 +143,16 @@
             $(document).on('select2:open', () => {
                 document.querySelector('.select2-search__field').focus();
             });
+
+            $(document).on('focus', '.select2-selection--single', function (e) { // untuk buka pilihan saat dipilih
+                $(this).closest('.select2-container').prev('select').select2('open');
+            });
+
+            $(document).on('focus', 'input', function (e) { // untuk select kalo valuenya 0
+                if ($(this).val() === '0' || $(this).val() === '' || $(this).val() === '0,00') {
+                    $(this).select();
+                }
+            });
         });
     </script>
     @yield('js')
