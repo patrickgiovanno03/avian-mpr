@@ -558,10 +558,11 @@ $(document).ready(function () {
         var val = $(this).val().trim();
         var type = $(this).data('type'); // 'invoice' atau 'sj'
         var $row = $(this).closest('.card-body, tr');
-        getFormDetails(val, type, function(form) {
+        getFormDetails(val, type, function(form, total) {
             if (form) {
                 if (type === 'invoice') {
                     $row.find('input[name="sjno[]"]').val(form.SJNo);
+                    $row.find('input[name="jumlah[]"]').val(parseFloat(total).toLocaleString('id-ID'));
                 } else if (type === 'sj') {
                     // $row.find('input[name="invoiceno[]"]').val(form.InvoiceNo);
                 }
@@ -587,7 +588,7 @@ $(document).ready(function () {
             data: { search: val, type: type }, 
             success: function(response) { 
                 if (response.status === 'success') { 
-                    callback(response.form); 
+                    callback(response.form, response.total);
                 } else { 
                     callback(null); 
                 } 

@@ -299,7 +299,7 @@ class TandaTerimaController extends Controller
         }
 
         if ($form) {
-            return response()->json(['status' => 'success', 'form' => $form]);
+            return response()->json(['status' => 'success', 'form' => $form, 'total' => $form->details()->sum(\DB::raw('Harga * Qty'))]);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Form not found']);
         }
