@@ -67,7 +67,7 @@
                 <tr>
                     <td align="center">{{ $request->no[$index]."/".$invoiceno."/".$request->sjno[$index] }}</td>
                     <td align="center">{{ $request->date[$index] != null ? \Carbon\Carbon::createFromFormat('d/m/Y', $request->date[$index])->format('d/m/Y') : '' }}</td>
-                    <td align="center">{{ number_format($request->jumlah[$index], 0, ',', '.') }}</td>
+                    <td align="center">{{ $request->jumlah[$index] ?? 0 }}</td>
                 </tr>
                 @endforeach
                 @for($i = count($request->invoiceno ?? []); $i < (($large ?? false) ? 21 : 13); $i++)
