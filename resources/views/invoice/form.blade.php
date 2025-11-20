@@ -102,7 +102,7 @@
                         <div class="form-group row">
                             <label for="invoicedate" class="form-label col-md-3">Tanggal Invoice</label>
                             <div class="col-md-9">
-                                <input type="text" class="form-control datepicker" id="invoicedate" name="invoicedate"
+                                <input style="background-color: #E7F1DC" type="text" class="form-control datepicker" id="invoicedate" name="invoicedate"
                                     value="{{ $invoice != null ? Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y') : Carbon\Carbon::now()->format('d/m/Y') }}">
                             </div>
                         </div>
@@ -120,23 +120,11 @@
                                     value="{{ $invoice->Kode ?? '' }}">
                             </div>
                         </div>
-                        <div class="form-group row">
-                            <label for="Notes" class="form-label col-md-3">Notes</label>
-                            <div class="col-md-9">
-                                <textarea rows="3" class="form-control" id="Notes" name="Notes">{{ $invoice->Notes ?? '' }}</textarea>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="NotesSJ" class="form-label col-md-3">Notes SJ</label>
-                            <div class="col-md-9">
-                                <textarea rows="3" class="form-control" id="NotesSJ" name="NotesSJ">{{ $invoice->NotesSJ ?? '' }}</textarea>
-                            </div>
-                        </div>
                         <hr>
                         <div class="form-group row">
                             <label for="namacustomer" class="form-label col-md-3">Nama Customer</label>
                             <div class="col-md-9">
-                                <select class="form-control select2-tags" id="namacustomer" name="namacustomer">
+                                <select style="background-color: #ffcccc" class="form-control select2-tags" id="namacustomer" name="namacustomer">
                                     <option value="">Pilih Customer</option>
                                     @foreach($customers as $customer)
                                         <option value="{{ $customer }}" {{ (isset($invoice) && $invoice->NamaCustomer == $customer) ? 'selected' : '' }}>
@@ -171,158 +159,189 @@
                             </div>
                         </div>
                         <hr>
-                        <div class="form-group row">
-							<label for="" class="col-sm-3 col-form-label">Options</label>
-							<div class="col-sm-9 d-flex flex-row flex-wrap align-items-center">
-								<div class="form-check pr-4">
-									<input class="form-check-input form-type-checkbox" type="checkbox" name="IsKonsinyasi" id="IsKonsinyasi" value="IsKonsinyasi" {{ $invoice != null ? ((($invoice->IsKonsinyasi ?? 0) == 0) ? "" : "checked") : "" }}>
-									<label class="form-check-label" for="IsKonsinyasi">
-										Konsinyasi
-									</label>
-								</div>
-								<div class="form-check pr-4">
-									<input class="form-check-input form-type-checkbox" type="checkbox" name="IsEkspedisi" id="IsEkspedisi" value="IsEkspedisi" {{ $invoice != null ? ((($invoice->IsEkspedisi ?? 0) == 0) ? "" : "checked") : "" }}>
-									<label class="form-check-label" for="IsEkspedisi">
-										Ekspedisi
-									</label>
-								</div>
-								<div class="form-check pr-4">
-									<input class="form-check-input form-type-checkbox" type="checkbox" name="IsKopSurat" id="IsKopSurat" value="IsKopSurat" {{ $invoice != null ? ((($invoice->IsKopSurat ?? 0) == 0) ? "" : "checked") : "checked" }}>
-									<label class="form-check-label" for="IsKopSurat">
-										Kop Surat (SJ)
-									</label>
-								</div>
-								<div class="form-check pr-4">
-									<input class="form-check-input form-type-checkbox" type="checkbox" name="IsSJCustomer" id="IsSJCustomer" value="IsSJCustomer" {{ $invoice != null ? ((($invoice->IsSJCustomer ?? 0) == 0) ? "" : "checked") : "checked" }}>
-									<label class="form-check-label" for="IsSJCustomer">
-										SJ Customer
-									</label>
-								</div>
-								<div class="form-check pr-4">
-									<input class="form-check-input form-type-checkbox" type="checkbox" name="IsLarge" id="IsLarge" value="IsLarge" {{ $invoice != null ? ((($invoice->IsLarge ?? 0) == 0) ? "" : "checked") : "" }}>
-									<label class="form-check-label" for="IsLarge">
-										Uk. Besar
-									</label>
-								</div>
-								<div class="form-check pr-4">
-									<input class="form-check-input form-type-checkbox" type="checkbox" name="IsDiscount" id="IsDiscount" value="IsDiscount" {{ $invoice != null ? ((($invoice->IsDiscount ?? 0) == 0) ? "" : "checked") : "" }}>
-									<label class="form-check-label" for="IsDiscount">
-										Discount
-									</label>
-								</div>
-							</div>
-						</div>
-                        <div class="form-group row">
-                            <label for="kode" class="form-label col-md-3">Jatuh Tempo</label>
-                            <div class="col-md-9">
-                                <div class="input-group">
-                                    <input type="text" class="numeric form-control" id="JatuhTempo" name="JatuhTempo"
-                                        value="{{ $invoice != null ? ($invoice->JatuhTempo ?? '0') : '0' }}">                                
-                                        <div class="input-group-append">
-                                        <span class="input-group-text p-0 border-0">
-                                            <div style="min-width: 100px;">
-                                                <select name="JatuhTempoSatuan" id="JatuhTempoSatuan" class="form-control select2" required>
-                                                    <option {{ ($invoice != null ? ($invoice->JatuhTempoSatuan == "1") ? 'selected' : '' : '') }} value="1">Hari</option>
-                                                    <option {{ ($invoice != null ? ($invoice->JatuhTempoSatuan == "2") ? 'selected' : '' : '') }} value="2">Minggu</option>
-                                                    <option {{ ($invoice != null ? ($invoice->JatuhTempoSatuan == "3") ? 'selected' : '' : '') }} value="3">Bulan</option>
-                                                </select>
-                                            </div>
-                                        </span>
-                                    </div>
-                                </div>
+                        <div class="panel-group">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="text-dark text-bold" data-toggle="collapse" href="#collapse1">Options</a>
+                            </h4>
                             </div>
-                        </div>
-                        <div class="ekspedisi-container {{ $invoice != null ? (($invoice->IsEkspedisi ?? 0) == 0 ? "d-none" : "") : "d-none" }}">
-                            <div class="form-group row">
-                                <label for="NamaEkspedisi" class="form-label col-md-3">Nama Ekspedisi</label>
-                                <div class="col-md-9">
-                                    <select class="form-control select2-tags" id="NamaEkspedisi" name="NamaEkspedisi">
-                                        <option value="">Pilih Ekspedisi</option>
-                                        @foreach($ekspedisi as $expedisi)
-                                            <option value="{{ $expedisi }}" {{ (isset($invoice) && $invoice->NamaEkspedisi == $expedisi) ? 'selected' : '' }}>
-                                                {{ $expedisi }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="AlamatEkspedisi" class="form-label col-md-3">Alamat Ekspedisi</label>
-                                <div class="col-md-9">
-                                    <textarea class="form-control" id="AlamatEkspedisi" name="AlamatEkspedisi">{{ $invoice->AlamatEkspedisi ?? '' }}</textarea>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="TelpEkspedisi" class="form-label col-md-3">Telp Ekspedisi</label>
-                                <div class="col-md-9">
-                                    <input type="text" class="form-control" id="TelpEkspedisi" name="TelpEkspedisi"
-                                        value="{{ $invoice->TelpEkspedisi ?? '' }}">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="ttd-container {{ $invoice != null ? (($invoice->IsKopSurat ?? 0) == 0 ? "d-none" : "") : "d-none" }}">
-                            <div class="form-group row">
-                                <label for="TTD" class="form-label col-md-3">TTD Customer</label>
-                                <div class="col-md-9">
-                                    <input type="text" class="form-control" id="TTD" name="TTD"
-                                        value="{{ $invoice->TTD ?? '' }}">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="discount-container {{ $invoice != null ? (($invoice->IsDiscount ?? 0) == 0 ? "d-none" : "") : "" }}">
-                            <div class="form-group row">
-                                <label for="Discount" class="form-label col-md-3">Discount</label>
-                                <div class="col-md-9">
-                                    <div class="input-group mb-3">
-                                        <input type="text" class="form-control numeric" id="Discount" name="Discount"
-                                        value="{{ $invoice->Discount ?? '' }}">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text">%</span>
+                            <div id="collapse1" class="panel-collapse collapse">
+                            <ul class="list-group">
+                                <li class="list-group-item border-0">
+                                <div class="form-group row">
+                                    <div class="col-sm-9 d-flex flex-row flex-wrap align-items-center">
+                                        <div class="form-check pr-4">
+                                            <input class="form-check-input form-type-checkbox" type="checkbox" name="IsKonsinyasi" id="IsKonsinyasi" value="IsKonsinyasi" {{ $invoice != null ? ((($invoice->IsKonsinyasi ?? 0) == 0) ? "" : "checked") : "" }}>
+                                            <label class="form-check-label" for="IsKonsinyasi">
+                                                Konsinyasi
+                                            </label>
+                                        </div>
+                                        <div class="form-check pr-4">
+                                            <input class="form-check-input form-type-checkbox" type="checkbox" name="IsEkspedisi" id="IsEkspedisi" value="IsEkspedisi" {{ $invoice != null ? ((($invoice->IsEkspedisi ?? 0) == 0) ? "" : "checked") : "" }}>
+                                            <label class="form-check-label" for="IsEkspedisi">
+                                                Ekspedisi
+                                            </label>
+                                        </div>
+                                        <div class="form-check pr-4">
+                                            <input class="form-check-input form-type-checkbox" type="checkbox" name="IsKopSurat" id="IsKopSurat" value="IsKopSurat" {{ $invoice != null ? ((($invoice->IsKopSurat ?? 0) == 0) ? "" : "checked") : "checked" }}>
+                                            <label class="form-check-label" for="IsKopSurat">
+                                                Kop Surat (SJ)
+                                            </label>
+                                        </div>
+                                        <div class="form-check pr-4">
+                                            <input class="form-check-input form-type-checkbox" type="checkbox" name="IsSJCustomer" id="IsSJCustomer" value="IsSJCustomer" {{ $invoice != null ? ((($invoice->IsSJCustomer ?? 0) == 0) ? "" : "checked") : "checked" }}>
+                                            <label class="form-check-label" for="IsSJCustomer">
+                                                SJ Customer
+                                            </label>
+                                        </div>
+                                        <div class="form-check pr-4">
+                                            <input class="form-check-input form-type-checkbox" type="checkbox" name="IsLarge" id="IsLarge" value="IsLarge" {{ $invoice != null ? ((($invoice->IsLarge ?? 0) == 0) ? "" : "checked") : "" }}>
+                                            <label class="form-check-label" for="IsLarge">
+                                                Uk. Besar
+                                            </label>
+                                        </div>
+                                        <div class="form-check pr-4">
+                                            <input class="form-check-input form-type-checkbox" type="checkbox" name="IsDiscount" id="IsDiscount" value="IsDiscount" {{ $invoice != null ? ((($invoice->IsDiscount ?? 0) == 0) ? "" : "checked") : "" }}>
+                                            <label class="form-check-label" for="IsDiscount">
+                                                Discount
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                                <div class="form-group row">
+                                    <label for="kode" class="form-label col-md-3">Jatuh Tempo</label>
+                                    <div class="col-md-9">
+                                        <div class="input-group">
+                                            <input type="text" class="numeric form-control" id="JatuhTempo" name="JatuhTempo"
+                                                value="{{ $invoice != null ? ($invoice->JatuhTempo ?? '0') : '0' }}">                                
+                                                <div class="input-group-append">
+                                                <span class="input-group-text p-0 border-0">
+                                                    <div style="min-width: 100px;">
+                                                        <select name="JatuhTempoSatuan" id="JatuhTempoSatuan" class="form-control select2" required>
+                                                            <option {{ ($invoice != null ? ($invoice->JatuhTempoSatuan == "1") ? 'selected' : '' : '') }} value="1">Hari</option>
+                                                            <option {{ ($invoice != null ? ($invoice->JatuhTempoSatuan == "2") ? 'selected' : '' : '') }} value="2">Minggu</option>
+                                                            <option {{ ($invoice != null ? ($invoice->JatuhTempoSatuan == "3") ? 'selected' : '' : '') }} value="3">Bulan</option>
+                                                        </select>
+                                                    </div>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="ekspedisi-container {{ $invoice != null ? (($invoice->IsEkspedisi ?? 0) == 0 ? "d-none" : "") : "d-none" }}">
+                                    <div class="form-group row">
+                                        <label for="NamaEkspedisi" class="form-label col-md-3">Nama Ekspedisi</label>
+                                        <div class="col-md-9">
+                                            <select class="form-control select2-tags" id="NamaEkspedisi" name="NamaEkspedisi">
+                                                <option value="">Pilih Ekspedisi</option>
+                                                @foreach($ekspedisi as $expedisi)
+                                                    <option value="{{ $expedisi }}" {{ (isset($invoice) && $invoice->NamaEkspedisi == $expedisi) ? 'selected' : '' }}>
+                                                        {{ $expedisi }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="AlamatEkspedisi" class="form-label col-md-3">Alamat Ekspedisi</label>
+                                        <div class="col-md-9">
+                                            <textarea class="form-control" id="AlamatEkspedisi" name="AlamatEkspedisi">{{ $invoice->AlamatEkspedisi ?? '' }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="TelpEkspedisi" class="form-label col-md-3">Telp Ekspedisi</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" id="TelpEkspedisi" name="TelpEkspedisi"
+                                                value="{{ $invoice->TelpEkspedisi ?? '' }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="ttd-container {{ $invoice != null ? (($invoice->IsKopSurat ?? 0) == 0 ? "d-none" : "") : "d-none" }}">
+                                    <div class="form-group row">
+                                        <label for="TTD" class="form-label col-md-3">TTD Customer</label>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control" id="TTD" name="TTD"
+                                                value="{{ $invoice->TTD ?? '' }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="discount-container {{ $invoice != null ? (($invoice->IsDiscount ?? 0) == 0 ? "d-none" : "") : "d-none" }}">
+                                    <div class="form-group row">
+                                        <label for="Discount" class="form-label col-md-3">Discount</label>
+                                        <div class="col-md-9">
+                                            <div class="input-group mb-3">
+                                                <input type="text" class="form-control numeric" id="Discount" name="Discount"
+                                                value="{{ $invoice->Discount ?? '' }}">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="Notes" class="form-label col-md-3">Notes</label>
+                                    <div class="col-md-9">
+                                        <textarea rows="3" class="form-control" id="Notes" name="Notes">{{ $invoice->Notes ?? '' }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="NotesSJ" class="form-label col-md-3">Notes SJ</label>
+                                    <div class="col-md-9">
+                                        <textarea rows="3" class="form-control" id="NotesSJ" name="NotesSJ">{{ $invoice->NotesSJ ?? '' }}</textarea>
+                                    </div>
+                                </div>
+                                </li>
+                            </ul>
+                        </div>
                         </div>
                     </div>
                 </div>
             </div>
+            </div>
 
             {{-- ITEM LIST --}}
+            <button class="btn btn-avian-secondary d-md-none fab-add-text" type="button" id="btnAddByTextMobile" onclick="$('#btnAddByText').click();">
+                <i class="fas fa-font"></i>
+            </button>
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex flex-row justify-content-between">
                         <div>Product List</div>
                         <div class="btn-group">
-                            <button class="btn btn-avian-secondary" type="button" id="btnAddByText"><i class="fas fa-font mr-lg-2"></i><span class="d-none d-lg-inline">Add by Text</span></button>
+                            <button class="btn btn-clear btn-danger"><i class="fas fa-trash mr-lg-2"></i><span class="d-none d-lg-inline">Clear</span></button>
                             <button class="btn btn-lock btn-outline-secondary"><i class="fas fa-lock mr-lg-2"></i><span class="d-none d-lg-inline">Lock</span></button>
                             <button class="btn btn-sm btn-outline-secondary" id="btnAddDetailMultiple" type="button">
                                 <i class="fas fa-plus mr-lg-2"></i><span class="d-none d-lg-inline">Add Multiple</span>
                             </button>
-                            <button class="btn btn-avian-primary" type="button" id="btnAddDetail"><i class="fas fa-plus mr-2"></i>Add Item</button>
+                            <button class="btn btn-avian-primary" type="button" id="btnAddDetail"><i class="fas fa-plus mr-2"></i>Add<span class="d-none d-lg-inline"> Item</span></button>
+                            <button class="btn btn-avian-secondary" type="button" id="btnAddByText"><i class="fas fa-font mr-lg-2"></i><span class="d-none d-lg-inline">Add by Text</span></button>
                         </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                        <table class="dataTable table table-striped table-hover table-bordered w-100 responsive-table" id="product-list-table">
-                            <thead>
-                            <tr>
-                                <th width="600">Product</th>
-                                <th>Quantity</th>
-                                <th>Unit</th>
-                                <th width="100">Price</th>
-                                <th width="150">Total</th>
-                                <th>Dos Luar / Isi</th>
-                                <th>Dos Gabung</th>
-                                <th>SJ</th>
-                                <th>Action</th>
-                            </tr>
-                            </thead>
-                            <tbody id="product-list-body"></tbody>
-                        </table>
-                        </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="dataTable table table-striped table-hover table-bordered w-100 responsive-table" id="product-list-table">
+                        <thead>
+                        <tr>
+                            <th width="500">Inv No.</th>
+                            <th>Quantity</th>
+                            <th>Unit</th>
+                            <th width="100">Price</th>
+                            <th width="150">Total</th>
+                            <th>Dos Luar / Isi</th>
+                            <th>Dos Gabung</th>
+                            <th>SJ</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody id="product-list-body"></tbody>
+                    </table>
                     </div>
+                </div>
+                <div class="card-footer">
+                    <h5 class="text-right">Total: <span id="grand-total">0</span></h5>
                 </div>
             </div>
         </form>
@@ -380,9 +399,28 @@
   .responsive-table td[data-label="Dos / Isi"] .input-group input {
     width: 100%; /* isi penuh */
   }
+  .responsive-table .invoice-item-row:nth-child(odd) {
+    background: #fff3f1 !important;
+  }
+
+  .responsive-table .invoice-item-row:nth-child(even) {
+    background: #ffffe6 !important;
+  }
 
 }
-
+.fab-add-text {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 </style>
 @endsection
 
@@ -399,6 +437,9 @@ var isLocked = false;
 
 $(document).ready(function () {
     $('.select2').css('width', '100%');
+    $('#namacustomer').next('.select2-container')
+    .find('.select2-selection')
+    .css('background-color', '#E7F1DC');
 
     // hide pdf kalo hp
     if (window.innerWidth <= 768) {
@@ -574,7 +615,7 @@ $(document).ready(function () {
     function getProductRow(isSJ = false) {
         
         var row = `
-            <tr>
+            <tr class="${isSJ ? 'sj-item-row' : 'invoice-item-row'}">
                 <input type="hidden" name="type[]" value="create" />
                 <input type="hidden" name="detailid[]" />
                 <input type="hidden" name="issj[]" />
@@ -656,7 +697,9 @@ $(document).ready(function () {
         'form-control[name="isi[]"]',
         'form-control[name="sj[]"]',
         'btn-remove-product',
-        'btn-hide-product'];
+        'btn-hide-product',
+        'form-control[name="dosgabung[]"]'
+    ];
 
         let tabIndex = 1;
 
@@ -671,12 +714,12 @@ $(document).ready(function () {
     $('#btnAddDetail').on('click', function() {
         addProduct();
     });
-
+    
     $('#btnAddByText').on('click', async function() {
         const result = await Swal.fire({
             title: 'Add Products by Text',
             input: 'textarea',
-            inputLabel: 'Masukkan daftar produk (satu produk & qty per baris)',
+            inputLabel: 'Masukkan daftar produk',
             inputPlaceholder: 'Contoh:\nProductA 2\nProductB 3\nProductC 1',
             inputAttributes: {
                 'aria-label': 'Masukkan daftar produk di sini'
@@ -755,6 +798,9 @@ $(document).ready(function () {
         });
 
         reorderTabIndex();
+
+        // move to bottom
+        window.scrollTo(0, document.body.scrollHeight);
     });
 
     $('#btnAddDetailMultiple').on('click', function(e) {
@@ -874,11 +920,7 @@ $(document).ready(function () {
         });
     }
 
-    $(document).on('select2:open', function () {
-        document.querySelector('.select2-search__field').focus();
-    });
-
-    $(document).on('keyup', '.dos-luar-input', function (e) {
+    $(document).on('keyup change', '.dos-luar-input', function (e) {
         var row = $(this).closest('.card-body, tr');
         qty = parseFloat(row.find('.quantity-input').inputmask('unmaskedvalue')) || 0;
         dosLuar = parseFloat(row.find('.dos-luar-input').inputmask('unmaskedvalue')) || 1;
@@ -886,13 +928,29 @@ $(document).ready(function () {
         row.find('.isi-input').val(isi);
     });
 
-    $(document).on('keyup', '.price-input, .quantity-input', function (e) {
+    $(document).on('keyup change', '.price-input, .quantity-input', function (e) {
         var $row = $(this).closest('.card-body, tr');
         var quantity = parseFloat($row.find('.quantity-input').inputmask('unmaskedvalue')) || 0;
         var price = parseFloat($row.find('.price-input').inputmask('unmaskedvalue')) || 0;
         var total = quantity * price;
         $row.find('input[name="total[]"]').val(total);
+
+        // hitung grand total
+        $('#grand-total').text(getGrandTotal().toLocaleString('id-ID'));
     });
+
+    function getGrandTotal() {
+        var grandTotal = 0;
+        $('#product-list-body tr').each(function() {
+            var type = $(this).find('input[name="type[]"]').val();
+            var isHidden = $(this).find('input[name="hidden[]"]').val() == '1';
+            if (type !== 'delete' && !isHidden) {
+                var lineTotal = parseFloat($(this).find('input[name="total[]"]').inputmask('unmaskedvalue')) || 0;
+                grandTotal += lineTotal;
+            }
+        });
+        return grandTotal;
+    }
 
     $(document).on('change', '.sj-checkbox', function (e) {
         // tambahkan row baru dibawah row ini
@@ -1020,12 +1078,12 @@ $(document).ready(function () {
                 $lastRow.next('tr').find('.btn-hide-product').removeClass('btn-warning').addClass('btn-secondary');
             @endif
         @endforeach
+        $('#grand-total').text(getGrandTotal().toLocaleString('id-ID'));
     @else
         // @for($i = 0; $i < 13; $i++)
         //     addProduct();
         // @endfor
     @endif
-    embedPreviewData();
 
     $('.form-type-checkbox').on('change', function() {
         const isInvoiceChecked = $('#IsInvoice').is(':checked');
@@ -1095,6 +1153,15 @@ $(document).ready(function () {
         }
     });
 
+    $('.btn-clear').on('click', function(e) {
+        e.preventDefault();
+        $('#product-list-body').empty();
+        $('#grand-total').text('0');
+        isChanged = true;
+        embedPreviewData();
+    });
+
+    embedPreviewData();
 });
 
 

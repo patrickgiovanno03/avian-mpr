@@ -49,6 +49,50 @@
                     <a href="#" class="nav-link">Example Menu</a>
                 </li> -->
             </ul>
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+                <!-- <li class="nav-item">
+                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                </li> -->
+                @if (auth()->user()->pegawai)
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#">
+                        <i class="far fa-bell"></i>
+                        <span class="badge badge-danger navbar-badge notification-unread-total">0</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="min-width: 35rem;">
+                        <object data="{{ request()->getSchemeAndHttpHost().'/avian-notification/public/list/'.auth()->user()->pegawai->Kode }}" style="width: 100%;height: 75vh;overflow: hidden;"></object>
+                    </div>
+                </li>
+                @endif
+                <li class="nav-item dropdown">
+                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                        <span>{{ auth()->user()->pegawai ? auth()->user()->pegawai->Nama : (auth()->user()->Username ?? auth()->user()->name) }}</span>
+                        <img src="{{ asset('images/default-avatar.png') }}" class="img-circle elevation-1 ml-2" style="width: 26px; height: 26px;">
+                        <span class="caret"></span>
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ route('userguide') }}">
+                            <i class="fas fa-question-circle pr-3"></i>{{ __('Bantuan') }}
+                        </a>
+                        <a class="dropdown-item" href="{{ route('security') }}">
+                            <i class="fas fa-key pr-3"></i>{{ __('Ubah Password') }}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
+                                            document.getElementById('logout-form').submit();">
+                            <i class="fas fa-sign-out-alt pr-3"></i>{{ __('Logout') }}
+                        </a>
+
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            @csrf
+                        </form>
+                    </div>
+                </li>
+            </ul>
         </nav>
         <!-- /.navbar -->
 
@@ -79,7 +123,7 @@
 
         <!-- Main Footer -->
         <footer class="main-footer">
-            <strong>Copyright &copy; {{ date('Y') }} <a href="https://www.avianbrands.com">Avian Brands</a>.</strong> All rights reserved.
+            <strong>Copyright &copy; {{ date('Y') }} <a href="https://www.multiprimarasa.com">Multi Prima Rasa</a>.</strong> All rights reserved.
         </footer>
     </div>
     <script>

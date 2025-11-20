@@ -59,8 +59,8 @@
                     </li>
                 </ul>
             </li>
-            <li class="nav-item has-treeview {{ Route::is('invoice.*') ? 'menu-open' : '' }}">
-                <a href="#" class="nav-link {{ Route::is('invoice.*') ? 'active' : '' }}">
+            <li class="nav-item has-treeview {{ (Route::is('invoice.*') || Route::is('tt.*')) ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ (Route::is('invoice.*') || Route::is('tt.*')) ? 'active' : '' }}">
                     <i class="nav-icon fas fa-file-invoice"></i>
                     <p>
                         Form
@@ -70,12 +70,16 @@
                 <ul class="nav nav-treeview">
                     <li class="nav-item">
                         <a href="{{ route('invoice.index') }}" class="nav-link {{ (Route::is('invoice.*') && !Route::is('invoice.create')) ? 'active' : '' }}">
-                            <i class="fas fa-file-invoice-dollar nav-icon"></i>
+                            <i class="fas fa-file-invoice nav-icon"></i>
                             <p>Invoice</p>
                         </a>
                         <a href="{{ route('invoice.create') }}" class="nav-link {{ Route::is('invoice.create') ? 'active' : '' }}">
                             <i class="fas fa-plus nav-icon"></i>
                             <p>Create Invoice</p>
+                        </a>
+                        <a href="{{ route('tt.index') }}" class="nav-link {{ (Route::is('tt.*')) ? 'active' : '' }}">
+                            <i class="fas fa-file-invoice-dollar nav-icon"></i>
+                            <p>Tanda Terima</p>
                         </a>
                     </li>
                 </ul>

@@ -4,20 +4,14 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
-            <h1 class="p-0">Invoice</h1>
+            <h1 class="p-0">Tanda Terima</h1>
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex flex-row justify-content-between">
-                        <div>List Invoice</div>
+                        <div>List Tanda Terima</div>
                         <div class="btn-group">
                             <button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="collapse" data-target="#filter" aria-expanded="false" aria-controls="filter">
                                 <i class="fas fa-filter mr-lg-2"></i><span class="d-none d-lg-inline">Filter</span>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary btn-show-tt">
-                                <i class="fas fa-eye mr-lg-2"></i><span class="d-none d-lg-inline">Select TT</span>
-                            </button>
-                            <button class="btn btn-sm btn-avian-primary btn-create-tt d-none">
-                                <i class="fas fa-plus mr-2"></i>New<span class="d-none d-lg-inline"> TT</span>
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-secondary btn-show-total">
                                 <i class="fas fa-eye mr-lg-2"></i><span class="d-none d-lg-inline">Show Total</span>
@@ -25,8 +19,8 @@
                             <button type="button" class="btn btn-sm btn-outline-secondary btn-reload">
                                 <i class="fas fa-sync mr-lg-2"></i><span class="d-none d-lg-inline">Reload</span>
                             </button>
-                            <a href="{{ route('invoice.create') }}" class="btn btn-sm btn-avian-primary">
-                                <i class="fas fa-plus mr-2"></i>New<span class="d-none d-lg-inline"> Invoice</span>
+                            <a href="{{ route('tt.create') }}" class="btn btn-sm btn-avian-primary">
+                                <i class="fas fa-plus mr-2"></i>New<span class="d-none d-lg-inline"> Tanda Terima</span>
                             </a>
                         </div>
                     </div>
@@ -119,14 +113,12 @@
                     <table class="dataTable table table-striped table-hover table-bordered w-100">
                         <thead>
                             <tr>
-                                <th class="text-center align-middle" data-priority="1">Invoice No.</th>
-                                <th class="text-center align-middle" data-priority="2">Surat Jalan No.</th>
-                                <th class="text-center align-middle">Kode</th>
-                                <th class="text-center align-middle">Customer</th>
+                                <th class="text-center align-middle" data-priority="1">Tanda Terima No.</th>
+                                <th class="text-center align-middle" data-priority="2">Customer</th>
+                                <th class="text-center align-middle">Jumlah Lembar</th>
                                 <th class="text-center align-middle">Total</th>
                                 <th class="text-center align-middle">Tanggal</th>
                                 <th class="text-center align-middle" data-priority="3">Action</th>
-                                <th class="text-center align-middle" data-priority="2">TT <input type='checkbox' class='select-data box-all'></th>
                             </tr>
                         </thead>
                     </table>
@@ -135,7 +127,8 @@
         </div>
     </div>
 </div>
-<a class="btn btn-avian-secondary d-md-none fab-add-text" type="button" href="{{ route('invoice.create') }}">
+
+<a class="btn btn-avian-secondary d-md-none fab-add-text" type="button" href="{{ route('tt.create') }}">
     <i class="fas fa-plus"></i>
 </a>
 @endsection
@@ -187,8 +180,7 @@
 
 @section('js')
 <script>
-    let batchInvoice = [];
-    var baseurl = "{{route('invoice.datatable')}}";
+    var baseurl = "{{route('tt.datatable')}}";
     var showTotal = false;
     let table = $('.dataTable').DataTable({
         processing: true,
@@ -197,14 +189,12 @@
         serverSide: true,
         ajax: baseurl + '?' + $('#filter').serialize(),
         columns: [
-            {data: 'InvoiceNo', name: 'InvoiceNo', className: 'text-center'},
-            {data: 'SJNo', name: 'SJNo', className: 'text-center'},
-            {data: 'Kode', name: 'Kode', className: 'text-center'},
+            {data: 'TTNo', name: 'TTNo', className: 'text-center'},
             {data: 'NamaCustomer', name: 'NamaCustomer', className: 'text-left'},
+            {data: 'JumlahLembar', name: 'JumlahLembar', className: 'text-center'},
             {data: 'Total', name: 'Total', className: 'text-right'},
-            {data: 'InvoiceDateNice', name: 'InvoiceDateNice', className: 'text-center'},
+            {data: 'TTDateNice', name: 'TTDateNice', className: 'text-center'},
             {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center'},
-            {data: 'actionTT', name: 'actionTT', orderable: false, searchable: false, className: 'text-center'},
         ],
         order: [],
         rowCallback: function (row, data, index) {
@@ -316,12 +306,8 @@
         toggleShowTotal();
     });
 
-    $('.btn-show-tt').on('click', function () {
-        toggleShowTT();
-    });
-
     function toggleShowTotal() {
-        var column = table.column(4);
+        var column = table.column(3);
 
         column.visible(!column.visible());
 
@@ -335,80 +321,6 @@
         }
     }
 
-    function toggleShowTT() {
-        var column = table.column(7);
-
-        column.visible(!column.visible());
-
-        // ubah icon & text
-        if (column.visible()) {
-            $('.btn-show-tt').find('i').removeClass('fa-eye').addClass('fa-eye-slash');
-            $('.btn-show-tt').find('span').text('Hide TT');
-        } else {
-            $('.btn-show-tt').find('i').removeClass('fa-eye-slash').addClass('fa-eye');
-            $('.btn-show-tt').find('span').text('Select TT');
-        }
-    }
-
     toggleShowTotal();
-    toggleShowTT();
-
-    $('.dataTable').on('click', '.select-tt', function (e) {
-        var id = $(this).data('id');
-
-        if ($(this).is(':checked')) {
-            batchInvoice.push(id);
-        } else {
-            const index = batchInvoice.indexOf(id);
-            if (index > -1) {
-                batchInvoice.splice(index, 1);
-            }
-        }
-
-        if (batchInvoice.length > 0) {
-            $('.btn-create-tt').removeClass('d-none');
-            $('.btn-show-tt').addClass('d-none');
-        } else {
-            $('.btn-create-tt').addClass('d-none');
-            $('.btn-show-tt').removeClass('d-none');
-        }
-    });
-
-    $('.dataTable').on('change', '.box-all', function (e) {
-        var isChecked = $(this).is(':checked');
-        $('.dataTable .select-tt').prop('checked', isChecked).trigger('change');
-        // masukin semua ke batchOpname
-        batchInvoice = [];
-        if (isChecked) {
-            $('.dataTable .select-tt').each(function() {
-                var id = $(this).data('id');
-                batchInvoice.push(id);
-            });
-        }
-        if (batchInvoice.length > 0) {
-            $('.btn-create-tt').removeClass('d-none');
-            $('.btn-show-tt').addClass('d-none');
-        } else {
-            $('.btn-create-tt').addClass('d-none');
-            $('.btn-show-tt').removeClass('d-none');
-        }
-    });
-
-    $('.btn-create-tt').on('click', function (e) {
-        e.preventDefault();
-
-        if (batchInvoice.length === 0) {
-            Swal.fire(
-                'Error!',
-                'No invoices selected.',
-                'error'
-            );
-            return;
-        }
-
-        const url = "{{ route('tt.create') }}" + '?invoices=' + batchInvoice.join(',');
-
-        window.location.href = url;
-    });
 </script>
 @endsection

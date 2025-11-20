@@ -287,6 +287,9 @@ function hitungTotal() {
 }
 document.addEventListener('DOMContentLoaded', function () {
     // Generate tabel otomatis saat jumlah hari berubah
+    @if ($mgaji == null)
+    return;
+    @endif
     inputJumlahHari.addEventListener('input', function() {
         const jml = parseInt(this.value) || 0;
         tabelBody.innerHTML = '';
@@ -294,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function () {
             for (let i = 1; i <= jml; i++) {
 
                 // Hitung tanggal dengan JS
-                const date = new Date("{{ \Carbon\Carbon::parse($mgaji->Tanggal)->format('Y-m-d') }}");
+                const date = new Date("{{ \Carbon\Carbon::parse($mgaji->Tanggal??'')->format('Y-m-d') }}");
                 date.setDate(date.getDate() - (8 - (i <= 2 ? i : (i+1)))); // ← ini 8 - i
 
                 const formatted = date.toLocaleDateString('id-ID'); // format dd/mm/yyyy

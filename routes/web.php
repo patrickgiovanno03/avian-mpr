@@ -15,12 +15,12 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes([
     'register' => false,
-    'login' => false,
+    // 'login' => false,
     'reset' => false,
 ]);
 
-// Route::middleware('auth')->group(function () {
-Route::get('/', 'InvoiceController@index')->name('home');
+Route::middleware('auth')->group(function () {
+Route::get('/', 'HomeController@index')->name('home');
 
 Route::get('/userguide', 'SecurityController@userguide')->name('userguide');
 Route::match(['get', 'post'], '/security', 'SecurityController@security')->name('security');
@@ -84,3 +84,14 @@ Route::prefix('pegawai')->group(function () {
     Route::get('/datatable', 'PegawaiController@datatable')->name('pegawai.datatable');
 });
 Route::resource('pegawai', 'PegawaiController');
+});
+
+// TANDA TERIMA
+Route::prefix('tt')->group(function () {
+    Route::get('/datatable', 'TandaTerimaController@datatable')->name('tt.datatable');
+    Route::get('/getProducts', 'TandaTerimaController@getProducts')->name('tt.getProducts');
+    Route::get('/getProductDetails', 'TandaTerimaController@getProductDetails')->name('tt.getProductDetails');
+    Route::get('/getCustomerDetails', 'TandaTerimaController@getCustomerDetails')->name('tt.getCustomerDetails');
+    Route::get('/previewdynamic/{id}/{download?}', 'TandaTerimaController@previewdynamic')->name('tt.previewdynamic');
+});
+Route::resource('tt', 'TandaTerimaController');

@@ -60,16 +60,8 @@ class LoginController extends Controller
             ->first();
 
         if ($user) {
-            if ($user->IsAD && !in_array($request->getHttpHost(), ['localhost', '127.0.0.1'])) {
-                $ldap = ldap_connect(env('LDAP_HOST', '192.168.110.110'), env('LDAP_PORT', 389));
-                ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
-                if (@ldap_bind($ldap, $user->Username.'@avianbrands.com', $request->password)) {
-                    return $this->authenticate($request, $user);
-                }
-            } else {
-                if (trim($user->Passwd) == trim($request->password)) {
-                    return $this->authenticate($request, $user);
-                }
+            if (trim($user->Passwd) == trim($request->password)) {
+                return $this->authenticate($request, $user);
             }
         }
 

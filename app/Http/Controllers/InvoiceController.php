@@ -166,7 +166,7 @@ class InvoiceController extends Controller
             ->route('invoice.index')
             ->with('result', (object)[
                 'type' => 'success',
-                'message' => 'Invoice berhasil diupdate.',
+                'message' => 'Invoice berhasil dibuat.',
             ]);
     }
 
@@ -352,6 +352,9 @@ class InvoiceController extends Controller
                 $total = $row->details()->where('IsSJ', 0)->sum(\DB::raw('Harga * Qty')) - $row->Discount;
                 return number_format($total, 0, ',', '.');
             })
+            ->addColumn('InvoiceDateNice', function ($row) {
+                return Carbon::createFromFormat('Y-m-d', $row->InvoiceDate)->format('d/m/Y');
+            })
             ->addColumn('action', function ($row) {
                 $edit = '<a href="' . route('invoice.edit', $row->FormID) . '" class="btn btn-avian-primary btn-sm btn-edit"><i class="fa fa-edit"></i></a>';
                 $duplicate = '<a href="' . route('invoice.create', ['id' => $row->FormID]) . '" class="btn btn-avian-secondary btn-sm btn-duplicate"><i class="fa fa-copy"></i></a>';
@@ -381,11 +384,19 @@ class InvoiceController extends Controller
 
                     </div>';
             })
-            ->rawColumns(['action'])
+            ->addColumn('actionTT', function ($row) {
+                if ($row->tandaterima) {
+                    return '<a href="'.route('tt.previewdynamic', $row->tandaterima->FormID).'" target="_blank" class="badge badge-secondary">'.$row->tandaterima->TTNo.'</a>';
+                } else {
+                    return '<div class="form-check">
+                        <input class="form-check-input select-tt" type="checkbox" data-id="' . $row->FormID . '">
+                    </div>';
+                }
+            })
+            ->rawColumns(['action', 'actionTT'])
             ->make(true);
     }
 
-    
     public function previewdynamic(Request $request, $id, $download = 0)
     {
         if ($id == 0) {

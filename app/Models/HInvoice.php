@@ -53,4 +53,10 @@ class HInvoice extends Model
 
         return $prefix . $newNumber;
     }
+
+    public function getTandaTerimaAttribute()
+    {
+        $dtandaterima = DTandaTerima::where('InvoiceNo', $this->InvoiceNo)->first();
+        return $dtandaterima->htandaterima ?? null;
+    }
 }
