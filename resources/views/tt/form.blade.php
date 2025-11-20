@@ -562,6 +562,7 @@ $(document).ready(function () {
             if (form) {
                 if (type === 'invoice') {
                     $row.find('input[name="sjno[]"]').val(form.SJNo);
+                    $row.find('input[name="date[]"]').val(form.Date != null ? moment(form.Date).format('DD/MM/YYYY') : '');
                     $row.find('input[name="jumlah[]"]').val(parseFloat(total).toLocaleString('id-ID'));
                 } else if (type === 'sj') {
                     // $row.find('input[name="invoiceno[]"]').val(form.InvoiceNo);
