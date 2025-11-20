@@ -284,4 +284,24 @@ class TandaTerimaController extends Controller
         }
         return $pdf->stream("{$tt?->TTNo} - {$tt?->NamaCustomer}.pdf");
     }
+
+    public function getFormDetails(Request $request)
+    {
+        $search = $request->input('search');
+        $type = $request->input('type'); // 'invoice' atau 'sj'
+
+        if ($type === 'invoice') {
+            $form = HInvoice::where('InvoiceNo', $search)->first();
+        } else if ($type === 'sj') {
+            $form = HInvoice::where('SJNo', $search)->first();
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Invalid type']);
+        }
+
+        if ($form) {
+            return response()->json(['status' => 'success', 'form' => $form]);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Form not found']);
+        }
+    }
 }

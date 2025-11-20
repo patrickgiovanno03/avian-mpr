@@ -409,10 +409,10 @@ $(document).ready(function () {
                     <input type="text" class="form-control numeric" name="no[]" />
                 </td>
                 <td data-label="Invoice No.">
-                    <input type="text" class="form-control" name="invoiceno[]" />
+                    <input type="text" class="form-control no-input" data-type="invoice" name="invoiceno[]" />
                 </td>
                 <td data-label="SJ No.">
-                        <input type="text" class="form-control" name="sjno[]" />
+                        <input type="text" class="form-control no-input" data-type="sj" name="sjno[]" />
                 </td>
                 <td data-label="Date">
                     <input type="text" class="form-control datepicker" name="date[]" />
@@ -553,6 +553,51 @@ $(document).ready(function () {
         embedPreviewData();
     });
 
+    $(document).on('change', '.no-input', function (e) {
+        e.preventDefault();
+        var val = $(this).val().trim();
+        var type = $(this).data('type'); // 'invoice' atau 'sj'
+        var $row = $(this).closest('.card-body, tr');
+        getFormDetails(val, type, function(form) {
+            if (form) {
+                if (type === 'invoice') {
+                    $row.find('input[name="sjno[]"]').val(form.SJNo);
+                } else if (type === 'sj') {
+                    // $row.find('input[name="invoiceno[]"]').val(form.InvoiceNo);
+                }
+            }
+        });
+    });
+
+    $(document).on('focus', '.no-input', function (e) {
+        e.preventDefault();
+        if ($(this).val().trim() === '') {
+            if ($(this).data('type') === 'invoice') {
+                $(this).val('MC')
+            } else {
+                $(this).val('S')
+            }
+        }
+    });
+
+    function getFormDetails(val, type, callback) { 
+        $.ajax({ 
+            url: '{{ route("tt.getFormDetails") }}', 
+            method: 'GET', 
+            data: { search: val, type: type }, 
+            success: function(response) { 
+                if (response.status === 'success') { 
+                    callback(response.form); 
+                } else { 
+                    callback(null); 
+                } 
+            }, 
+            error: function() { 
+                callback(null); 
+            } 
+        }); 
+    }
+
     $(document).on('click', '.btn-hide-product', function (e) {
         e.preventDefault();
         var row = $(this).closest('tr, .card');
@@ -571,24 +616,6 @@ $(document).ready(function () {
         }
         embedPreviewData();
     });
-
-    function getProductDetails(productName, callback) { 
-        $.ajax({ 
-            url: '{{ route("tt.getProductDetails") }}', 
-            method: 'GET', 
-            data: { search: productName }, 
-            success: function(response) { 
-                if (response.status === 'success') { 
-                    callback(response.product); 
-                } else { 
-                    callback(null); 
-                } 
-            }, 
-            error: function() { 
-                callback(null); 
-            } 
-        }); 
-    }
 
     @if($invoices ?? null != null)
         @foreach($invoices as $invoice)

@@ -90,7 +90,7 @@ Route::resource('pegawai', 'PegawaiController');
 Route::prefix('tt')->group(function () {
     Route::get('/datatable', 'TandaTerimaController@datatable')->name('tt.datatable');
     Route::get('/getProducts', 'TandaTerimaController@getProducts')->name('tt.getProducts');
-    Route::get('/getProductDetails', 'TandaTerimaController@getProductDetails')->name('tt.getProductDetails');
+    Route::get('/getFormDetails', 'TandaTerimaController@getFormDetails')->name('tt.getFormDetails');
     Route::get('/getCustomerDetails', 'TandaTerimaController@getCustomerDetails')->name('tt.getCustomerDetails');
     Route::get('/previewdynamic/{id}/{download?}', 'TandaTerimaController@previewdynamic')->name('tt.previewdynamic');
 });
