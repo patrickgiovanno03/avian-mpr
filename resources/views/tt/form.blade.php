@@ -109,6 +109,13 @@
                                     value="{{ $tt->TelpCustomer ?? '' }}">
                             </div>
                         </div>
+                        <hr>
+                        <div class="form-group row">
+                            <label for="Notes" class="form-label col-md-3">Notes</label>
+                            <div class="col-md-9">
+                                <textarea rows="3" class="form-control" id="Notes" name="Notes">{{ $invoice->Notes ?? '' }}</textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

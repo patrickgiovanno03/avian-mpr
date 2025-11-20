@@ -68,6 +68,7 @@ class TandaTerimaController extends Controller
         $tt->NamaCustomer = $request->namacustomer;
         $tt->AlamatCustomer = $request->alamatcustomer;
         $tt->TelpCustomer = $request->telpcustomer;
+        $tt->Notes = $request->Notes;
         $tt->save();
 
         foreach ($request->invoiceno ?? [] as $index => $invoiceno) {
@@ -130,6 +131,7 @@ class TandaTerimaController extends Controller
         $tt->NamaCustomer = $request->namacustomer;
         $tt->AlamatCustomer = $request->alamatcustomer;
         $tt->TelpCustomer = $request->telpcustomer;
+        $tt->Notes = $request->Notes;
         $tt->save();
 
         foreach ($request->invoiceno ?? [] as $index => $invoiceno) {
