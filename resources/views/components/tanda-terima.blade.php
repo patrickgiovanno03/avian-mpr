@@ -65,7 +65,7 @@
                     $totalPrice += (int)str_replace(['.', ','], ['', ''], $request->jumlah[$index]);
                 @endphp
                 <tr>
-                    <td align="center">{{ $request->no[$index]."/".$invoiceno."/".$request->sjno[$index] }}</td>
+                    <td align="center">{{ $request->no[$index].($invoiceno != null ? "/".$invoiceno : '').($request->sjno[$index] != null ? "/".$request->sjno[$index] : '') }}</td>
                     <td align="center">{{ $request->date[$index] != null ? \Carbon\Carbon::createFromFormat('d/m/Y', $request->date[$index])->format('d/m/Y') : '' }}</td>
                     <td align="center">{{ $request->jumlah[$index] ?? 0 }}</td>
                 </tr>
@@ -86,7 +86,7 @@
                     $totalPrice += $detail->Jumlah;
                 @endphp
                 <tr>
-                    <td align="center">{{ $detail->Idx."/".$detail->InvoiceNo."/".$detail->SJNo }}</td>
+                    <td align="center">{{ $detail->Idx.($detail->InvoiceNo != null ? "/".$detail->InvoiceNo : '').($detail->SJNo != null ? "/".$detail->SJNo : '') }}</td>
                     <td align="center">{{ $detail->Date != null ? \Carbon\Carbon::createFromFormat('Y-m-d', $detail->Date)->format('d/m/Y') : '' }}</td>
                     <td align="center">{{ number_format($detail->Jumlah, 0, ',', '.') }}</td>
                 </tr>
