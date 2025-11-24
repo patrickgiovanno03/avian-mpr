@@ -158,8 +158,8 @@ class GajiController extends Controller
         $mgaji->save();
 
         foreach ($request->file('photos') ?? [] as $photo) {
-            $publicHtml = env('PUBLIC_HTML', public_path('storage'));
-
+            $publicHtml = config('app.public_html');
+            
             $folder = $publicHtml . '/gaji/' . $mgaji->GajiID;
             // $folder = public_path('storage/gaji/' . $mgaji->GajiID);
 
@@ -207,7 +207,7 @@ class GajiController extends Controller
     {
         //
         $params['hgaji'] = HGaji::with('pegawai', 'dgaji')->findOrFail($id);
-        $path = env('PUBLIC_HTML', public_path('storage')) . '/' . $params['hgaji']->URL;
+        $path = config('app.public_html') . '/' . $params['hgaji']->URL;
         // ambil orientasi
         [$w, $h] = getimagesize($path);
         $isPortrait = $h > $w;

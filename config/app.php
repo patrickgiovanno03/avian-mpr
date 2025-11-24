@@ -22,6 +22,8 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    'public_html' => env('PUBLIC_HTML'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
