@@ -8,7 +8,6 @@
     body {
       font-family: Arial, sans-serif;
       margin: 0; /* hilangkan margin body agar penuh */
-      background: #f9fafb;
       color: #333;
       font-size: 16px;
     }
@@ -25,7 +24,6 @@
     .slip-container {
       width: 100%;
       max-width: 1000px; /* lebih besar agar terasa “full” tapi tetap proporsional di layar lebar */
-      background: #fff;
       border: 1px solid #ddd;
       border-radius: 10px;
       padding: 30px 40px;
@@ -265,7 +263,7 @@
       <!-- ====== BAGIAN LAMPIRAN ====== -->
       <div class="lampiran">
         <h3>Lampiran</h3>
-        <img src="{{ asset('storage/' . $hgaji->URL) }}" alt="Lampiran Slip Gaji">
+        <img src="{{ $base64Image }}" style="width: 100%;">
       </div>
     </div>
   </div>

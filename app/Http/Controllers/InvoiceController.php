@@ -179,6 +179,15 @@ class InvoiceController extends Controller
     public function show($id)
     {
         //
+        $invoice = HInvoice::find($id);
+        if (!$invoice) {
+            $invoice = HInvoice::first();
+        }
+        $params['invoice'] = $invoice;
+        $params['customers'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 0)->get()->pluck('Nama');
+        $params['ekspedisi'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 1)->get()->pluck('Nama');
+
+        return view('invoice.form', $params);
     }
 
     /**
@@ -190,7 +199,11 @@ class InvoiceController extends Controller
     public function edit($id)
     {
         //
-        $params['invoice'] = HInvoice::find($id);
+        $invoice = HInvoice::find($id);
+        if (!$invoice) {
+            $invoice = HInvoice::where('InvoiceNo', $id)->orWhere('SJNo', $id)->first();
+        }
+        $params['invoice'] = $invoice;
         $params['customers'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 0)->get()->pluck('Nama');
         $params['ekspedisi'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 1)->get()->pluck('Nama');
 

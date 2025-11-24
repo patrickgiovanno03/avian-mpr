@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Response;
 use Spatie\Browsershot\Browsershot;
 use ZipArchive;
 use File;
+use Intervention\Image\Facades\Image;
 
 class GajiController extends Controller
 {
@@ -157,10 +158,19 @@ class GajiController extends Controller
         $mgaji->save();
 
         foreach ($request->file('photos') ?? [] as $photo) {
-            $path = $photo->store('gaji/'.$mgaji->GajiID, 'public');
+            $folder = public_path('storage/gaji/' . $mgaji->GajiID);
+
+            if (!file_exists($folder)) {
+                mkdir($folder, 0775, true);
+            }
+            
+            $filename = time() . '_' . $photo->getClientOriginalName();
+            $photo->move($folder, $filename);
+            
+            // Simpan ke DB relative path
             $hgaji = new HGaji();
             $hgaji->GajiID = $mgaji->GajiID;
-            $hgaji->URL = $path;
+            $hgaji->URL = 'gaji/' . $mgaji->GajiID . '/' . $filename;
             $hgaji->save();
         }
         // dd($request->all());
@@ -194,6 +204,22 @@ class GajiController extends Controller
     {
         //
         $params['hgaji'] = HGaji::with('pegawai', 'dgaji')->findOrFail($id);
+        $path = storage_path('app/public/' . $params['hgaji']->URL);
+        // ambil orientasi
+        [$w, $h] = getimagesize($path);
+        $isPortrait = $h > $w;
+
+        // load image
+        $image = Image::make($path);
+
+        // kalau portrait → rotate sementara (TIDAK disimpan!)
+        if ($isPortrait) {
+            $image->rotate(90);
+        }
+
+        // encode ke base64 untuk langsung dipakai di view
+        $base64Image = $image->encode('data-url')->encoded;
+        $params['base64Image'] = $base64Image;
         $pdf = Pdf::loadView('gaji.slip-template', $params);
         $pdf->setPaper([0, 0, 900, 1100]); // lebar A4 (595.28pt) x tinggi custom (2000pt)
 

@@ -99,6 +99,13 @@ class TandaTerimaController extends Controller
     public function show($id)
     {
         //
+        $tt = HTandaTerima::with('details')->find($id);
+        if (!$tt) {
+            $tt = HTandaTerima::where('TTNo', $id)->first();
+        }
+        $params['tt'] = $tt;
+        $params['customers'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 0)->get()->pluck('Nama');
+        return view('tt.form', $params);
     }
 
     /**
@@ -110,7 +117,11 @@ class TandaTerimaController extends Controller
     public function edit($id)
     {
         //
-        $params['tt'] = HTandaTerima::with('details')->findOrFail($id);
+        $tt = HTandaTerima::with('details')->find($id);
+        if (!$tt) {
+            $tt = HTandaTerima::where('TTNo', $id)->first();
+        }
+        $params['tt'] = $tt;
         $params['customers'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 0)->get()->pluck('Nama');
         return view('tt.form', $params);
     }

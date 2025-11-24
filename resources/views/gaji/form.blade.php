@@ -425,7 +425,28 @@ $('#modalGaji').on('shown.bs.modal', function () {
     $(this).find('.modal-dialog').draggable({
         handle: ".modal-header"
     });
+
+    $('.tanggal').on('change', function() {
+        // ganti input tanggal di baris berikutnya saja
+        const rows = $('#tabelGaji tbody tr');;
+        let thisRow = $(this);
+        var passedIndex = -1;
+        rows.each(function(index) {
+            if ($(this).find('.tanggal')[0] === thisRow[0] || passedIndex != -1) {
+                if (index + 1 < rows.length) {
+                    const nextRow = $(rows[index + 1]);
+                    const currentDate = new Date(thisRow.val().split('/').reverse().join('-'));
+                    currentDate.setDate(currentDate.getDate() + 1 + (passedIndex != -1 ? (index - passedIndex) : 0));
+                    const formatted = currentDate.toLocaleDateString('id-ID');
+                    nextRow.find('.tanggal').val(formatted);
+                    passedIndex = (passedIndex != -1) ? passedIndex : index;
+                }
+            }
+        });
+    });
 });
+
+
 
 </script>
 @endsection
