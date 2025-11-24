@@ -265,4 +265,22 @@ class GajiController extends Controller
         // Jika ingin langsung download, ganti dengan:
         // return $pdf->download($fileName);
     }
+    
+    public function rotateImage(Request $request)
+    {
+        //
+        $hgaji = HGaji::findOrFail($request->input('headerid'));
+        $path = config('app.public_html') . '/' . $hgaji->URL;
+
+        // load image
+        $image = Image::make($path);
+
+        // rotate 90 derajat
+        $image->rotate(90);
+
+        // simpan kembali
+        $image->save($path);
+
+        return response()->json(['success' => true, 'message' => 'Image rotated successfully.']);
+    }
 }

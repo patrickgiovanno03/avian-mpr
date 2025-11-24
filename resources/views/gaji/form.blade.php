@@ -84,6 +84,7 @@
                                       <h5 class="fw-bold mb-1 text-muted">{{ $gaji->pegawai->Nama ?? 'Belum diisi' }}</h5>
                                       <p class="text-muted small mb-0"></p>
                                       <div class="">
+                                        <button class="btn btn-info btn-sm btn-rotate" data-id="{{ $gaji->HeaderID }}"><i class="fas fa-rotate-left"></i></button>
                                         @if($gaji->PegawaiID != null)
                                             <button class="btn btn-light btn-sm me-2 btn-isi-data" data-toggle="modal" data-type="edit" data-target="#modalGaji" data-id="{{ $gaji->HeaderID }}" data-data="{{ json_encode($gaji) }}">
                                                 <i class="fas fa-edit mr-2"></i>Edit Data
@@ -142,7 +143,7 @@
                 <!-- Input jumlah hari -->
                 <div class="mb-3">
                   <label>Jumlah Hari Kerja</label>
-                  <input type="number" step="any" class="form-control" id="jumlah_hari" placeholder="Masukkan jumlah hari" name="jumlahhari">
+                  <input style="background-color: #E7F1DC" type="number" step="any" class="form-control" id="jumlah_hari" placeholder="Masukkan jumlah hari" name="jumlahhari">
                 </div>
 
                 <!-- Tabel otomatis muncul -->
@@ -421,31 +422,58 @@ $('.btn-isi-data').on('click', function() {
     }
 });
 
+$('.btn-rotate').on('click', function() {
+    var gajiId = $(this).data('id');
+    var img = $(this).closest('.card').find('img');
+    $.ajax({
+        url: '{{ route("gaji.rotateImage") }}',
+        type: 'POST',
+        data: {
+            headerid: gajiId
+        },
+        success: function(response) {
+            let newSrc = img.attr('src').split('?')[0] + '?v=' + new Date().getTime();
+
+            img.attr('src', newSrc);
+        },
+        error: function(xhr) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Terjadi kesalahan saat memutar gambar.',
+                text: xhr.responseText
+            });
+        }
+    });
+});
+
 $('#modalGaji').on('shown.bs.modal', function () {
     $(this).find('.modal-dialog').draggable({
         handle: ".modal-header"
     });
-
-    $('.tanggal').on('change', function() {
-        // ganti input tanggal di baris berikutnya saja
-        const rows = $('#tabelGaji tbody tr');;
-        let thisRow = $(this);
-        var passedIndex = -1;
-        rows.each(function(index) {
-            if ($(this).find('.tanggal')[0] === thisRow[0] || passedIndex != -1) {
-                if (index + 1 < rows.length) {
-                    const nextRow = $(rows[index + 1]);
-                    const currentDate = new Date(thisRow.val().split('/').reverse().join('-'));
-                    currentDate.setDate(currentDate.getDate() + 1 + (passedIndex != -1 ? (index - passedIndex) : 0));
-                    const formatted = currentDate.toLocaleDateString('id-ID');
-                    nextRow.find('.tanggal').val(formatted);
-                    passedIndex = (passedIndex != -1) ? passedIndex : index;
-                }
-            }
-        });
-    });
+    
+    $('#pegawai').next('.select2-container')
+    .find('.select2-selection')
+    .css('background-color', '#E7F1DC');
 });
 
+$('#modalGaji').on('change', '.tanggal', function() {
+    // ganti input tanggal di baris berikutnya saja
+    const rows = $('#tabelGaji tbody tr');;
+    let thisRow = $(this);
+    var passedIndex = -1;
+    rows.each(function(index) {
+        if ($(this).find('.tanggal')[0] === thisRow[0] || passedIndex != -1) {
+            if (index + 1 < rows.length) {
+                const nextRow = $(rows[index + 1]);
+                const currentDate = new Date(thisRow.val().split('/').reverse().join('-'));
+                currentDate.setDate(currentDate.getDate() + 1 + (passedIndex != -1 ? (index - passedIndex) : 0));
+                const formatted = currentDate.toLocaleDateString('id-ID');
+                nextRow.find('.tanggal').val(formatted);
+                passedIndex = (passedIndex != -1) ? passedIndex : index;
+            }
+        }
+    });
+});
 
 
 </script>

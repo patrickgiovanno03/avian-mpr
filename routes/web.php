@@ -75,6 +75,7 @@ Route::prefix('gaji')->group(function () {
     Route::get('/slip/{id}', 'GajiController@slip')->name('gaji.slip');
     Route::get('/slipAll/{id}', 'GajiController@slipAll')->name('gaji.slipAll');
     Route::get('/datatable', 'GajiController@datatable')->name('gaji.datatable');
+    Route::post('/rotateImage', 'GajiController@rotateImage')->name('gaji.rotateImage');
 });
 Route::resource('gaji', 'GajiController');
 
