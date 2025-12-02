@@ -117,14 +117,6 @@ class InvoiceController extends Controller
 
         $oldDetailID = 0;
         foreach ($request->input('product') ?? [] as $index => $productName) {
-            if ($request->input('type')[$index] == 'delete') {
-                if ($request->input('detailid')[$index]) {
-                    $dinvoice = DInvoice::find($request->input('detailid')[$index]);
-                    if ($dinvoice)
-                        $dinvoice->delete();
-                }
-                continue;
-            }
             if ($productName) {
                 if ($request->input('issj')[$index] == 1 && $oldDetailID != 0) {
                     // check if previous detail was SJ, if yes, update that instead of creating new
