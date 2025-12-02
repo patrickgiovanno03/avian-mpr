@@ -107,6 +107,19 @@ class ProductController extends Controller
     public function destroy($id)
     {
         //
+        $product = MProduct::find($id);
+        if (!$product) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Product not found.',
+            ]);
+        }
+        $product->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product deleted successfully.',
+        ]);
     }
 
     public function datatable(Request $request)
