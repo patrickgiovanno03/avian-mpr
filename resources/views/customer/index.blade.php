@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'MPR | List Customer')
+
 @section('content')
 <div class="container-fluid">
     <div class="row">
@@ -33,6 +35,32 @@
                     @endif
 
                     <form id="filter" class="collapse row m-2">
+                        <div class="col-lg-6 col-md-12">
+                            <div class="form-group row">
+                                <label for="pricecategoryfilter" class="col-sm-3 col-form-label">Price Category</label>
+                                <div class="col-sm-9">
+                                    <select id="pricecategoryfilter" name="pricecategoryfilter" class="form-control select2">
+                                        <option value="0">ALL</option>
+                                        <option value="1">Konsumen</option>
+                                        <option value="2">Supplier-1</option>
+                                        <option value="3">Supplier-2</option>
+                                        <option value="4">Distributor</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-12">
+                            <div class="form-group row">
+                                <label for="type" class="col-sm-3 col-form-label">Type</label>
+                                <div class="col-sm-9">
+                                    <select id="type" name="type" class="form-control select2">
+                                        <option value="0">ALL</option>
+                                        <option value="1">Customer</option>
+                                        <option value="2">Ekspedisi</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         {{-- <div class="col-md-6 col-sm-12">
                             <div class="form-group row">
                                 <label for="gudang" class="col-sm-3 col-form-label">Gudang</label>

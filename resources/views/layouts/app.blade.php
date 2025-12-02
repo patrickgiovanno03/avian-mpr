@@ -10,7 +10,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="base-url" content="{{ url('/') }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>@yield('title', config('app.name', 'Laravel'))</title>
+    {{-- <title>{{ config('app.name', 'Laravel') }}</title> --}}
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}?date={{ date('Ymd') }}"></script>
@@ -29,6 +30,11 @@
         
         textarea {
         field-sizing: content;
+        }
+
+        .readonly-color {
+            background-color: #e9ecef !important;
+            opacity: 1 !important;
         }
     </style>
     <link href="{{ asset('css/app.css') }}?date={{ date('Ymd') }}" rel="stylesheet">

@@ -34,7 +34,7 @@
     /* ====== HEADER ====== */
     .header {
       text-align: center;
-      border-bottom: 3px solid #d62828;
+      border-bottom: 3px solid #003C78;
       padding-bottom: 10px;
       margin-bottom: 25px;
     }
@@ -42,7 +42,7 @@
     .header h2 {
       margin: 0;
       font-size: 54px;
-      color: #d62828;
+      color: #003C78;
     }
 
     .header small {
@@ -79,14 +79,14 @@
     }
 
     table.rincian th, table.rincian td {
-      border: 2px solid #df7979;
+      border: 2px solid #003C78;
       padding: 5px;
       text-align: center;
     }
 
     table.rincian th {
-      background: #d62828;
-      border: 2px solid #d62828!important;
+      background: #003C78;
+      border: 2px solid #003C78!important;
       color: #fff;
       font-weight: bold;
     }
@@ -124,8 +124,8 @@
     .totals p.total {
       font-size: 36px;
       font-weight: 700;
-      color: #d62828;
-      border-top: 2px solid #d62828;
+      color: #003C78;
+      border-top: 2px solid #003C78;
       padding-top: 5px;
     }
 
@@ -136,14 +136,13 @@
     }
 
     .lampiran h3 {
-      color: #d62828;
+      color: #003C78;
       font-size: 24px;
       margin-bottom: 10px;
     }
 
     .lampiran img {
-      max-width: 100%;
-      max-height: 550px;
+      max-height: 480px;
       border: 1px solid #ddd;
       border-radius: 6px;
       margin-top: 10px;
@@ -200,7 +199,7 @@
   <div class="page-wrapper">
     <div class="slip-container">
       <div class="header">
-        <h2>Slip Gaji Pegawai</h2>
+        <h2>Slip Gaji {{ $hgaji->pegawai != null ? ("- " . $hgaji->pegawai->Nama) : '' }}</h2>
       </div>
 
       <div class="info">
@@ -208,6 +207,9 @@
           <tr>
             <td><strong>Nama Pegawai:</strong> {{ $hgaji->pegawai->Nama ?? '' }}</td>
             <td style="text-align: right;"><strong>Tanggal:</strong> {{ \Carbon\Carbon::createFromFormat('Y-m-d', $hgaji->mgaji->Tanggal)->format('d F Y') }}</td>
+          </tr>
+          <tr>
+            <td colspan="2"><strong>Rekening:</strong> {{ ($hgaji->pegawai->NoRek ?? null != null) ? ($hgaji->pegawai->NoRek . " a/n " . strtoupper($hgaji->pegawai->ANRek) . " (" . $hgaji->pegawai->BankRek . ")") : '-' }}</td>
           </tr>
         </table>
       </div>
@@ -218,6 +220,7 @@
             <th>Hari Ke</th>
             <th>Tanggal</th>
             <th>Gaji Pokok (Rp)</th>
+            <th>Lembur per Jam (Rp)</th>
             <th>Jam Lembur</th>
             <th>Gaji Lembur Total (Rp)</th>
             <th>Total Hari Ini (Rp)</th>
@@ -237,7 +240,8 @@
               <td>{{ $index + 1 }}</td>
               <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $gaji->Tanggal)->format('d/m/Y') }}</td>
               <td>{{ number_format($gaji->Pokok*1000, 0, ',', '.') }}</td>
-              <td>{{ $gaji->Jam }}</td>
+              <td>{{ number_format($gaji->PokokLembur*1000, 0, ',', '.') }}</td>
+              <td>{{ $gaji->Jam }} jam</td>
               <td>{{ number_format($gaji->Lembur*1000, 0, ',', '.') }}</td>
               <td>{{ number_format($harian*1000, 0, ',', '.') }}</td>
             </tr>
@@ -247,7 +251,8 @@
             <tr>
               <td colspan="2">Total</td>
               <td>{{ number_format($totalPokok*1000, 0, ',', '.') }}</td>
-              <td>{{ $totalJamLembur }}</td>
+              <td></td>
+              <td>{{ $totalJamLembur }} jam</td>
               <td>{{ number_format($totalLembur*1000, 0, ',', '.') }}</td>
               <td>{{ number_format($totalGaji*1000, 0, ',', '.') }}</td>
             </tr>
@@ -255,15 +260,19 @@
       </table>
 
       <div class="totals">
+        @if ($hgaji->UangMakan > 0)
         <p><strong>Uang Makan:</strong> Rp {{ number_format($hgaji->UangMakan*1000, 0, ',', '.') }}</p>
+        @endif
+        @if ($hgaji->Bonus > 0)
         <p><strong>Bonus:</strong> Rp {{ number_format($hgaji->Bonus*1000, 0, ',', '.') }}</p>
+        @endif
         <p class="total"><strong>Total Gaji:</strong> Rp {{ number_format(($totalGaji + $hgaji->Bonus + $hgaji->UangMakan)*1000, 0, ',', '.') }}</p>
       </div>
 
       <!-- ====== BAGIAN LAMPIRAN ====== -->
       <div class="lampiran">
         <h3>Lampiran</h3>
-        <img src="{{ $base64Image }}" style="width: 100%;">
+        <img src="{{ $base64Image }}" style="width: auto;">
       </div>
     </div>
   </div>

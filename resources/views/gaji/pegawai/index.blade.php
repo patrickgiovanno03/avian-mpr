@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'MPR | List Pegawai')
+
 @section('content')
 <div class="container-fluid">
     <div class="row">
@@ -113,6 +115,7 @@
                                 <th class="text-center align-middle" data-priority="1">Nama</th>
                                 <th class="text-center align-middle" data-priority="3">Gaji Pokok</th>
                                 <th class="text-center align-middle">Gaji Lembur</th>
+                                <th class="text-center align-middle">Rekening</th>
                                 <th class="text-center align-middle" data-priority="2">Action</th>
                             </tr>
                         </thead>
@@ -150,6 +153,32 @@
                     <label for="gajilembur" class="col-sm-3 col-form-label">Gaji Lembur</label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control numeric" id="gajilembur" name="gajilembur">
+                    </div>
+                </div>
+                <hr>
+                <div class="form-group row">
+                    <label for="bankrek" class="col-sm-3 col-form-label">Bank Rekening</label>
+                    <div class="col-sm-9">
+                        <select class="form-control select2-tags" id="bankrek" name="bankrek">
+                            <option value="">-- Pilih Bank --</option>
+                            <option value="BCA">BCA</option>
+                            <option value="MANDIRI">MANDIRI</option>
+                            <option value="BNI">BNI</option>
+                            <option value="BRI">BRI</option>
+                            <option value="DANA">DANA</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="norek" class="col-sm-3 col-form-label">No. Rekening</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="norek" name="norek">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="anrek" class="col-sm-3 col-form-label">Nama Rekening</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="anrek" name="anrek">
                     </div>
                 </div>
             </div>
@@ -204,10 +233,11 @@
         pageLength: 25,
         ajax: baseurl + '?' + $('#filter').serialize(),
         columns: [
-            {data: 'Nama', name: 'Nama'},
-            {data: 'GajiPokok', name: 'GajiPokok', className: 'text-center'},
-            {data: 'GajiLembur', name: 'GajiLembur', className: 'text-center'},
-            {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center'},
+            {data: 'Nama', name: 'Nama', className: 'align-middle'},
+            {data: 'GajiPokok', name: 'GajiPokok', className: 'text-center align-middle'},
+            {data: 'GajiLembur', name: 'GajiLembur', className: 'text-center align-middle'},
+            {data: 'Rekening', name: 'Rekening', className: 'text-center align-middle'},
+            {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center align-middle'},
         ],
         order: [0, 'asc'],
         rowCallback: function (row, data, index) {
@@ -257,6 +287,9 @@
         $('#formItem #name').val(data.Nama);
         $('#formItem #gajipokok').val(String(data.GajiPokok ?? '').replace(/\./g, ','));
         $('#formItem #gajilembur').val(String(data.GajiLembur ?? '').replace(/\./g, ','));
+        $('#formItem #bankrek').val(data.BankRek).trigger('change');
+        $('#formItem #norek').val(data.NoRek);
+        $('#formItem #anrek').val(data.ANRek);
         $('#addModalLabel').text('Edit Pegawai');
         $('#addModal').modal('show');
         $('#formItem').attr('action', "{{ route('pegawai.update', '@id') }}".replace('@id', data.PegawaiID));

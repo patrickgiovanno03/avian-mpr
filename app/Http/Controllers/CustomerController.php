@@ -123,7 +123,15 @@ class CustomerController extends Controller
     public function datatable(Request $request)
     {
         //
-        $data = MCustomer::with('category')->orderBy('CustomerID')->get();
+        $data = MCustomer::with('category')->orderBy('CustomerID');
+
+        if ($request->has('pricecategoryfilter') && $request->pricecategoryfilter != 0) {
+            $data->where('PriceCategory', $request->pricecategoryfilter);
+        }
+
+        if ($request->has('type') && $request->type != 0) {
+            $data->where('IsEkspedisi', $request->type == 2 ? 1 : 0);
+        }
         
         return datatables()->of($data)
             ->addColumn('TipeNice', function ($row) {

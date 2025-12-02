@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\MPegawai;
 use Illuminate\Http\Request;
 
+use function Symfony\Component\String\s;
+
 class PegawaiController extends Controller
 {
     /**
@@ -41,6 +43,9 @@ class PegawaiController extends Controller
         $pegawai->Nama = $request->input('name');
         $pegawai->GajiPokok = str_replace(',', '.', str_replace('.', '', $request->input('gajipokok')));
         $pegawai->GajiLembur = str_replace(',', '.', str_replace('.', '', $request->input('gajilembur')));
+        $pegawai->BankRek = $request->input('bankrek');
+        $pegawai->NoRek = $request->input('norek');
+        $pegawai->ANRek = $request->input('anrek');
         $pegawai->save();
 
         return redirect()
@@ -87,6 +92,10 @@ class PegawaiController extends Controller
         $pegawai->Nama = $request->input('name');
         $pegawai->GajiPokok = str_replace(',', '.', str_replace('.', '', $request->input('gajipokok')));
         $pegawai->GajiLembur = str_replace(',', '.', str_replace('.', '', $request->input('gajilembur')));
+        $pegawai->BankRek = $request->input('bankrek');
+        $pegawai->NoRek = $request->input('norek');
+        $pegawai->ANRek = $request->input('anrek');
+
         $pegawai->save();
 
         return redirect()
@@ -124,6 +133,20 @@ class PegawaiController extends Controller
 
         return datatables()->of($data)
             ->addIndexColumn()
+            ->addColumn('Rekening', function ($row) {
+                $bankMap = [
+                    'BCA' => ['#0066AE', '#FFFFFF'],
+                    'MANDIRI' => ['#003C78', '#f8b827'],
+                    'BNI' => ['#006699 ', '#FF6600 '],
+                    'BRI' => ['#FFFFFF ', '#0066AE '],
+                    'DANA' => ['#2196F3', '#FFFFFF'],
+                ];
+                if (!isset($row->BankRek) || !isset($row->NoRek) || !isset($row->ANRek)) {
+                    return '<badge class="badge badge-light">-</badge>';
+                }
+                return '<badge class="badge" style="background-color:' . ($bankMap[$row->BankRek][0] ?? '#6c757d') . '; color:' . ($bankMap[$row->BankRek][1] ?? '#ffffff') . ';">' . $row->BankRek . '</badge>
+                <br><badge class="badge badge-light">' . $row->NoRek . ' a/n ' . strtoupper($row->ANRek) . '</badge>';
+            })
             ->addColumn('action', function ($row) {
                 $edit = '<button class="btn btn-avian-primary btn-sm btn-edit"><i class="fa fa-edit"></i></button>';
                 $delete = "<button data-url='" . route('pegawai.destroy', $row->PegawaiID) . "' class='btn-action btn btn-sm btn-danger btn-delete' data-id='" . $row->ItemID . "' title='Delete'><i class='fa fa-trash'></i></button>";
@@ -133,7 +156,7 @@ class PegawaiController extends Controller
                     ' . $delete . '
                 </div>';
             })
-            ->rawColumns(['action'])
+            ->rawColumns(['action', 'Rekening'])
             ->make(true);
     }
 
@@ -144,7 +167,7 @@ class PegawaiController extends Controller
         $pegawais = $pegawais->where(function ($query) use ($request) {
             $query->where('Nama', 'like', '%' . $request->search . '%');
             })
-            ->limit(10)
+            ->orderBy('Nama', 'asc')
             ->get();
 
         return response()->json([

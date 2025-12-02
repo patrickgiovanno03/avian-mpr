@@ -61,14 +61,15 @@
                 @continue
                 @endif
                 @php
-                    $totalPrice += $request->quantity[$key] * (int)str_replace(['.', ','], ['', ''], $request->price[$key]);
+                    $totalNow = (float)str_replace(['.', ','], ['', ''], $request->quantity[$key]) * (float)str_replace(['.', ','], ['', ''], $request->price[$key]);
+                    $totalPrice += $totalNow;
                 @endphp
                 <tr>
                     <td align="center">{!! $request->quantity[$key] ?? '&nbsp;' !!}</td>
                     <td align="center">{{ $request->unit[$key] }}</td>
                     <td>{{ $product }}</td>
                     <td align="center">{{ ($request->price[$key]) }}</td>
-                    <td align="center">{{ ($request->price[$key] != null ? number_format($request->quantity[$key] * (int)str_replace(['.', ','], ['', ''], $request->price[$key]), 0, ',', '.') : '') }}</td>
+                    <td align="center">{{ ($request->price[$key] != null ? number_format($totalNow, 0, ',', '.') : '') }}</td>
                 </tr>
                 @endforeach
                 @for($i = count($request->product ?? []); $i < (($large ?? false) ? 21 : 13); $i++)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DInvoice;
 use App\Models\HInvoice;
+use App\Models\HTandaTerima;
 use App\Models\MCustomer;
 use App\Models\MProduct;
 use Illuminate\Http\Request;
@@ -125,15 +126,11 @@ class InvoiceController extends Controller
                 continue;
             }
             if ($productName) {
-                if ($request->input('type')[$index] == 'update' && $request->input('detailid')[$index]) {
-                    $dinvoice = DInvoice::find($request->input('detailid')[$index]);
+                if ($request->input('issj')[$index] == 1 && $oldDetailID != 0) {
+                    // check if previous detail was SJ, if yes, update that instead of creating new
+                    $dinvoice = DInvoice::find($oldDetailID);
                 } else {
-                    if ($request->input('issj')[$index] == 1 && $oldDetailID != 0) {
-                        // check if previous detail was SJ, if yes, update that instead of creating new
-                        $dinvoice = DInvoice::find($oldDetailID);
-                    } else {
-                        $dinvoice = new DInvoice();
-                    }
+                    $dinvoice = new DInvoice();
                 }
                 $dinvoice->FormID = $invoice->FormID;
                 if ($request->input('issj')[$index] == 1) {
@@ -181,7 +178,7 @@ class InvoiceController extends Controller
         //
         $invoice = HInvoice::find($id);
         if (!$invoice) {
-            $invoice = HInvoice::first();
+            $invoice = HInvoice::where('InvoiceNo', $id)->orWhere('SJNo', $id)->first();
         }
         $params['invoice'] = $invoice;
         $params['customers'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 0)->get()->pluck('Nama');
@@ -314,6 +311,14 @@ class InvoiceController extends Controller
             }
         }
 
+        if ($request->toPDF == '1') {
+            return redirect()
+                ->route('invoice.previewdynamic', $invoice->FormID);
+        } else if ($request->toPDF == '2') { // download button
+            return redirect()
+                ->route('invoice.previewdynamic', ['id' => $invoice->FormID, 'download' => 1]);
+        }
+        
         return redirect()
             ->route('invoice.index')
             ->with('result', (object)[
@@ -499,5 +504,30 @@ class InvoiceController extends Controller
             'status' => 'success',
             'customer' => $customer,
         ]);
+    }
+
+    public function form($id)
+    {
+        $invoice = HInvoice::where('InvoiceNo', $id)->orWhere('SJNo', $id)->first();
+        if ($invoice) {
+            $params['invoice'] = $invoice;
+            $params['customers'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 0)->get()->pluck('Nama');
+            $params['ekspedisi'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 1)->get()->pluck('Nama');
+
+            return view('invoice.form', $params);
+        }
+
+        $tt = HTandaTerima::where('TTNo', $id)->first();
+        if ($tt) {
+            $params['tt'] = $tt;
+            $params['customers'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 0)->get()->pluck('Nama');
+            return view('tt.form', $params);
+        }
+        return redirect()
+            ->route('invoice.index')
+            ->with('result', (object)[
+                'type' => 'danger',
+                'message' => 'Form not found.',
+            ]);
     }
 }

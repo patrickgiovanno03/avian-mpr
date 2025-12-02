@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DGaji;
 use App\Models\HGaji;
 use App\Models\MGaji;
+use App\Models\MPegawai;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -75,6 +76,7 @@ class GajiController extends Controller
     {
         //
         $params['mgaji'] = MGaji::with('hgaji', 'hgaji.dgaji')->findOrFail($id);
+        $params['pegawaiList'] = MPegawai::all();
         $params['upload'] = false;
         return view('gaji.form', $params);
     }
@@ -118,15 +120,25 @@ class GajiController extends Controller
     public function datatable(Request $request)
     {
         //
-        $data = MGaji::with('hgaji')->get();
+        $data = MGaji::with('hgaji');
         
+        if (request()->has('startdate') && request()->has('enddate') && request()->startdate != null && request()->enddate != null) {
+            $data = $data->whereBetween('Tanggal', [
+                Carbon::createFromFormat('d/m/Y', request()->startdate)->format('Y-m-d'),
+                Carbon::createFromFormat('d/m/Y', request()->enddate)->format('Y-m-d'),
+            ]);
+        }
+
         return datatables()->of($data)
             ->addIndexColumn()
             ->addColumn('JumlahRp', function ($row) {
+                // return number_format($row->hgaji->sum(function($hgaji) {
+                //     return $hgaji->dgaji->sum(function($dgaji) {
+                //         return ($dgaji->Pokok + ($dgaji->Lembur));
+                //     }) + $hgaji->Bonus + $hgaji->UangMakan;
+                // })*1000, 0, ',', '.');
                 return number_format($row->hgaji->sum(function($hgaji) {
-                    return $hgaji->dgaji->sum(function($dgaji) {
-                        return ($dgaji->Pokok + ($dgaji->Lembur));
-                    }) + $hgaji->Bonus + $hgaji->UangMakan;
+                    return $hgaji->getTotal();
                 })*1000, 0, ',', '.');
             })
             ->addColumn('JumlahKaryawan', function ($row) {
@@ -183,17 +195,19 @@ class GajiController extends Controller
     public function storeDetail(Request $request, $id)
     {
         //
+        // dd($request->all());
         $hgaji = HGaji::findOrFail($id);
         $hgaji->Bonus = $request->input('bonus', 0);
         $hgaji->UangMakan = $request->input('uangmakan', 0);
         $hgaji->PegawaiID = $request->input('pegawai');
         $hgaji->save();
         DGaji::where('HeaderID', $hgaji->HeaderID)->delete();
-        foreach ($request->input('pokok') as $index => $pokok) {
+        foreach ($request->input('pokok') ?? [] as $index => $pokok) {
             //
             $dgaji = new DGaji();
             $dgaji->HeaderID = $hgaji->HeaderID;
             $dgaji->Pokok = $pokok;
+            $dgaji->PokokLembur = $request->input('gajilembur');
             $dgaji->Jam = $request->input('jam')[$index];
             $dgaji->Lembur = $request->input('lembur')[$index];
             $dgaji->Tanggal = $request->input('tanggal')[$index] != null ? (Carbon::createFromFormat('d/m/Y', $request->input('tanggal')[$index])->format('Y-m-d') ?? null) : null;
@@ -201,6 +215,17 @@ class GajiController extends Controller
         }
 
         return redirect()->route('gaji.edit', $hgaji->GajiID)->with('success', 'Gaji details saved successfully.');
+    }
+
+    public function deleteDetail(Request $request)
+    {
+        //
+        $headerid = $request->input('headerid');
+        $hgaji = HGaji::findOrFail($headerid);
+        DGaji::where('HeaderID', $hgaji->HeaderID)->delete();
+        $hgaji->delete();
+
+        return response()->json(['success' => true, 'message' => 'Gaji detail deleted successfully.']);
     }
 
     public function slip($id)
@@ -244,6 +269,22 @@ class GajiController extends Controller
         $html = '';
         foreach ($hgajis as $index => $hgaji) {
             $params['hgaji'] = $hgaji;
+            $path = config('app.public_html') . '/' . $params['hgaji']->URL;
+            // ambil orientasi
+            [$w, $h] = getimagesize($path);
+            $isPortrait = $h > $w;
+
+            // load image
+            $image = Image::make($path);
+
+            // kalau portrait → rotate sementara (TIDAK disimpan!)
+            if ($isPortrait) {
+                $image->rotate(90);
+            }
+
+            // encode ke base64 untuk langsung dipakai di view
+            $base64Image = $image->encode('data-url')->encoded;
+            $params['base64Image'] = $base64Image;
 
             // Render view slip untuk setiap pegawai
             $html .= view('gaji.slip-template', $params)->render();

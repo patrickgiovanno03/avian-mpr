@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'MPR | List Gaji')
+
 @section('content')
 <div class="container-fluid">
     <div class="row">
@@ -33,6 +35,26 @@
                     @endif
 
                     <form id="filter" class="collapse row m-2">
+                        <div class="col-md-6 col-sm-12">
+                            <div class="form-group row">
+                                <label for="startdate" class="col-sm-3 col-form-label">Tanggal</label>
+                                <div class="col-sm-9">
+                                    <div class="input-group">
+                                        <input value={{ \Carbon\Carbon::now()->startOf('month')->format('d/m/Y') }} type="text" id="startdate" name="startdate" aria-label="Tanggal Mulai" class="form-control datepicker p-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">s/d</span>
+                                        </div>
+                                        <input value={{ \Carbon\Carbon::now()->endOf('month')->format('d/m/Y') }} type="text" id="enddate" name="enddate" aria-label="Tanggal Mulai" class="form-control datepicker p-3">
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="1" id="show_all" name="show_all">
+                                        <label class="form-check-label" for="show_all">
+                                            Tampilkan Semua
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {{-- <div class="col-md-6 col-sm-12">
                             <div class="form-group row">
                                 <label for="gudang" class="col-sm-3 col-form-label">Gudang</label>

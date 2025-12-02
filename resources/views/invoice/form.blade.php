@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'MPR | '.($invoice == null ? 'Create' : 'Edit') .' Invoice')
+
 @section('content')
 <div class="container-fluid">
     <div class="row">
@@ -26,6 +28,9 @@
                             @if($invoice != null)
                             <a target="_blank" href="{{ route('invoice.previewdynamic', $invoice->FormID) }}" type="button" class="btn btn-sm btn-outline-secondary btn-pdf">
                                 <i class="fas fa-file-pdf mr-lg-2"></i><span class="d-none d-lg-inline">Save & PDF</span>
+                            </a>
+                            <a target="_blank" href="{{ route('invoice.previewdynamic', ['id' => $invoice->FormID, 'download' => 1]) }}" type="button" class="btn btn-sm btn-outline-secondary btn-pdf">
+                                <i class="fas fa-file-download mr-lg-2"></i><span class="d-none d-lg-inline">Save & Download</span>
                             </a>
                             @endif
                             <button type="submit" class="btn btn-sm btn-avian-secondary btn-submit"><i class="fas fa-save mr-2"></i>Save</button>
@@ -88,22 +93,22 @@
                         <div class="form-group row invoice-container {{ $invoice != null ? ($invoice->InvoiceNo == null ? 'd-none' : '') : '' }}">
                             <label for="invoiceno" class="form-label col-md-3">Invoice No.</label>
                             <div class="col-md-9">
-                                <input type="text" class="form-control" id="invoiceno" name="invoiceno"
-                                    value="{{ ($isDuplicate ?? null) ? app(\App\Models\HInvoice::class)->getNewInvoiceNo() : ($invoice->InvoiceNo ?? app(\App\Models\HInvoice::class)->getNewInvoiceNo()) }}" readonly>
+                                <input type="text" class="form-control readonly-color" id="invoiceno" name="invoiceno"
+                                    value="{{ ($isDuplicate ?? null) ? app(\App\Models\HInvoice::class)->getNewInvoiceNo() : ($invoice->InvoiceNo ?? app(\App\Models\HInvoice::class)->getNewInvoiceNo()) }}">
                             </div>
                         </div>
                         <div class="form-group row sj-container {{ $invoice != null ? ($invoice->SJNo == null ? 'd-none' : '') : '' }}">
                             <label for="sjno" class="form-label col-md-3">Surat Jalan No.</label>
                             <div class="col-md-9">
-                                <input type="text" class="form-control" id="sjno" name="sjno"
-                                    value="{{ ($isDuplicate ?? null) ? app(\App\Models\HInvoice::class)->getNewSJNo() : ($invoice->SJNo ?? app(\App\Models\HInvoice::class)->getNewSJNo()) }}" readonly>
+                                <input type="text" class="form-control readonly-color" id="sjno" name="sjno"
+                                    value="{{ ($isDuplicate ?? null) ? app(\App\Models\HInvoice::class)->getNewSJNo() : ($invoice->SJNo ?? app(\App\Models\HInvoice::class)->getNewSJNo()) }}">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="invoicedate" class="form-label col-md-3">Tanggal Invoice</label>
                             <div class="col-md-9">
                                 <input style="background-color: #E7F1DC" type="text" class="form-control datepicker" id="invoicedate" name="invoicedate"
-                                    value="{{ $invoice != null ? Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y') : Carbon\Carbon::now()->format('d/m/Y') }}">
+                                    value="{{ $invoice != null ? Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y') : Carbon\Carbon::now()->format('d/m/Y') }}" tabindex="1">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -117,14 +122,14 @@
                             <label for="kode" class="form-label col-md-3">Kode</label>
                             <div class="col-md-9">
                                 <input type="text" class="form-control" id="kode" name="kode"
-                                    value="{{ $invoice->Kode ?? '' }}">
+                                    value="{{ $invoice->Kode ?? '' }}" tabindex="3">
                             </div>
                         </div>
                         <hr>
                         <div class="form-group row">
                             <label for="namacustomer" class="form-label col-md-3">Nama Customer</label>
                             <div class="col-md-9">
-                                <select style="background-color: #ffcccc" class="form-control select2-tags" id="namacustomer" name="namacustomer">
+                                <select style="background-color: #ffcccc" class="form-control select2-tags" id="namacustomer" name="namacustomer" tabindex="2">
                                     <option value="">Pilih Customer</option>
                                     @foreach($customers as $customer)
                                         <option value="{{ $customer }}" {{ (isset($invoice) && $invoice->NamaCustomer == $customer) ? 'selected' : '' }}>
@@ -302,8 +307,11 @@
             </div>
 
             {{-- ITEM LIST --}}
-            <button class="btn btn-avian-secondary d-md-none fab-add-text" type="button" id="btnAddByTextMobile" onclick="$('#btnAddByText').click();">
+            <button class="btn btn-avian-secondary d-md-none fab-add-text-left" type="button" id="btnAddByTextMobile" onclick="$('#btnAddByText').click();">
                 <i class="fas fa-font"></i>
+            </button>
+            <button class="btn btn-avian-secondary d-md-none fab-add-text" type="button" id="btnAddByTextMobile" onclick="$('.btn-submit').click();">
+                <i class="fas fa-save"></i>
             </button>
             <div class="card">
                 <div class="card-header">
@@ -412,6 +420,19 @@
     position: fixed;
     bottom: 20px;
     right: 20px;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.fab-add-text-left {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
     width: 55px;
     height: 55px;
     border-radius: 50%;
@@ -990,6 +1011,9 @@ $(document).ready(function () {
             $nextRow.find('input[name="type[]"]').val('delete');
             $nextRow.hide();
         }
+
+        // update grand total
+        $('#grand-total').text(getGrandTotal().toLocaleString('id-ID'));
         embedPreviewData();
     });
 
@@ -1056,7 +1080,7 @@ $(document).ready(function () {
             // set values
             var $lastRow = $('#product-list-body .card-body, tr').last();
             $lastRow.find('.product-select').html('<option value="{{ $detail->Nama }}" selected>{{ $detail->Nama }}</option>').trigger('change');
-            $lastRow.find('.quantity-input').val('{{ number_format($detail->Qty, 0, ",", ".") }}');
+            $lastRow.find('.quantity-input').val('{{ floor($detail->Qty) != $detail->Qty ? number_format($detail->Qty, 1, ",", ".") : number_format($detail->Qty, 0, ",", ".") }}');
             $lastRow.find('input[name="unit[]"]').val('{{ $detail->Satuan }}');
             $lastRow.find('.price-input').val('{{ number_format($detail->Harga, 0, ",", ".") }}');
             $lastRow.find('input[name="total[]"]').val('{{ number_format($detail->Harga * $detail->Qty, 0, ",", ".") }}');
@@ -1084,11 +1108,26 @@ $(document).ready(function () {
         //     addProduct();
         // @endfor
     @endif
-
+    
     $('.form-type-checkbox').on('change', function() {
-        const isInvoiceChecked = $('#IsInvoice').is(':checked');
-        const isSJChecked = $('#IsSJ').is(':checked');
+        let isInvoiceChecked = $('#IsInvoice').is(':checked');
+        let isSJChecked = $('#IsSJ').is(':checked');
 
+        // Jika keduanya false → hidupkan checkbox satunya otomatis
+        if (!isInvoiceChecked && !isSJChecked) {
+            // Tentukan mana yang diklik
+            if ($(this).attr('id') === 'IsInvoice') {
+                // User baru saja uncheck Invoice → hidupkan SJ
+                $('#IsSJ').prop('checked', true);
+                isSJChecked = true;
+            } else {
+                // User baru saja uncheck SJ → hidupkan Invoice
+                $('#IsInvoice').prop('checked', true);
+                isInvoiceChecked = true;
+            }
+        }
+
+        // Tampilkan/hilangkan container
         if (isInvoiceChecked) {
             $('.invoice-container').removeClass('d-none');
         } else {
@@ -1103,6 +1142,7 @@ $(document).ready(function () {
 
         embedPreviewData();
     });
+
 
     $('#IsEkspedisi').on('change', function() {
         if ($(this).is(':checked')) {

@@ -87,7 +87,7 @@
                 @continue
                 @endif
                 @php
-                    $totalQty['' . $request->unit[$key]] = ($totalQty['' . $request->unit[$key]] ?? 0) + $request->quantity[$key];
+                    $totalQty['' . $request->unit[$key]] = ($totalQty['' . $request->unit[$key]] ?? 0) + (float)str_replace(['.', ','], ['', ''], $request->quantity[$key]);
                 @endphp
                 <tr>
                     <td align="center">{!! $request->quantity[$key] ?? '&nbsp;' !!}</td>

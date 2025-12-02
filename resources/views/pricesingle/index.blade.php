@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'MPR | List Price Single')
+
 @section('content')
 <div class="container-fluid">
     <div class="row">

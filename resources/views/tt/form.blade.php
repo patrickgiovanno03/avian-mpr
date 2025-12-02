@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'MPR | '.($tt == null ? 'Create' : 'Edit') .' TT')
+
 @section('content')
 <div class="container-fluid">
     <div class="row">
@@ -71,8 +73,8 @@
                         <div class="form-group row">
                             <label for="ttno" class="form-label col-md-3">Tanda Terima No.</label>
                             <div class="col-md-9">
-                                <input type="text" class="form-control" id="ttno" name="ttno"
-                                    value="{{ ($isDuplicate ?? null) ? app(\App\Models\HTandaTerima::class)->getNewTTNo() : ($tt->TTNo ?? app(\App\Models\HTandaTerima::class)->getNewTTNo()) }}" readonly>
+                                <input type="text" class="form-control readonly-color" id="ttno" name="ttno"
+                                    value="{{ ($isDuplicate ?? null) ? app(\App\Models\HTandaTerima::class)->getNewTTNo() : ($tt->TTNo ?? app(\App\Models\HTandaTerima::class)->getNewTTNo()) }}">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -338,9 +340,9 @@ $(document).ready(function () {
         $('#print_preview').attr('src', uri + '&t=' + new Date().getTime());
     }
 
-    function addProduct(isSJ = false) {
+    function addProduct() {
         //
-        const productRow = getProductRow(isSJ);
+        const productRow = getProductRow();
         $('#product-list-body').append(productRow);
 
         $('.numeric').inputmask({
@@ -398,7 +400,7 @@ $(document).ready(function () {
         }, 200);
     }
 
-    function getProductRow(isSJ = false) {
+    function getProductRow() {
         
         var row = `
             <tr>
@@ -544,12 +546,9 @@ $(document).ready(function () {
         row.find('input[name="type[]"]').val('delete');
         row.hide();
 
-        // jika ada row sj dibawahnya, hapus juga
-        var $nextRow = row.next('tr');
-        if ($nextRow.find('input[name="issj[]"]').val() == '1') {
-            $nextRow.find('input[name="type[]"]').val('delete');
-            $nextRow.hide();
-        }
+        // update grand total
+        $('#grand-total').text(getGrandTotal().toLocaleString('id-ID'));
+
         embedPreviewData();
     });
 
@@ -600,25 +599,6 @@ $(document).ready(function () {
         }); 
     }
 
-    $(document).on('click', '.btn-hide-product', function (e) {
-        e.preventDefault();
-        var row = $(this).closest('tr, .card');
-        oldVal = row.find('input[name="hidden[]"]').val();
-        if (oldVal == '1') {
-            // ubah jadi 0
-            row.find('input[name="hidden[]"]').val('0');
-            // ubah iconnya jadi fa-eye dan warna jadi warning
-            $(this).find('i').removeClass('fa-eye-slash').addClass('fa-eye');
-            $(this).removeClass('btn-secondary').addClass('btn-warning');
-        } else {
-            row.find('input[name="hidden[]"]').val('1');
-            // ubah iconnya jadi fa-eye-slash dan warna jadi secondary
-            $(this).find('i').removeClass('fa-eye').addClass('fa-eye-slash');
-            $(this).removeClass('btn-warning').addClass('btn-secondary');
-        }
-        embedPreviewData();
-    });
-
     @if($invoices ?? null != null)
         @foreach($invoices as $invoice)
             addProduct();
@@ -649,74 +629,6 @@ $(document).ready(function () {
         @endforeach
         $('#grand-total').text(getGrandTotal().toLocaleString('id-ID'));
     @endif
-
-    $('.form-type-checkbox').on('change', function() {
-        const isInvoiceChecked = $('#IsInvoice').is(':checked');
-        const isSJChecked = $('#IsSJ').is(':checked');
-
-        if (isInvoiceChecked) {
-            $('.invoice-container').removeClass('d-none');
-        } else {
-            $('.invoice-container').addClass('d-none');
-        }
-
-        if (isSJChecked) {
-            $('.sj-container').removeClass('d-none');
-        } else {
-            $('.sj-container').addClass('d-none');
-        }
-
-        embedPreviewData();
-    });
-
-    $('#IsEkspedisi').on('change', function() {
-        if ($(this).is(':checked')) {
-            $('.ekspedisi-container').removeClass('d-none');
-        } else {
-            $('.ekspedisi-container').addClass('d-none');
-            $('#IsSJCustomer').prop('checked', true).trigger('change');
-        }
-        embedPreviewData();
-    });
-
-    $('#IsKopSurat').on('change', function() {
-        if ($(this).is(':checked')) {
-            $('.ttd-container').addClass('d-none');
-        } else {
-            $('.ttd-container').removeClass('d-none');
-        }
-        embedPreviewData();
-    });
-
-    $('#IsDiscount').on('change', function() {
-        if ($(this).is(':checked')) {
-            $('.discount-container').removeClass('d-none');
-        } else {
-            $('.discount-container').addClass('d-none');
-        }
-        embedPreviewData();
-    });
-
-    $('#IsSJCustomer').on('change', function() {
-        if ($(this).is(':checked')) {
-        } else {
-            $('#IsEkspedisi').prop('checked', true).trigger('change');
-        }
-    });
-
-    $('.btn-lock').on('click', function(e) {
-        e.preventDefault();
-        isLocked = !isLocked;
-        if (isLocked) {
-            // Lock
-            $('#product-list-body').find('select:not([name="product[]"]), input').prop('disabled', true);
-            $(this).html('<i class="fas fa-unlock mr-lg-2"></i><span class="d-none d-lg-inline">Unlock</span>');
-        } else {
-            // Unlock
-            $('#product-list-body').find('select:not([name="product[]"]), input').prop('disabled', false);
-            $(this).html('<i class="fas fa-lock mr-lg-2"></i><span class="d-none d-lg-inline">Lock</span>');
-        }
-    });
 
     embedPreviewData();
 });

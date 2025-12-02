@@ -29,4 +29,9 @@ class HGaji extends Model
     {
         return $this->belongsTo(MGaji::class, 'GajiID', 'GajiID');
     }
+
+    public function getTotal()
+    {
+        return $this->dgaji()->sum('Pokok') + $this->dgaji()->sum('Lembur') + $this->Bonus + $this->UangMakan;
+    }
 }

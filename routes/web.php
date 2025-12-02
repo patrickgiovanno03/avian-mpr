@@ -57,9 +57,12 @@ Route::prefix('invoice')->group(function () {
     Route::get('/getProducts', 'InvoiceController@getProducts')->name('invoice.getProducts');
     Route::get('/getProductDetails', 'InvoiceController@getProductDetails')->name('invoice.getProductDetails');
     Route::get('/getCustomerDetails', 'InvoiceController@getCustomerDetails')->name('invoice.getCustomerDetails');
-    Route::get('/previewdynamic/{id}/{download?}', 'InvoiceController@previewdynamic')->name('invoice.previewdynamic');
+    Route::get('/print/{id}/{download?}', 'InvoiceController@previewdynamic')->name('invoice.previewdynamic');
 });
 Route::resource('invoice', 'InvoiceController');
+
+// INVOICE + TT
+Route::get('/form/{id}', 'InvoiceController@form')->name('form');
 
 // CUSTOMER
 Route::prefix('customer')->group(function () {
@@ -72,6 +75,7 @@ Route::resource('customer', 'CustomerController');
 Route::prefix('gaji')->group(function () {
     Route::post('/upload', 'GajiController@upload')->name('gaji.upload');
     Route::post('/storeDetail/{id}', 'GajiController@storeDetail')->name('gaji.storeDetail');
+    Route::post('/deleteDetail', 'GajiController@deleteDetail')->name('gaji.deleteDetail');
     Route::get('/slip/{id}', 'GajiController@slip')->name('gaji.slip');
     Route::get('/slipAll/{id}', 'GajiController@slipAll')->name('gaji.slipAll');
     Route::get('/datatable', 'GajiController@datatable')->name('gaji.datatable');
@@ -93,6 +97,6 @@ Route::prefix('tt')->group(function () {
     Route::get('/getProducts', 'TandaTerimaController@getProducts')->name('tt.getProducts');
     Route::get('/getFormDetails', 'TandaTerimaController@getFormDetails')->name('tt.getFormDetails');
     Route::get('/getCustomerDetails', 'TandaTerimaController@getCustomerDetails')->name('tt.getCustomerDetails');
-    Route::get('/previewdynamic/{id}/{download?}', 'TandaTerimaController@previewdynamic')->name('tt.previewdynamic');
+    Route::get('/print/{id}/{download?}', 'TandaTerimaController@previewdynamic')->name('tt.previewdynamic');
 });
 Route::resource('tt', 'TandaTerimaController');

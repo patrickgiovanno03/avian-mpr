@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'MPR | Form Gaji')
+
 @section('content')
 <div class="container-fluid">
     <div class="row">
@@ -73,36 +75,71 @@
                     </div>
                     @else
                     <!-- ====================== DAFTAR SLIP GAJI ====================== -->
-                      <div class="row g-4">
-                          @foreach($mgaji->hgaji as $gaji)
-                          <div class="col-md-6 col-xl-4">
-                              <div class="card border-0 shadow-sm h-100 hover-lift">
-                                  <div class="position-relative">
-                                      <img src="{{ asset('storage/' . $gaji->URL) }}" class="card-img-top rounded-top" alt="Slip Gaji">
-                                  </div>
-                                  <div class="card-body text-center">
-                                      <h5 class="fw-bold mb-1 text-muted">{{ $gaji->pegawai->Nama ?? 'Belum diisi' }}</h5>
-                                      <p class="text-muted small mb-0"></p>
-                                      <div class="">
-                                        <button class="btn btn-info btn-sm btn-rotate" data-id="{{ $gaji->HeaderID }}"><i class="fas fa-rotate-left"></i></button>
-                                        @if($gaji->PegawaiID != null)
-                                            <button class="btn btn-light btn-sm me-2 btn-isi-data" data-toggle="modal" data-type="edit" data-target="#modalGaji" data-id="{{ $gaji->HeaderID }}" data-data="{{ json_encode($gaji) }}">
-                                                <i class="fas fa-edit mr-2"></i>Edit Data
-                                            </button>
-                                            <a href="{{ route('gaji.slip', $gaji->HeaderID) }}" target="_blank" class="btn btn-avian-secondary btn-sm">
-                                                <i class="fas fa-file-pdf mr-2"></i>Slip PDF
-                                            </a>
-                                        @else
-                                            <button class="btn btn-light btn-sm me-2 btn-isi-data" data-toggle="modal" data-type="create" data-target="#modalGaji" data-id="{{ $gaji->HeaderID }}">
-                                                <i class="fas fa-edit mr-2"></i>Isi Data
-                                            </button>
-                                        @endif
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-                          @endforeach
-                      </div>
+                    <!-- GRID WRAPPER -->
+                    <div class="gaji-grid">
+                        @foreach($mgaji->hgaji as $gaji)
+                        @if($gaji->pegawai)
+                        @endif
+                        
+                        <div class="gaji-card">
+                            
+                            <!-- IMAGE -->
+                            <div class="gaji-img btn-isi-data"
+                            data-toggle="modal"
+                            data-type="{{ $gaji->PegawaiID ? 'edit':'create' }}"
+                            data-target="#modalGaji"
+                            data-id="{{ $gaji->HeaderID }}"
+                            @if($gaji->PegawaiID)
+                                data-data="{{ json_encode($gaji) }}"
+                            @endif
+                            >
+                                <img src="{{ asset('storage/' . $gaji->URL) }}" loading="lazy">
+                            </div>
+
+                            <!-- CONTENT -->
+                            <div class="gaji-content">
+
+                                <h5>
+                                    @if($gaji->pegawai)
+                                        {{ $gaji->pegawai->Nama }} 
+                                        <span class="total">- {{ $gaji->getTotal() }}k</span>
+                                    @else
+                                        <span class="text-danger">Belum diisi</span>
+                                    @endif
+                                </h5>
+
+                                <div class="gaji-actions">
+                                    <!-- ROTATE -->
+                                    <button 
+                                        class="btn btn-info btn-sm btn-rotate"
+                                        data-id="{{ $gaji->HeaderID }}">
+                                        <i class="fas fa-rotate-left"></i>
+                                    </button>
+
+                                    <!-- PDF -->
+                                    @if($gaji->PegawaiID)
+                                    <a 
+                                        href="{{ route('gaji.slip',$gaji->HeaderID) }}"
+                                        target="_blank"
+                                        class="btn btn-avian-primary btn-sm"
+                                    >
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                    @endif
+                                    <button 
+                                        class="btn btn-danger btn-sm btn-delete"
+                                        data-id="{{ $gaji->HeaderID }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        @endforeach
+                    </div>
                       @endif
                 </div>
             </div>
@@ -111,7 +148,7 @@
 </div>
 <!-- Modal Form Gaji -->
 <div class="modal fade modal-draggable" id="modalGaji" data-backdrop="false" data-keyboard="false" aria-labelledby="modalGajiLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-dialog modal-dialog-centered modal-lg" style="min-width:90%">
         <form id="formItem" class="modal-content" method="post" action="{{ route('gaji.storeDetail', $gaji->GajiID ?? 0) }}" autocomplete="off">
             <div class="modal-header bg-warning">
                 <h5 class="modal-title" id="addModalLabel">Form Gaji - {{ $gaji->NamaKaryawan ?? 'Karyawan' }}</h5>
@@ -121,62 +158,76 @@
             </div>
             <div class="modal-body">
                 @csrf
-                <div class="mb-3">
-                  <label>Pegawai</label>
-                  <select class="form-control select2 pegawai-select" id="pegawai" name="pegawai">
-                      
-                  </select>
-                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3 text-center">
+                            <label class="font-weight-bold d-block mb-2">Foto Slip</label>
 
-                <!-- Input gaji pokok & lembur -->
-                <div class="row mb-3">
-                  <div class="col-md-6">
-                    <label>Gaji Pokok (per hari)</label>
-                    <input type="number" step="any" class="form-control" id="gaji_pokok" placeholder="Masukkan gaji pokok" name="gajipokok">
-                  </div>
-                  <div class="col-md-6">
-                    <label>Gaji Lembur (per hari)</label>
-                    <input type="number" step="any" class="form-control" id="gaji_lembur" placeholder="Masukkan gaji lembur" name="gajilembur">
-                  </div>
-                </div>
+                            <div class="image-preview-wrapper mx-auto">
+                                <img id="fotoPreview" src="" alt="Preview Foto Slip">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                        <label>Pegawai</label>
+                        <select class="form-control select2 pegawai-select" id="pegawai" name="pegawai" tabindex="1">
+                            
+                        </select>
+                        </div>
 
-                <!-- Input jumlah hari -->
-                <div class="mb-3">
-                  <label>Jumlah Hari Kerja</label>
-                  <input style="background-color: #E7F1DC" type="number" step="any" class="form-control" id="jumlah_hari" placeholder="Masukkan jumlah hari" name="jumlahhari">
-                </div>
+                        <!-- Input gaji pokok & lembur -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label>Gaji Pokok (per hari)</label>
+                                <input type="number" step="any" class="form-control" id="gaji_pokok" placeholder="Masukkan gaji pokok" name="gajipokok" tabindex="3">
+                            </div>
+                            <div class="col-md-6">
+                                <label>Gaji Lembur (per hari)</label>
+                                <input type="number" step="any" class="form-control" id="gaji_lembur" placeholder="Masukkan gaji lembur" name="gajilembur" tabindex="4">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label>Uang Makan</label>
+                                <input type="number" step="any" class="form-control" id="uangmakan" placeholder="Masukkan uang makan" name="uangmakan" tabindex="5">
+                            </div>
+                            <div class="col-md-6">
+                                <label>Bonus</label>
+                                <input type="number" step="any" class="form-control" id="bonus" placeholder="Masukkan bonus (opsional)" name="bonus" tabindex="6">
+                            </div>
+                        </div>
 
-                <!-- Tabel otomatis muncul -->
-                <div class="table-responsive mb-3">
-                  <table class="table table-bordered align-middle text-center" id="tabelGaji">
-                      <thead class="table-light">
-                      <tr>
-                          <th>Hari</th>
-                          <th>Tanggal</th>
-                          <th>Gaji Pokok</th>
-                          <th>Jam Lembur</th>
-                          <th>Gaji Lembur Total</th>
-                          <th>Total Hari Ini</th>
-                      </tr>
-                      </thead>
-                      <tbody></tbody>
-                  </table>
-                  </div>
+                        <hr>
+                        <!-- Input jumlah hari -->
+                        <div class="mb-3">
+                        <label>Jumlah Hari Kerja</label>
+                        <input style="background-color: #E7F1DC" type="number" step="any" class="form-control" id="jumlah_hari" placeholder="Masukkan jumlah hari" name="jumlahhari" tabindex="2">
+                        </div>
 
-                <!-- Input bonus -->
-                <div class="mb-3">
-                  <label>Uang Makan</label>
-                  <input type="number" step="any" class="form-control" id="uangmakan" placeholder="Masukkan uang makan" name="uangmakan">
-                </div>
-                <div class="mb-3">
-                  <label>Bonus</label>
-                  <input type="number" step="any" class="form-control" id="bonus" placeholder="Masukkan bonus (opsional)" name="bonus">
-                </div>
+                        <!-- Tabel otomatis muncul -->
+                        <div class="table-responsive mb-3">
+                        <table class="table table-bordered table-striped align-middle text-center" id="tabelGaji">
+                            <thead class="thead-dark">
+                            <tr>
+                                <th>Hari</th>
+                                <th>Tanggal</th>
+                                <th>Gaji Pokok</th>
+                                <th>Jam Lembur</th>
+                                <th>Lembur Total</th>
+                                <th>Total Hari Ini</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        </div>
 
-                <!-- Total akhir -->
-                <div class="mb-3">
-                  <label>Total Gaji</label>
-                  <input type="number" step="any" class="form-control bg-light" id="total_gaji" readonly>
+                        <!-- Total akhir -->
+                        <div class="mb-3">
+                        <label>Total Gaji</label>
+                        <input type="number" step="any" class="form-control bg-light" id="total_gaji" readonly>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -210,6 +261,90 @@
         overflow: auto !important;     /* supaya halaman bisa scroll */
         padding-right: 0 !important;
     }
+
+    .image-preview-wrapper {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 2px solid #ddd;
+        box-shadow: 0px 3px 10px rgba(0,0,0,0.1);
+        background: #f7f7f7;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .image-preview-wrapper img {
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    /* ===== GRID SYSTEM ===== */
+    .gaji-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        padding: 10px;
+    }
+
+    /* ===== CARD (Glass Effect) ===== */
+    .gaji-card {
+        backdrop-filter: blur(15px) saturate(180%);
+        -webkit-backdrop-filter: blur(15px) saturate(180%);
+        background: rgba(255, 255, 255, 0.18);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, .25);
+
+        overflow: hidden;
+        box-shadow: 0px 8px 30px rgba(0,0,0,.15);
+        transition: transform .3s ease, box-shadow .3s ease;
+        cursor: pointer;
+    }
+
+    .gaji-card:hover {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0px 20px 40px rgba(0,0,0,.20);
+    }
+
+    /* ===== IMAGE ===== */
+    .gaji-img {
+        width: 100%;
+        max-height: 180px;
+        overflow: hidden;
+    }
+
+    .gaji-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform .5s ease;
+    }
+
+    .gaji-card:hover .gaji-img img {
+        transform: scale(1.08);
+    }
+
+    /* ===== CONTENT ===== */
+    .gaji-content {
+        padding: 18px;
+        text-align: center;
+    }
+
+    .gaji-content .total {
+        color: #ecaa0f;
+    }
+
+    /* ===== BUTTONS ===== */
+    .gaji-actions {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .gaji-actions .btn {
+        border-radius: 10px;
+        padding: 6px 12px;
+    }
+
 </style>
 @endsection
 
@@ -286,6 +421,24 @@ function hitungTotal() {
     const makan = parseFloat(inputMakan.value) || 0;
     inputTotal.value = (total + bonus + makan).toFixed(1);
 }
+function reorderTabIndex() {
+        const columns = [
+            'pokok',
+            'jam',
+            'lembur',
+            'total'
+        ];
+
+        let tabIndex = 1;
+
+        columns.forEach(selector => {
+            // Loop per kolom (bukan per baris)
+            $('#tabelGaji').find('.' + selector).each(function() {
+                $(this).attr('tabindex', tabIndex++);
+            });
+        });
+    }
+    
 document.addEventListener('DOMContentLoaded', function () {
     // Generate tabel otomatis saat jumlah hari berubah
     @if ($mgaji == null)
@@ -321,6 +474,7 @@ document.addEventListener('DOMContentLoaded', function () {
             dateFormat: 'dd/mm/yy',
         });
         hitungTotal();
+        reorderTabIndex();
     });
 
     // Saat jam lembur diganti → update kolom gaji lembur & total
@@ -332,6 +486,14 @@ document.addEventListener('DOMContentLoaded', function () {
             const totalLembur = jam * rateLembur;
             row.querySelector('.lembur').value = totalLembur.toFixed(2);
         }
+        var countDayLembur = 0;
+        tabelBody.querySelectorAll('tr').forEach(row => {
+            const jam = parseFloat(row.querySelector('.jam').value) || 0;
+            if (jam > 0) {
+                countDayLembur++;
+            }
+        });
+        $('#uangmakan').val(countDayLembur * 10);
         hitungTotal();
     });
 
@@ -384,6 +546,10 @@ $('.pegawai-select').on('select2:select', function (e) {
 $('.btn-isi-data').on('click', function() {
     var gajiId = $(this).data('id');
     var type = $(this).data('type');
+    var imgSrc = $(this).closest('.gaji-card').find('img').attr('src');
+    console.log($(this).data('type'));
+    $('#fotoPreview').attr('src', imgSrc);
+    console.log( $(this).closest('.gaji-card').find('img').attr('src'));
 
     $('#formItem')[0].reset();
     $('#tabelGaji tbody').empty();
@@ -406,12 +572,12 @@ $('.btn-isi-data').on('click', function() {
         // generate tabel
         dataGaji.dgaji.forEach(function(item, index) {
             var row = `<tr>
-                <td>${index + 1}</td>
-                <td><input type="text" name="tanggal[]" class="form-control tanggal datepicker" value="${(item.Tanggal.split('-').reverse().join('/')) || ''}"></td>
-                <td><input type="number" step="any" name="pokok[]" class="form-control text-end pokok" value="${item.Pokok}"></td>
-                <td><input type="number" step="any" name="jam[]" class="form-control text-end jam" value="${item.Jam}" min="0" placeholder="Jam lembur"></td>
-                <td><input type="number" step="any" name="lembur[]" class="form-control text-end lembur" value="${item.Lembur.toFixed(2)}" readonly></td>
-                <td><input type="number" step="any" class="form-control text-end total" value="${(item.Pokok + item.Lembur).toFixed(1)}" readonly></td>
+                <td style="padding-top: 5px; padding-bottom: 5px">${index + 1}</td>
+                <td style="padding-top: 5px; padding-bottom: 5px"><input type="text" name="tanggal[]" class="form-control tanggal datepicker" value="${(item.Tanggal.split('-').reverse().join('/')) || ''}"></td>
+                <td style="padding-top: 5px; padding-bottom: 5px"><input type="number" step="any" name="pokok[]" class="form-control text-end pokok" value="${item.Pokok}"></td>
+                <td style="padding-top: 5px; padding-bottom: 5px"><input type="number" step="any" name="jam[]" class="form-control text-end jam" value="${item.Jam}" min="0" placeholder="Jam lembur"></td>
+                <td style="padding-top: 5px; padding-bottom: 5px"><input type="number" step="any" name="lembur[]" class="form-control text-end lembur" value="${item.Lembur.toFixed(2)}" readonly></td>
+                <td style="padding-top: 5px; padding-bottom: 5px"><input type="number" step="any" class="form-control text-end total" value="${(item.Pokok + item.Lembur).toFixed(1)}" readonly></td>
             </tr>`;
             $('#tabelGaji tbody').append(row);
         });
@@ -419,12 +585,17 @@ $('.btn-isi-data').on('click', function() {
             dateFormat: 'dd/mm/yy',
         });
         hitungTotal();
+        reorderTabIndex();
+    } else {
+        // reset form
+        $('.modal-title').text('Form Gaji');
+        $('#pegawai').val(null).trigger('change');
     }
 });
 
 $('.btn-rotate').on('click', function() {
     var gajiId = $(this).data('id');
-    var img = $(this).closest('.card').find('img');
+    var img = $(this).closest('.gaji-card').find('img');
     $.ajax({
         url: '{{ route("gaji.rotateImage") }}',
         type: 'POST',
@@ -442,6 +613,45 @@ $('.btn-rotate').on('click', function() {
                 title: 'Terjadi kesalahan saat memutar gambar.',
                 text: xhr.responseText
             });
+        }
+    });
+});
+
+$('.btn-delete').on('click', function() {
+    var gajiId = $(this).data('id');
+    var card = $(this).closest('.gaji-card');
+    Swal.fire({
+        title: 'Apakah anda yakin untuk menghapus data?',
+        icon: 'warning',
+        showCancelButton: true,
+        cancelButtonColor: '#6c757d',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Yes!'
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                url: '{{ route("gaji.deleteDetail") }}',
+                type: 'POST',
+                data: {
+                    headerid: gajiId
+                },
+                success: function(response) {
+                    card.remove();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Data berhasil dihapus.'
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Terjadi kesalahan saat menghapus data.',
+                        text: xhr.responseText
+                    });
+                }
+            });
+        } else {
+            return false;
         }
     });
 });
