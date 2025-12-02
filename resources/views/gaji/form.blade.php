@@ -576,8 +576,8 @@ $('.btn-isi-data').on('click', function() {
                 <td style="padding-top: 5px; padding-bottom: 5px"><input type="text" name="tanggal[]" class="form-control tanggal datepicker" value="${(item.Tanggal.split('-').reverse().join('/')) || ''}"></td>
                 <td style="padding-top: 5px; padding-bottom: 5px"><input type="number" step="any" name="pokok[]" class="form-control text-end pokok" value="${item.Pokok}"></td>
                 <td style="padding-top: 5px; padding-bottom: 5px"><input type="number" step="any" name="jam[]" class="form-control text-end jam" value="${item.Jam}" min="0" placeholder="Jam lembur"></td>
-                <td style="padding-top: 5px; padding-bottom: 5px"><input type="number" step="any" name="lembur[]" class="form-control text-end lembur" value="${item.Lembur.toFixed(2) ?? 0}" readonly></td>
-                <td style="padding-top: 5px; padding-bottom: 5px"><input type="number" step="any" class="form-control text-end total" value="${(item.Pokok + item.Lembur).toFixed(1) ?? 0}" readonly></td>
+                <td style="padding-top: 5px; padding-bottom: 5px"><input type="number" step="any" name="lembur[]" class="form-control text-end lembur"value="${Number(item.Lembur || 0).toFixed(2)}" readonly></td>
+                <td style="padding-top: 5px; padding-bottom: 5px"><input type="number" step="any" class="form-control text-end total" value="${Number((item.Pokok + item.Lembur) || 0).toFixed(1) ?? 0}" readonly></td>
             </tr>`;
             $('#tabelGaji tbody').append(row);
         });
