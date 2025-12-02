@@ -439,9 +439,9 @@ class InvoiceController extends Controller
             $pdf->setPaper('a4', 'landscape');
         }
         if ($download == 1 || $request->download == 1) {
-            return $pdf->download("{$invoice?->InvoiceNo} {$invoice?->SJNo} ({$invoice?->Kode}) - {$invoice?->NamaCustomer}.pdf");
+            return $pdf->download("{$invoice?->InvoiceNo} {$invoice?->SJNo}".($invoice->Kode != '' ? " ({$invoice->Kode})" : '')." - {$invoice?->NamaCustomer}.pdf");
         }
-        return $pdf->stream("{$invoice?->InvoiceNo} {$invoice?->SJNo} ({$invoice?->Kode}) - {$invoice?->NamaCustomer}.pdf");
+        return $pdf->stream("{$invoice?->InvoiceNo} {$invoice?->SJNo}".($invoice->Kode != '' ? " ({$invoice->Kode})" : '')." - {$invoice?->NamaCustomer}.pdf");
     }
 
     public function getProducts(Request $request)
