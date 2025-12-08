@@ -264,8 +264,16 @@ class InvoiceController extends Controller
             if ($request->input('type')[$index] == 'delete') {
                 if ($request->input('detailid')[$index]) {
                     $dinvoice = DInvoice::find($request->input('detailid')[$index]);
-                    if ($dinvoice)
-                        $dinvoice->delete();
+                    if ($request->input('issj')[$index] == 1) {
+                        $dinvoice->IsSJ = 0;
+                        $dinvoice->NamaSJ = null;
+                        $dinvoice->SatuanSJ = null;
+                        $dinvoice->QtySJ = 0;
+                        $dinvoice->save();
+                    } else {
+                        if ($dinvoice)
+                            $dinvoice->delete();
+                    }
                 }
                 continue;
             }

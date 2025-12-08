@@ -93,11 +93,11 @@
     <div class="page"> {{-- SURAT JALAN --}}
         <table style="width:100%; border-collapse:collapse; margin-top:5px">
             <tr>
-                <td style="width:48%; padding:20px;">
+                <td style="width:48%; padding:20px; {{ ($request->IsEkspedisi ?? $invoice->IsEkspedisi ?? 0) == 1 ? 'padding-top:10px' : '' }}">
                     <x-surat-jalan :request="$request" :invoice="$invoice" :page="0" />
                 </td>
                 <td><div style="width: 4%"></div></td>
-                <td style="width:48%; padding:20px;">
+                <td style="width:48%; padding:20px; {{ ($request->IsEkspedisi ?? $invoice->IsEkspedisi ?? 0) == 1 ? 'padding-top:10px' : '' }}">
                     <x-surat-jalan :request="$request" :invoice="$invoice" :page="1" />
                 </td>
             </tr>

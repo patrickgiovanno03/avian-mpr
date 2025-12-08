@@ -1195,8 +1195,10 @@ $(document).ready(function () {
 
     $('.btn-clear').on('click', function(e) {
         e.preventDefault();
-        $('#product-list-body').empty();
-        $('#grand-total').text('0');
+        // loop klik button delete semua
+        $('#product-list-body tr').each(function() {
+            $(this).find('.btn-remove-product').trigger('click');
+        });
         isChanged = true;
         embedPreviewData();
     });

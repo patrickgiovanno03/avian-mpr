@@ -194,7 +194,8 @@
     var showTotal = false;
     let table = $('.dataTable').DataTable({
         processing: true,
-        responsive: true,
+        responsive: false,
+        scrollX: true,
         pageLength: 100,
         serverSide: true,
         ajax: baseurl + '?' + $('#filter').serialize(),
