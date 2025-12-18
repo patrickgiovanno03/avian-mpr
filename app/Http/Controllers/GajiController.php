@@ -392,6 +392,7 @@ class GajiController extends Controller
         //
         // https://www.senyumqu.com/gaji/slip/38
         $mgaji = MGaji::find($request->input('gajiid'));
+        dd(route('gaji.slipAll', $request->input('gajiid')));
         try {
             $this->sendWhatsApp(
                 'Slip Gaji Tanggal ' . Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d F Y'),
