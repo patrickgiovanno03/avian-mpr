@@ -750,7 +750,7 @@ $('.btn-whatsapp').on('click', function (e, isAlert = true) {
         success: function(response) {
             console.log(response);
             $('#slip-jpg').html(response.html);
-            // $('#slip-jpg').removeClass('d-none');
+            $('#slip-jpg').removeClass('d-none');
             const el = document.getElementById('slip-jpg');
 
             html2canvas(el, {
@@ -760,14 +760,12 @@ $('.btn-whatsapp').on('click', function (e, isAlert = true) {
                 windowWidth: el.scrollWidth,
                 windowHeight: el.scrollHeight
             }).then(canvas => {
+                console.log(canvas);
                 // var link = document.createElement('a');
                 // link.href = canvas.toDataURL('image/png');
                 // link.download = 'slip-gaji.png';
                 // link.click();
                 $('#slip-jpg').addClass('d-none');
-                if (!isAlert) {
-                    return;
-                }
                 $.ajax({
                     url: '{{ route("gaji.sendWA") }}',
                     type: 'POST',
@@ -776,6 +774,9 @@ $('.btn-whatsapp').on('click', function (e, isAlert = true) {
                         hgaji: response.hgaji,
                     },
                     success: function(response) {
+                        if (!isAlert) {
+                            return;
+                        }
                         Swal.fire({
                             icon: 'success',
                             title: 'Gambar PNG berhasil dikirim.',
@@ -802,24 +803,37 @@ $('.btn-whatsapp').on('click', function (e, isAlert = true) {
 });
 
 $('.btn-whatsapp-all').on('click', function () {
-    const buttons = document.querySelectorAll('.btn-whatsapp');
+    const buttons = $('.btn-whatsapp'); // ambil semua tombol
     let index = 0;
+
+    Swal.fire({
+        title: 'Kirim Slip Gaji',
+        text: 'Proses pengiriman sedang berjalan...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
 
     function sendNext() {
         if (index < buttons.length) {
-            $(buttons[index]).trigger('click', [false]); // ⬅ kirim parameter
+            // trigger click TANPA alert per item
+            $(buttons[index]).trigger('click', [false]);
+
             index++;
+
+            // delay antar kirim (WA API perlu ini)
             setTimeout(sendNext, 1000);
         } else {
             Swal.fire({
                 icon: 'success',
-                title: 'Semua gambar PNG berhasil dikirim.',
+                title: 'Selesai',
+                text: 'Semua slip gaji berhasil diproses.'
             });
         }
     }
 
     sendNext();
 });
+
 
 </script>
 @endsection
