@@ -394,8 +394,8 @@ class GajiController extends Controller
         $mgaji = MGaji::find($request->input('gajiid'));
         try {
             $this->sendWhatsApp(
-                'List Slip Gaji Tanggal ' . Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d F Y'),
-                route('gaji.slip', $request->input('gajiid')),
+                'Slip Gaji Tanggal ' . Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d F Y'),
+                route('gaji.slipAll', $request->input('gajiid')),
                 '6281332879850'
             );
         } catch (\Exception $e) {
