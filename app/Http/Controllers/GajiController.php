@@ -392,12 +392,12 @@ class GajiController extends Controller
         //
         // https://www.senyumqu.com/gaji/slip/38
         $mgaji = MGaji::find($request->input('gajiid'));
-        dd(route('gaji.slipAll', $request->input('gajiid')));
         try {
             $this->sendWhatsApp(
                 'Slip Gaji Tanggal ' . Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d F Y'),
+                '6281332879850',
                 route('gaji.slipAll', $request->input('gajiid')),
-                '6281332879850'
+                Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d/m/Y') . '.pdf'
             );
         } catch (\Exception $e) {
             dd('Error: ' . $e->getMessage());
@@ -405,7 +405,7 @@ class GajiController extends Controller
         return response()->json(['success' => true, 'message' => 'Validation message sent successfully.']);
     }
 
-    public function sendWhatsApp($message, $mediaUrl, $recipient, $fileName = '')
+    public function sendWhatsApp($message, $recipient, $mediaUrl, $fileName = '')
     {
         //
         $response = Http::post('https://api.kirimi.id/v1/send-message', [
