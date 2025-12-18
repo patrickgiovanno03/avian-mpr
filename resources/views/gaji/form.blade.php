@@ -747,28 +747,28 @@ $('.btn-download-png').on('click', function() {
                 link.href = canvas.toDataURL('image/png');
                 link.download = 'slip-gaji.png';
                 link.click();
-                // $('#slip-jpg').addClass('d-none');
-                // $.ajax({
-                //     url: '{{ route("gaji.uploadFinal") }}',
-                //     type: 'POST',
-                //     data: {
-                //         image: canvas.toDataURL('image/jpeg', 0.85),
-                //         hgaji: response.hgaji,
-                //     },
-                //     success: function(response) {
-                //         Swal.fire({
-                //             icon: 'success',
-                //             title: 'Gambar PNG berhasil dikirim.',
-                //         });
-                //     },
-                //     error: function(xhr) {
-                //         Swal.fire({
-                //             icon: 'error',
-                //             title: 'Terjadi kesalahan saat mengirim gambar.',
-                //             text: xhr.responseText
-                //         });
-                //     }
-                // });
+                $('#slip-jpg').addClass('d-none');
+                $.ajax({
+                    url: '{{ route("gaji.uploadFinal") }}',
+                    type: 'POST',
+                    data: {
+                        image: canvas.toDataURL('image/jpeg', 0.85),
+                        hgaji: response.hgaji,
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Gambar PNG berhasil dikirim.',
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Terjadi kesalahan saat mengirim gambar.',
+                            text: xhr.responseText
+                        });
+                    }
+                });
             });
         },
         error: function(xhr) {

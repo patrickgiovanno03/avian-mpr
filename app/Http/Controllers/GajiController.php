@@ -373,7 +373,8 @@ class GajiController extends Controller
         $response = Http::post('https://api.kirimi.id/v1/send-message', [
             'user_code' => 'KMQ32X1225',
             'device_id' => 'D-YAGC9',
-            'receiver' => '6282124328383',
+            'receiver' => '6281230333587',
+            // 'receiver' => '6282124328383',
             'message' => 'Gaji ' . $hgaji->pegawai->Nama,
             'media_url' => 'https://www.senyumqu.com/storage/gaji/' . $hgaji->mgaji->GajiID . '/' . $filename,
             'fileName' => '',
