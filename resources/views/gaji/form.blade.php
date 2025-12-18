@@ -125,7 +125,7 @@
                                     <!-- PDF -->
                                     @if($gaji->PegawaiID)
                                     <button 
-                                        class="btn btn-success btn-sm btn-download-png"
+                                        class="btn btn-success btn-sm btn-whatsapp"
                                         data-id="{{ $gaji->HeaderID }}">
                                         <i class="fa-brands fa-whatsapp"></i>
                                     </button>
@@ -557,6 +557,39 @@ $('.pegawai-select').on('select2:select', function (e) {
     inputBonus.addEventListener('input', hitungTotal);
 });
 
+$('.btn-whatsapp-all').on('click', function() {
+    // loop tiap .btn-whatsapp, kalau sudah selesai kasih alert
+    var buttons = $('.btn-whatsapp');
+    var total = buttons.length;
+    var sent = 0;
+    buttons.each(function() {
+        var button = $(this);
+        $.ajax({
+            url: '{{ route("gaji.sendWhatsApp") }}',
+            type: 'POST',
+            data: {
+                gajiid: button.data('gajiid')
+            },
+            success: function(response) {
+                sent++;
+                if (sent === total) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pesan WhatsApp berhasil dikirim ke semua karyawan.'
+                    });
+                }
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi kesalahan saat mengirim pesan WhatsApp.',
+                    text: xhr.responseText
+                });
+            }
+        });
+    });
+});
+
 $('.btn-whatsapp').on('click', function() {
     var gajiId = $(this).data('gajiid');
     $.ajax({
@@ -761,7 +794,7 @@ $('#modalGaji').on('change', '.tanggal', function() {
 });
 
 // Download PNG
-$('.btn-download-png').on('click', function() {
+$('.btn-whatsapp').on('click', function() {
     var id = $(this).data('id');
 
     $.ajax({
@@ -789,7 +822,7 @@ $('.btn-download-png').on('click', function() {
                 link.click();
                 $('#slip-jpg').addClass('d-none');
                 $.ajax({
-                    url: '{{ route("gaji.uploadFinal") }}',
+                    url: '{{ route("gaji.sendWA") }}',
                     type: 'POST',
                     data: {
                         image: canvas.toDataURL('image/jpeg', 0.85),
