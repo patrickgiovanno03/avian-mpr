@@ -77,8 +77,11 @@ Route::prefix('gaji')->group(function () {
     Route::post('/storeDetail/{id}', 'GajiController@storeDetail')->name('gaji.storeDetail');
     Route::post('/deleteDetail', 'GajiController@deleteDetail')->name('gaji.deleteDetail');
     Route::get('/slip/{id}', 'GajiController@slip')->name('gaji.slip');
+    Route::get('/sliphtml/{id}', 'GajiController@sliphtml')->name('gaji.sliphtml');
     Route::get('/slipAll/{id}', 'GajiController@slipAll')->name('gaji.slipAll');
+    Route::get('/getData', 'GajiController@getData')->name('gaji.getData');
     Route::get('/datatable', 'GajiController@datatable')->name('gaji.datatable');
+    Route::post('/uploadFinal', 'GajiController@uploadFinal')->name('gaji.uploadFinal');
     Route::post('/rotateImage', 'GajiController@rotateImage')->name('gaji.rotateImage');
     Route::post('/sendWhatsApp', 'GajiController@sendWhatsApp')->name('gaji.sendWhatsApp');
 });

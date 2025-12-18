@@ -14,6 +14,7 @@ use Spatie\Browsershot\Browsershot;
 use ZipArchive;
 use File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
 class GajiController extends Controller
@@ -324,6 +325,65 @@ class GajiController extends Controller
         $image->save($path);
 
         return response()->json(['success' => true, 'message' => 'Image rotated successfully.']);
+    }
+
+    public function getData(Request $request)
+    {
+        //
+        $params['hgaji'] = HGaji::with('pegawai', 'dgaji')->findOrFail($request->input('headerid'));
+        $path = config('app.public_html') . '/' . $params['hgaji']->URL;
+        // ambil orientasi
+        [$w, $h] = getimagesize($path);
+        $isPortrait = $h > $w;
+
+        // load image
+        $image = Image::make($path);
+
+        // kalau portrait → rotate sementara (TIDAK disimpan!)
+        if ($isPortrait) {
+            $image->rotate(90);
+        }
+
+        // encode ke base64 untuk langsung dipakai di view
+        $base64Image = $image->encode('data-url')->encoded;
+        $params['base64Image'] = $base64Image;
+        $html = view('gaji.slip-template', $params)->render();
+        return response()->json(['success' => true, 'html' => $html, 'hgaji' => $params['hgaji']->HeaderID]);
+    }
+
+    public function uploadFinal(Request $request)
+    {
+        //
+        $hgaji = HGaji::with('mgaji')->findOrFail($request->input('hgaji'));
+        $image = preg_replace('#^data:image/\w+;base64,#i', '', $request->image);
+        $image = base64_decode($image);
+
+        $publicHtml = config('app.public_html');
+        
+        $filename = 'slip' . $hgaji->HeaderID . '.jpg';
+        $folder = $publicHtml . '/gaji/' . $hgaji->mgaji->GajiID;
+        $path = $folder . '/' . $filename;
+
+        if (!file_exists($folder)) {
+            mkdir($folder, 0775, true);
+        }
+        
+        file_put_contents($path, $image);
+
+        $response = Http::post('https://api.kirimi.id/v1/send-message', [
+            'user_code' => 'KMQ32X1225',
+            'device_id' => 'D-YAGC9',
+            'receiver' => '6282124328383',
+            'message' => 'Gaji ' . $hgaji->pegawai->Nama,
+            'media_url' => 'https://www.senyumqu.com/storage/gaji/' . $hgaji->mgaji->GajiID . '/' . $filename,
+            'fileName' => '',
+            'secret' => 'c81a73a176506d9f2916e7f706def8f0f18c5631c8354dbe0aa141aecfa2cad9',
+            'enableTypingEffect' => '',
+            'typingSpeedMs' => '',
+            'quotedMessageId' => '',
+        ]);
+        dd($response->json());
+        return response()->json(['success' => true, 'message' => 'Image uploaded successfully.']);
     }
 
     public function sendWhatsApp(Request $request)

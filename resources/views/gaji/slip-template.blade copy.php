@@ -89,7 +89,6 @@
       border: 2px solid #003C78!important;
       color: #fff;
       font-weight: bold;
-      font-size: 20px
     }
 
     table.rincian tfoot td {
@@ -200,7 +199,7 @@
   <div class="page-wrapper">
     <div class="slip-container">
       <div class="header">
-        <h2><strong>Slip Gaji {{ $hgaji->pegawai != null ? ("- " . $hgaji->pegawai->Nama) : '' }}</strong></h2>
+        <h2>Slip Gaji {{ $hgaji->pegawai != null ? ("- " . $hgaji->pegawai->Nama) : '' }}</h2>
       </div>
 
       <div class="info">
@@ -239,7 +238,7 @@
             @endphp
             <tr>
               <td>{{ $index + 1 }}</td>
-              <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $gaji->Tanggal)->format('d/m/y') }}</td>
+              <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $gaji->Tanggal)->format('d/m/Y') }}</td>
               <td>{{ number_format($gaji->Pokok*1000, 0, ',', '.') }}</td>
               <td>{{ number_format($gaji->PokokLembur*1000, 0, ',', '.') }}</td>
               <td>{{ $gaji->Jam }} jam</td>
@@ -272,7 +271,7 @@
 
       <!-- ====== BAGIAN LAMPIRAN ====== -->
       <div class="lampiran">
-        <h3><strong>Lampiran</strong></h3>
+        <h3>Lampiran</h3>
         <img src="{{ $base64Image }}" style="width: auto;">
       </div>
     </div>

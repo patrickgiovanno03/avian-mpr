@@ -15,7 +15,6 @@
                             <a href="{{ route('gaji.index') }}" type="button" class="btn btn-sm btn-outline-secondary">
                                 <i class="fas fa-angle-left mr-lg-2"></i><span class="d-none d-lg-inline">Back</span>
                             </a>
-                            <button onclick="downloadSlip()">Download PNG</button>
                             @if ($mgaji)
                             <button type="button" class="btn btn-sm btn-outline-secondary btn-whatsapp" data-gajiid="{{ $mgaji->GajiID }}">
                                 <i class="fa-brands fa-whatsapp mr-lg-2"></i><span class="d-none d-lg-inline">Send WhatsApp</span>
@@ -122,6 +121,11 @@
 
                                     <!-- PDF -->
                                     @if($gaji->PegawaiID)
+                                    <button 
+                                        class="btn btn-success btn-sm btn-download-png"
+                                        data-id="{{ $gaji->HeaderID }}">
+                                        <i class="fa-brands fa-whatsapp"></i>
+                                    </button>
                                     <a 
                                         href="{{ route('gaji.slip',$gaji->HeaderID) }}"
                                         target="_blank"
@@ -241,40 +245,8 @@
         </form>
     </div>
 </div>
-<div id="slip" class="slip-wrapper">
 
-    <div class="header">
-        <h2>SLIP GAJI KARYAWAN</h2>
-        <div>Bulan: </div>
-    </div>
-
-    <table class="info-table">
-        <tr>
-            <td width="25%">Nama</td>
-            <td width="2%">:</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>Jabatan</td>
-            <td>:</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>NIK</td>
-            <td>:</td>
-            <td></td>
-        </tr>
-    </table>
-
-    <br>
-
-    <div class="footer">
-        <p>
-            Slip gaji ini dihasilkan secara otomatis dan sah tanpa tanda tangan.
-        </p>
-    </div>
-
-</div>
+<div id="slip-jpg" style="min-width: 900px; min-height:1100px; max-width: 900px"></div>
 <style>
     /* Upload dashed input hover */
     input[type="file"]:hover {
@@ -748,22 +720,66 @@ $('#modalGaji').on('change', '.tanggal', function() {
     });
 });
 
-function downloadSlip() {
-    const el = document.getElementById('slip');
+// Download PNG
+$('.btn-download-png').on('click', function() {
+    var id = $(this).data('id');
 
-    html2canvas(el, {
-        scale: 2,               // KUNCI BIAR TAJAM
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        windowWidth: el.scrollWidth,
-        windowHeight: el.scrollHeight
-    }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'slip_gaji.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+    $.ajax({
+        url: '{{ route("gaji.getData") }}',
+        type: 'GET',
+        data: {
+            headerid: id
+        },
+        success: function(response) {
+            console.log(response);
+            $('#slip-jpg').html(response.html);
+            // $('#slip-jpg').removeClass('d-none');
+            const el = document.getElementById('slip-jpg');
+
+            html2canvas(el, {
+                scale: 2,               // KUNCI BIAR TAJAM
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                windowWidth: el.scrollWidth,
+                windowHeight: el.scrollHeight
+            }).then(canvas => {
+                var link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'slip-gaji.png';
+                link.click();
+                // $('#slip-jpg').addClass('d-none');
+                // $.ajax({
+                //     url: '{{ route("gaji.uploadFinal") }}',
+                //     type: 'POST',
+                //     data: {
+                //         image: canvas.toDataURL('image/jpeg', 0.85),
+                //         hgaji: response.hgaji,
+                //     },
+                //     success: function(response) {
+                //         Swal.fire({
+                //             icon: 'success',
+                //             title: 'Gambar PNG berhasil dikirim.',
+                //         });
+                //     },
+                //     error: function(xhr) {
+                //         Swal.fire({
+                //             icon: 'error',
+                //             title: 'Terjadi kesalahan saat mengirim gambar.',
+                //             text: xhr.responseText
+                //         });
+                //     }
+                // });
+            });
+        },
+        error: function(xhr) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Terjadi kesalahan saat mengambil data slip gaji.',
+                text: xhr.responseText
+            });
+        }
     });
-}
+});
 
 </script>
 @endsection
