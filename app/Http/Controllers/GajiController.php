@@ -397,7 +397,7 @@ class GajiController extends Controller
                 'Slip Gaji Tanggal ' . Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d F Y'),
                 '6281230333587',
                 'https://www.senyumqu.com/gaji/slipAll/' . $mgaji->GajiID,
-                Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d/m/Y') . '.pdf'
+                // Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d/m/Y') . '.pdf'
             );
         } catch (\Exception $e) {
             dd('Error: ' . $e->getMessage());
