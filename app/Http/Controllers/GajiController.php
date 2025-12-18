@@ -395,7 +395,7 @@ class GajiController extends Controller
         try {
             $this->sendWhatsApp(
                 'Slip Gaji Tanggal ' . Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d F Y'),
-                '6281332879850',
+                '6281230333587',
                 route('gaji.slipAll', $request->input('gajiid')),
                 Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d/m/Y') . '.pdf'
             );
