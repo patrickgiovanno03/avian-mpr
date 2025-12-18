@@ -82,6 +82,7 @@ Route::prefix('gaji')->group(function () {
     Route::get('/getData', 'GajiController@getData')->name('gaji.getData');
     Route::get('/datatable', 'GajiController@datatable')->name('gaji.datatable');
     Route::post('/uploadFinal', 'GajiController@uploadFinal')->name('gaji.uploadFinal');
+    Route::post('/sendValidate', 'GajiController@sendValidate')->name('gaji.sendValidate');
     Route::post('/rotateImage', 'GajiController@rotateImage')->name('gaji.rotateImage');
     Route::post('/sendWhatsApp', 'GajiController@sendWhatsApp')->name('gaji.sendWhatsApp');
 });

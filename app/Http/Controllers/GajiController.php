@@ -387,16 +387,33 @@ class GajiController extends Controller
         return response()->json(['success' => true, 'message' => 'Image uploaded successfully.']);
     }
 
-    public function sendWhatsApp(Request $request)
+    public function sendValidate(Request $request)
+    {
+        //
+        // https://www.senyumqu.com/gaji/slip/38
+        $mgaji = MGaji::find($request->input('gajiid'));
+        try {
+            $this->sendWhatsApp(
+                'List Slip Gaji Tanggal ' . Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d F Y'),
+                route('gaji.slip', $request->input('gajiid')),
+                '6281332879850'
+            );
+        } catch (\Exception $e) {
+            dd('Error: ' . $e->getMessage());
+        }
+        return response()->json(['success' => true, 'message' => 'Validation message sent successfully.']);
+    }
+
+    public function sendWhatsApp($message, $mediaUrl, $recipient, $fileName = '')
     {
         //
         $response = Http::post('https://api.kirimi.id/v1/send-message', [
             'user_code' => 'KMQ32X1225',
             'device_id' => 'D-YAGC9',
-            'receiver' => '6282124328383',
-            'message' => 'tesssss',
-            'media_url' => 'https://www.senyumqu.com/storage/gaji/10/1764657603_WhatsApp%20Image%202025-11-28%20at%2018.30.38%20(1).jpeg',
-            'fileName' => 'WhatsApp_Image_2025-11-28_at_18.30.38_(1).jpeg',
+            'receiver' => $recipient,
+            'message' => $message,
+            'media_url' => $mediaUrl,
+            'fileName' => $fileName,
             'secret' => 'c81a73a176506d9f2916e7f706def8f0f18c5631c8354dbe0aa141aecfa2cad9',
             'enableTypingEffect' => '',
             'typingSpeedMs' => '',

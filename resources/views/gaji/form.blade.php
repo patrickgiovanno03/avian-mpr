@@ -16,8 +16,11 @@
                                 <i class="fas fa-angle-left mr-lg-2"></i><span class="d-none d-lg-inline">Back</span>
                             </a>
                             @if ($mgaji)
-                            <button type="button" class="btn btn-sm btn-outline-secondary btn-whatsapp" data-gajiid="{{ $mgaji->GajiID }}">
-                                <i class="fa-brands fa-whatsapp mr-lg-2"></i><span class="d-none d-lg-inline">Send WhatsApp</span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary btn-validate" data-gajiid="{{ $mgaji->GajiID }}">
+                                <i class="fas fa-check mr-lg-2"></i><span class="d-none d-lg-inline">Send Validate</span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary btn-whatsapp-all" data-gajiid="{{ $mgaji->GajiID }}">
+                                <i class="fa-brands fa-whatsapp mr-lg-2"></i><span class="d-none d-lg-inline">Blast WhatsApp</span>
                             </button>
                             <a class="btn btn-sm btn-info" href="{{ route('gaji.show', $mgaji->GajiID) }}"><i class="fas fa-upload mr-lg-2"></i><span class="d-none d-lg-inline">Upload Slip Gaji</span></a>
                             <a class="btn btn-warning btn-sm shadow-sm" href="{{ route('gaji.slipAll', $mgaji->GajiID) }}" target="_blank">
@@ -681,6 +684,43 @@ $('.btn-delete').on('click', function() {
                     Swal.fire({
                         icon: 'error',
                         title: 'Terjadi kesalahan saat menghapus data.',
+                        text: xhr.responseText
+                    });
+                }
+            });
+        } else {
+            return false;
+        }
+    });
+});
+
+$('.btn-validate').on('click', function() {
+    var gajiId = $(this).data('gajiid');
+    Swal.fire({
+        title: 'Apakah anda yakin untuk mengirim data ke validasi?',
+        icon: 'warning',
+        showCancelButton: true,
+        cancelButtonColor: '#6c757d',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Yes!'
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                url: '{{ route("gaji.sendValidate") }}',
+                type: 'POST',
+                data: {
+                    gajiid: gajiId
+                },
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Data berhasil dikirim untuk divalidasi.'
+                    })
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Terjadi kesalahan saat mengirim data ke validasi.',
                         text: xhr.responseText
                     });
                 }
