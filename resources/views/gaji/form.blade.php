@@ -557,63 +557,6 @@ $('.pegawai-select').on('select2:select', function (e) {
     inputBonus.addEventListener('input', hitungTotal);
 });
 
-$('.btn-whatsapp-all').on('click', function() {
-    // loop tiap .btn-whatsapp, kalau sudah selesai kasih alert
-    var buttons = $('.btn-whatsapp');
-    var total = buttons.length;
-    var sent = 0;
-    buttons.each(function() {
-        var button = $(this);
-        $.ajax({
-            url: '{{ route("gaji.sendWhatsApp") }}',
-            type: 'POST',
-            data: {
-                gajiid: button.data('gajiid')
-            },
-            success: function(response) {
-                sent++;
-                if (sent === total) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Pesan WhatsApp berhasil dikirim ke semua karyawan.'
-                    });
-                }
-            },
-            error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Terjadi kesalahan saat mengirim pesan WhatsApp.',
-                    text: xhr.responseText
-                });
-            }
-        });
-    });
-});
-
-$('.btn-whatsapp').on('click', function() {
-    var gajiId = $(this).data('gajiid');
-    $.ajax({
-        url: '{{ route("gaji.sendWhatsApp") }}',
-        type: 'POST',
-        data: {
-            gajiid: gajiId
-        },
-        success: function(response) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Pesan WhatsApp berhasil dikirim.'
-            });
-        },
-        error: function(xhr) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Terjadi kesalahan saat mengirim pesan WhatsApp.',
-                text: xhr.responseText
-            });
-        }
-    });
-});
-
 $('.btn-isi-data').on('click', function() {
     var gajiId = $(this).data('id');
     var type = $(this).data('type');
@@ -794,7 +737,8 @@ $('#modalGaji').on('change', '.tanggal', function() {
 });
 
 // Download PNG
-$('.btn-whatsapp').on('click', function() {
+$('.btn-whatsapp').on('click', function (e, isAlert = true) {
+    console.log('isAlert:', isAlert);
     var id = $(this).data('id');
 
     $.ajax({
@@ -816,11 +760,14 @@ $('.btn-whatsapp').on('click', function() {
                 windowWidth: el.scrollWidth,
                 windowHeight: el.scrollHeight
             }).then(canvas => {
-                var link = document.createElement('a');
-                link.href = canvas.toDataURL('image/png');
-                link.download = 'slip-gaji.png';
-                link.click();
+                // var link = document.createElement('a');
+                // link.href = canvas.toDataURL('image/png');
+                // link.download = 'slip-gaji.png';
+                // link.click();
                 $('#slip-jpg').addClass('d-none');
+                if (!isAlert) {
+                    return;
+                }
                 $.ajax({
                     url: '{{ route("gaji.sendWA") }}',
                     type: 'POST',
@@ -852,6 +799,26 @@ $('.btn-whatsapp').on('click', function() {
             });
         }
     });
+});
+
+$('.btn-whatsapp-all').on('click', function () {
+    const buttons = document.querySelectorAll('.btn-whatsapp');
+    let index = 0;
+
+    function sendNext() {
+        if (index < buttons.length) {
+            $(buttons[index]).trigger('click', [false]); // ⬅ kirim parameter
+            index++;
+            setTimeout(sendNext, 1000);
+        } else {
+            Swal.fire({
+                icon: 'success',
+                title: 'Semua gambar PNG berhasil dikirim.',
+            });
+        }
+    }
+
+    sendNext();
 });
 
 </script>

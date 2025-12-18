@@ -395,12 +395,12 @@ class GajiController extends Controller
         try {
             $this->sendWhatsApp(
                 'Slip Gaji Tanggal ' . Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d F Y'),
-                // '6281230333587',
                 '6281332879850',
-                // '6282124328383',
                 'https://www.senyumqu.com/gaji/slipAll/12',
                 Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d/m/Y') . '.pdf'
             );
+            // '6281230333587',
+            // '6282124328383',
         } catch (\Exception $e) {
             dd('Error: ' . $e->getMessage());
         }
