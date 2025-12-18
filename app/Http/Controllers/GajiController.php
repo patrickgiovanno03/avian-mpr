@@ -383,7 +383,6 @@ class GajiController extends Controller
             'typingSpeedMs' => '',
             'quotedMessageId' => '',
         ]);
-        dd($response->json());
         return response()->json(['success' => true, 'message' => 'Image uploaded successfully.']);
     }
 
