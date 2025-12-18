@@ -104,4 +104,6 @@ Route::prefix('tt')->group(function () {
 });
 Route::resource('tt', 'TandaTerimaController');
 });
-Route::get('/slipAll/{id}', 'GajiController@slipAll')->name('gaji.slipAll');
+Route::prefix('gaji')->group(function () {
+    Route::get('/slipAll/{id}', 'GajiController@slipAll')->name('gaji.slipAll');
+});
