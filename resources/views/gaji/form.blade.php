@@ -15,7 +15,11 @@
                             <a href="{{ route('gaji.index') }}" type="button" class="btn btn-sm btn-outline-secondary">
                                 <i class="fas fa-angle-left mr-lg-2"></i><span class="d-none d-lg-inline">Back</span>
                             </a>
+                            <button onclick="downloadSlip()">Download PNG</button>
                             @if ($mgaji)
+                            <button type="button" class="btn btn-sm btn-outline-secondary btn-whatsapp" data-gajiid="{{ $mgaji->GajiID }}">
+                                <i class="fa-brands fa-whatsapp mr-lg-2"></i><span class="d-none d-lg-inline">Send WhatsApp</span>
+                            </button>
                             <a class="btn btn-sm btn-info" href="{{ route('gaji.show', $mgaji->GajiID) }}"><i class="fas fa-upload mr-lg-2"></i><span class="d-none d-lg-inline">Upload Slip Gaji</span></a>
                             <a class="btn btn-warning btn-sm shadow-sm" href="{{ route('gaji.slipAll', $mgaji->GajiID) }}" target="_blank">
                                 <i class="fas fa-download mr-lg-2"></i><span class="d-none d-lg-inline">Download Semua Slip</span>
@@ -176,6 +180,13 @@
                         </select>
                         </div>
 
+                        <!-- Input jumlah hari -->
+                        <div class="mb-3">
+                        <label>Jumlah Hari Kerja</label>
+                        <input style="background-color: #E7F1DC" type="number" step="any" class="form-control" id="jumlah_hari" placeholder="Masukkan jumlah hari" name="jumlahhari" tabindex="2">
+                        </div>
+                        <hr>
+
                         <!-- Input gaji pokok & lembur -->
                         <div class="row mb-3">
                             <div class="col-md-6">
@@ -196,13 +207,6 @@
                                 <label>Bonus</label>
                                 <input type="number" step="any" class="form-control" id="bonus" placeholder="Masukkan bonus (opsional)" name="bonus" tabindex="6">
                             </div>
-                        </div>
-
-                        <hr>
-                        <!-- Input jumlah hari -->
-                        <div class="mb-3">
-                        <label>Jumlah Hari Kerja</label>
-                        <input style="background-color: #E7F1DC" type="number" step="any" class="form-control" id="jumlah_hari" placeholder="Masukkan jumlah hari" name="jumlahhari" tabindex="2">
                         </div>
 
                         <!-- Tabel otomatis muncul -->
@@ -236,6 +240,40 @@
             </div>
         </form>
     </div>
+</div>
+<div id="slip" class="slip-wrapper">
+
+    <div class="header">
+        <h2>SLIP GAJI KARYAWAN</h2>
+        <div>Bulan: </div>
+    </div>
+
+    <table class="info-table">
+        <tr>
+            <td width="25%">Nama</td>
+            <td width="2%">:</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Jabatan</td>
+            <td>:</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>NIK</td>
+            <td>:</td>
+            <td></td>
+        </tr>
+    </table>
+
+    <br>
+
+    <div class="footer">
+        <p>
+            Slip gaji ini dihasilkan secara otomatis dan sah tanpa tanda tangan.
+        </p>
+    </div>
+
 </div>
 <style>
     /* Upload dashed input hover */
@@ -349,6 +387,7 @@
 @endsection
 
 @section('js')
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
 $.ajaxSetup({
     headers: {
@@ -452,7 +491,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Hitung tanggal dengan JS
                 const date = new Date("{{ \Carbon\Carbon::parse($mgaji->Tanggal??'')->format('Y-m-d') }}");
-                date.setDate(date.getDate() - (8 - (i <= 2 ? i : (i+1)))); // ← ini 8 - i
+                date.setDate(date.getDate() - (9 - (i <= 2 ? i : (i+1)))); // ← ini 8 - i
 
                 const formatted = date.toLocaleDateString('id-ID'); // format dd/mm/yyyy
 
@@ -541,6 +580,30 @@ $('.pegawai-select').on('select2:select', function (e) {
     inputGajiPokok.addEventListener('input', () => inputJumlahHari.dispatchEvent(new Event('input')));
     inputGajiLembur.addEventListener('input', () => inputJumlahHari.dispatchEvent(new Event('input')));
     inputBonus.addEventListener('input', hitungTotal);
+});
+
+$('.btn-whatsapp').on('click', function() {
+    var gajiId = $(this).data('gajiid');
+    $.ajax({
+        url: '{{ route("gaji.sendWhatsApp") }}',
+        type: 'POST',
+        data: {
+            gajiid: gajiId
+        },
+        success: function(response) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Pesan WhatsApp berhasil dikirim.'
+            });
+        },
+        error: function(xhr) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Terjadi kesalahan saat mengirim pesan WhatsApp.',
+                text: xhr.responseText
+            });
+        }
+    });
 });
 
 $('.btn-isi-data').on('click', function() {
@@ -685,6 +748,22 @@ $('#modalGaji').on('change', '.tanggal', function() {
     });
 });
 
+function downloadSlip() {
+    const el = document.getElementById('slip');
+
+    html2canvas(el, {
+        scale: 2,               // KUNCI BIAR TAJAM
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        windowWidth: el.scrollWidth,
+        windowHeight: el.scrollHeight
+    }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'slip_gaji.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+}
 
 </script>
 @endsection

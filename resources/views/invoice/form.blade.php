@@ -340,6 +340,7 @@
                             <th width="150">Total</th>
                             <th>Dos Luar / Isi</th>
                             <th>Dos Gabung</th>
+                            <th>Inv</th>
                             <th>SJ</th>
                             <th>Action</th>
                         </tr>
@@ -640,6 +641,7 @@ $(document).ready(function () {
                 <input type="hidden" name="type[]" value="create" />
                 <input type="hidden" name="detailid[]" />
                 <input type="hidden" name="issj[]" />
+                <input type="hidden" name="isinvoice[]" />
                 ${!isSJ ? `
                 <td data-label="Product">
                     <select class="form-control select2-tags product-select" name="product[]">
@@ -673,6 +675,9 @@ $(document).ready(function () {
                 <td data-label="Dos Gabung">
                     <input type="text" class="form-control numeric dos-gabung-input" name="dosgabung[]" />
                 </td>
+                <td data-label="Inv">
+                    <input type="checkbox" class="form-control inv-checkbox" name="inv[]" checked />
+                </td>
                 <td data-label="SJ">
                     <input type="checkbox" class="form-control sj-checkbox" name="sj[]" />
                 </td>
@@ -695,7 +700,7 @@ $(document).ready(function () {
                     <input type="text" class="form-control numeric dos-gabung-input" name="dosgabung[]" />
                 </td>
                 <td class="d-none"><input type="checkbox" class="form-control sj-checkbox" name="sj[]" /></td>
-                <td colspan="5" class="text-center pt-3 text-secondary">-- SJ Item --</td>
+                <td colspan="6" class="text-center pt-3 text-secondary">-- SJ Item --</td>
                 <td data-label="Aksi">
                     <input type="hidden" name="hidden[]" value="0" />
                     <button type="button" class="btn btn-sm btn-warning btn-hide-product">
@@ -869,12 +874,14 @@ $(document).ready(function () {
                     $('#categorycustomer').val(response.customer.PriceCategory).trigger('change');
                     $('#JatuhTempo').val(response.customer.JatuhTempo);
                     $('#JatuhTempoSatuan').val(response.customer.JatuhTempoSatuan ?? 1).trigger('change');
+                    $('#IsKonsinyasi').prop('checked', response.customer.IsKonsinyasi == 1);
                 } else {
                     $('#alamatcustomer').val('');
                     $('#telpcustomer').val('');
                     $('#categorycustomer').val('');
                     $('#JatuhTempo').val('');
                     $('#JatuhTempoSatuan').val('1').trigger('change');
+                    $('#IsKonsinyasi').prop('checked', false);
                 }
             },
             error: function() {
@@ -999,6 +1006,16 @@ $(document).ready(function () {
         embedPreviewData();
     });
 
+    $(document).on('change', '.inv-checkbox', function (e) {
+        var row = $(this).closest('tr, .card');
+        if ($(this).is(':checked')) {
+            row.find('input[name="isinvoice[]"]').val('1');
+        } else {
+            row.find('input[name="isinvoice[]"]').val('0');
+        }
+        embedPreviewData();
+    });
+
     $(document).on('click', '.btn-remove-product', function (e) {
         e.preventDefault();
         var row = $(this).closest('tr, .card');
@@ -1089,6 +1106,8 @@ $(document).ready(function () {
             $lastRow.find('.dos-gabung-input').val('{{ $detail->DosGabung }}');
             $lastRow.find('input[name="detailid[]"]').val('{{ $detail->DetailID }}');
             $lastRow.find('input[name="type[]"]').val('update');
+            $lastRow.find('.inv-checkbox').prop('checked', {{ $detail->IsInvoice ?? 1 == 1 ? 'true' : 'false' }});
+            $lastRow.find('input[name="isinvoice[]"]').val('{{ $detail->IsInvoice ?? 1 == 1 ? 1 : 0 }}');
             @if($detail->IsSJ ?? 0 == 1)
                 $lastRow.find('.sj-checkbox').prop('checked', true).trigger('change');
                 $lastRow.next('tr').find('.product-input').val('{{ $detail->NamaSJ }}');

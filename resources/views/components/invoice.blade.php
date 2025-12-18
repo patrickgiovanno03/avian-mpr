@@ -57,7 +57,7 @@
                     $totalPrice = 0;
                 @endphp
                 @foreach($request->product ?? [] as $key => $product)
-                @if($request->issj[$key] ?? 0 == 1)
+                @if((($request->issj[$key] ?? 0) == 1) || (($request->isinvoice[$key] ?? 1) == 0))
                 @continue
                 @endif
                 @php
@@ -86,6 +86,9 @@
                     $totalPrice = 0;
                 @endphp
                 @foreach($invoice->details ?? [] as $detail)
+                @if (($detail->IsInvoice ?? 0) == 0)
+                    @continue
+                @endif
                 @php
                     $totalPrice += $detail->Qty * $detail->Harga;
                 @endphp

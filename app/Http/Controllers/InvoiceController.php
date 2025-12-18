@@ -132,6 +132,7 @@ class InvoiceController extends Controller
                     $dinvoice->QtySJ = $request->input('quantity')[$index] != null ? str_replace('.', '', $request->input('quantity')[$index]) : 0;
                 } else { // detail inv
                     $dinvoice->IsSJ = 0;
+                    $dinvoice->IsInvoice = $request->input('isinvoice')[$index] == 1 ? 1 : 0;
                     $dinvoice->Nama = $productName;
                     $dinvoice->Harga = $request->input('price')[$index] != null ? str_replace('.', '', $request->input('price')[$index]) : 0;
                     $dinvoice->Satuan = $request->input('unit')[$index];
@@ -296,6 +297,7 @@ class InvoiceController extends Controller
                     $dinvoice->QtySJ = $request->input('quantity')[$index] != null ? str_replace('.', '', $request->input('quantity')[$index]) : 0;
                 } else { // detail inv
                     $dinvoice->IsSJ = 0;
+                    $dinvoice->IsInvoice = $request->input('isinvoice')[$index] == 1 ? 1 : 0;
                     $dinvoice->Nama = $productName;
                     $dinvoice->Harga = $request->input('price')[$index] != null ? str_replace('.', '', $request->input('price')[$index]) : 0;
                     $dinvoice->Satuan = $request->input('unit')[$index];

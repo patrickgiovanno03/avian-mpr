@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Response;
 use Spatie\Browsershot\Browsershot;
 use ZipArchive;
 use File;
+use Illuminate\Support\Facades\Http;
 use Intervention\Image\Facades\Image;
 
 class GajiController extends Controller
@@ -323,5 +324,24 @@ class GajiController extends Controller
         $image->save($path);
 
         return response()->json(['success' => true, 'message' => 'Image rotated successfully.']);
+    }
+
+    public function sendWhatsApp(Request $request)
+    {
+        //
+        $response = Http::post('https://api.kirimi.id/v1/send-message', [
+            'user_code' => 'KMQ32X1225',
+            'device_id' => 'D-YAGC9',
+            'receiver' => '6282124328383',
+            'message' => 'tesssss',
+            'media_url' => 'https://www.senyumqu.com/storage/gaji/10/1764657603_WhatsApp%20Image%202025-11-28%20at%2018.30.38%20(1).jpeg',
+            'fileName' => 'WhatsApp_Image_2025-11-28_at_18.30.38_(1).jpeg',
+            'secret' => 'c81a73a176506d9f2916e7f706def8f0f18c5631c8354dbe0aa141aecfa2cad9',
+            'enableTypingEffect' => '',
+            'typingSpeedMs' => '',
+            'quotedMessageId' => '',
+        ]);
+
+        dd($response->json());
     }
 }

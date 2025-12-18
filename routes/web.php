@@ -80,6 +80,7 @@ Route::prefix('gaji')->group(function () {
     Route::get('/slipAll/{id}', 'GajiController@slipAll')->name('gaji.slipAll');
     Route::get('/datatable', 'GajiController@datatable')->name('gaji.datatable');
     Route::post('/rotateImage', 'GajiController@rotateImage')->name('gaji.rotateImage');
+    Route::post('/sendWhatsApp', 'GajiController@sendWhatsApp')->name('gaji.sendWhatsApp');
 });
 Route::resource('gaji', 'GajiController');
 
