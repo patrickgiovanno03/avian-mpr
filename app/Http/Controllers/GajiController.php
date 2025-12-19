@@ -370,20 +370,17 @@ class GajiController extends Controller
         
         file_put_contents($path, $image);
 
-        $response = Http::post('https://api.kirimi.id/v1/send-message', [
-            'user_code' => 'KMQ32X1225',
-            'device_id' => 'D-YAGC9',
-            'receiver' => '6281230333587',
-            // 'receiver' => '6282124328383',
-            'message' => 'Gaji ' . $hgaji->pegawai->Nama,
-            'media_url' => 'https://www.senyumqu.com/storage/gaji/' . $hgaji->mgaji->GajiID . '/' . $filename,
-            'fileName' => '',
-            'secret' => 'c81a73a176506d9f2916e7f706def8f0f18c5631c8354dbe0aa141aecfa2cad9',
-            'enableTypingEffect' => '',
-            'typingSpeedMs' => '',
-            'quotedMessageId' => '',
-        ]);
-        return response()->json(['success' => true, 'message' => 'Image uploaded successfully.']);
+        $response = $this->sendWhatsApp(
+            'Gaji ' . $hgaji->pegawai->Nama,
+            '6281332879850',
+            'https://www.senyumqu.com/storage/gaji/' . $hgaji->mgaji->GajiID . '/' . $filename,
+            ''
+        );
+        if ($response['success']) {
+            return response()->json(['success' => true, 'message' => 'Image sent successfully.']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Failed to send image via WhatsApp.']);
+        }
     }
 
     public function sendValidate(Request $request)
@@ -392,14 +389,19 @@ class GajiController extends Controller
         // https://www.senyumqu.com/gaji/slip/38
         $mgaji = MGaji::find($request->input('gajiid'));
         try {
-            $this->sendWhatsApp(
+            $response = $this->sendWhatsApp(
                 'Slip Gaji Tanggal ' . Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d F Y'),
                 '6281332879850',
-                'https://www.senyumqu.com/gaji/slipAll/12',
+                'https://www.senyumqu.com/gaji/slipAll/' . $mgaji->GajiID,
                 Carbon::createFromFormat('Y-m-d', $mgaji->Tanggal)->format('d/m/Y') . '.pdf'
             );
             // '6281230333587',
             // '6282124328383',
+            if ($response['success']) {
+                return response()->json(['success' => true, 'message' => 'Image sent successfully.']);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Failed to send image via WhatsApp.']);
+            }
         } catch (\Exception $e) {
             dd('Error: ' . $e->getMessage());
         }
@@ -422,6 +424,6 @@ class GajiController extends Controller
             'quotedMessageId' => '',
         ]);
 
-        dd($response->json());
+        return $response;
     }
 }

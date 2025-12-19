@@ -46,6 +46,18 @@ class PegawaiController extends Controller
         $pegawai->BankRek = $request->input('bankrek');
         $pegawai->NoRek = $request->input('norek');
         $pegawai->ANRek = $request->input('anrek');
+        $hp = $request->input('hp') ?? null;
+        if ($hp) {
+            // delete all +, -, spaces
+            $hp = str_replace(['+', '-', ' '], '', $hp);
+            if ($hp[0] == '0') {
+                $pegawai->HP = '62' . substr($hp, 1) ;
+            } else if (substr($hp, 0, 2) == '62') {
+                $pegawai->HP = $hp;
+            } else {
+                $pegawai->HP = '62' . $hp;
+            }
+        }
         $pegawai->save();
 
         return redirect()
@@ -95,7 +107,18 @@ class PegawaiController extends Controller
         $pegawai->BankRek = $request->input('bankrek');
         $pegawai->NoRek = $request->input('norek');
         $pegawai->ANRek = $request->input('anrek');
-
+        $hp = $request->input('hp') ?? null;
+        if ($hp) {
+            // delete all +, -, spaces
+            $hp = str_replace(['+', '-', ' '], '', $hp);
+            if ($hp[0] == '0') {
+                $pegawai->HP = '62' . substr($hp, 1) ;
+            } else if (substr($hp, 0, 2) == '62') {
+                $pegawai->HP = $hp;
+            } else {
+                $pegawai->HP = '62' . $hp;
+            }
+        }
         $pegawai->save();
 
         return redirect()

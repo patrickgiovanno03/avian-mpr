@@ -116,6 +116,7 @@
                                 <th class="text-center align-middle" data-priority="3">Gaji Pokok</th>
                                 <th class="text-center align-middle">Gaji Lembur</th>
                                 <th class="text-center align-middle">Rekening</th>
+                                <th class="text-center align-middle">HP</th>
                                 <th class="text-center align-middle" data-priority="2">Action</th>
                             </tr>
                         </thead>
@@ -181,6 +182,13 @@
                         <input type="text" class="form-control" id="anrek" name="anrek">
                     </div>
                 </div>
+                <hr>
+                <div class="form-group row">
+                    <label for="hp" class="col-sm-3 col-form-label">Nomor HP</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="hp" name="hp">
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Batal</button>
@@ -237,6 +245,7 @@
             {data: 'GajiPokok', name: 'GajiPokok', className: 'text-center align-middle'},
             {data: 'GajiLembur', name: 'GajiLembur', className: 'text-center align-middle'},
             {data: 'Rekening', name: 'Rekening', className: 'text-center align-middle'},
+            {data: 'HP', name: 'HP', className: 'text-center align-middle'},
             {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center align-middle'},
         ],
         order: [0, 'asc'],
