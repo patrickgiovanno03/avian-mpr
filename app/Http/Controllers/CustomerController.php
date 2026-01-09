@@ -50,12 +50,17 @@ class CustomerController extends Controller
         $customer->IsKonsinyasi = $request->isKonsinyasi ? 1 : 0;
         $customer->save();
 
-        return redirect()
-            ->route('customer.index')
-            ->with('result', (object)[
-                'type' => 'success',
-                'message' => 'Customer created successfully.',
-            ]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Customer created successfully'
+        ]);
+
+        // return redirect()
+        //     ->route('customer.index')
+        //     ->with('result', (object)[
+        //         'type' => 'success',
+        //         'message' => 'Customer created successfully.',
+        //     ]);
     }
 
     /**
@@ -101,12 +106,17 @@ class CustomerController extends Controller
         $customer->IsKonsinyasi = $request->isKonsinyasi ? 1 : 0;
         $customer->save();
 
-        return redirect()
-            ->route('customer.index')
-            ->with('result', (object)[
-                'type' => 'success',
-                'message' => 'Customer updated successfully.',
-            ]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Customer updated successfully'
+        ]);
+
+        // return redirect()
+        //     ->route('customer.index')
+        //     ->with('result', (object)[
+        //         'type' => 'success',
+        //         'message' => 'Customer updated successfully.',
+        //     ]);
     }
 
     /**

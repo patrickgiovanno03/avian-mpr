@@ -641,7 +641,7 @@ $(document).ready(function () {
                 <input type="hidden" name="type[]" value="create" />
                 <input type="hidden" name="detailid[]" />
                 <input type="hidden" name="issj[]" />
-                <input type="hidden" name="isinvoice[]" />
+                <input type="hidden" name="isinvoice[]" value="1" />
                 ${!isSJ ? `
                 <td data-label="Product">
                     <select class="form-control select2-tags product-select" name="product[]">

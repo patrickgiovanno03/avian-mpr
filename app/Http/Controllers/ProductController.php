@@ -44,12 +44,16 @@ class ProductController extends Controller
         $product->Kode = $request->input('kode');
         $product->save();
 
-        return redirect()
-            ->route('product.index')
-            ->with('result', (object)[
-                'type' => 'success',
-                'message' => 'Product created successfully.',
-            ]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product created successfully'
+        ]);
+        // return redirect()
+        //     ->route('product.index')
+        //     ->with('result', (object)[
+        //         'type' => 'success',
+        //         'message' => 'Product created successfully.',
+        //     ]);
     }
 
     /**
@@ -90,12 +94,16 @@ class ProductController extends Controller
         $product->Kode = $request->input('kode');
         $product->save();
 
-        return redirect()
-            ->route('product.index')
-            ->with('result', (object)[
-                'type' => 'success',
-                'message' => 'Product updated successfully.',
-            ]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product updated successfully'
+        ]);
+        // return redirect()
+        //     ->route('product.index')
+        //     ->with('result', (object)[
+        //         'type' => 'success',
+        //         'message' => 'Product updated successfully.',
+        //     ]);
     }
 
     /**

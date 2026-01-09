@@ -314,6 +314,40 @@
         reloadData();
     });
 
+    $('#formItem').on('submit', function (e) {
+        e.preventDefault();
+
+        let form = $(this);
+        let url = form.attr('action');
+        let method = form.attr('method');
+
+        $.ajax({
+            url: url,
+            type: method,
+            data: form.serialize(),
+            success: function (res) {
+                // Swal.fire({
+                //     icon: 'success',
+                //     title: 'Success',
+                //     text: res.message,
+                //     timer: 1200,
+                //     showConfirmButton: false
+                // });
+
+                $('#addModal').modal('hide');
+                form[0].reset();
+                reloadData();
+            },
+            error: function (xhr) {
+                Swal.fire(
+                    'Error!',
+                    xhr.responseJSON?.message ?? 'Terjadi kesalahan',
+                    'error'
+                );
+            }
+        });
+    });
+
     $('.btn-add').on('click', function (e) {
         e.preventDefault();
 

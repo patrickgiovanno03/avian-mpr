@@ -116,22 +116,38 @@
                         </div>
                     </div>
                     </form>
-                    <table class="dataTable table table-striped table-hover table-bordered w-100 table-responsive">
-                        <thead>
-                            <tr>
-                                <th style="min-width: 50px;" class="text-center align-middle">Category</th>
-                                <th style="min-width: 100px;" class="text-center align-middle">250gr</th>
-                                <th style="min-width: 100px;" class="text-center align-middle">300gr</th>
-                                <th style="min-width: 100px;" class="text-center align-middle">500gr</th>
-                                <th style="min-width: 100px;" class="text-center align-middle">450gr (Tabung)</th>
-                                <th style="min-width: 100px;" class="text-center align-middle">isi 12x250gr</th>
-                                <th style="min-width: 100px;" class="text-center align-middle">isi 12x300gr</th>
-                                <th style="min-width: 100px;" class="text-center align-middle">isi 12x500gr</th>
-                                <th style="min-width: 100px;" class="text-center align-middle">isi 12x450gr (Tabung)</th>
-                                <th style="min-width: 100px;" class="text-center align-middle">Kiloan</th>
-                            </tr>
-                        </thead>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="dataTable table table-striped table-hover table-bordered w-100">
+                            <thead>
+                                <tr>
+                                    <th rowspan="3" style="min-width: 50px;" class="text-center align-middle">Category</th>
+                                    <th colspan="6" style="min-width: 50px;" class="text-center align-middle">Eceran</th>
+                                    <th colspan="6" style="min-width: 50px;" class="text-center align-middle">Grosir</th>
+                                    <th rowspan="3" style="min-width: 50px;" class="text-center align-middle">Kiloan</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="3" style="min-width: 50px;" class="text-center align-middle">Bulat</th>
+                                    <th colspan="3" style="min-width: 50px;" class="text-center align-middle">Tabung</th>
+                                    <th colspan="3" style="min-width: 50px;" class="text-center align-middle">Bulat</th>
+                                    <th colspan="3" style="min-width: 50px;" class="text-center align-middle">Tabung</th>
+                                </tr>
+                                <tr>
+                                    <th style="min-width: 100px;" class="text-center align-middle">250gr</th>
+                                    <th style="min-width: 100px;" class="text-center align-middle">300gr</th>
+                                    <th style="min-width: 100px;" class="text-center align-middle">500gr</th>
+                                    <th style="min-width: 100px;" class="text-center align-middle">300ml</th>
+                                    <th style="min-width: 100px;" class="text-center align-middle">400ml</th>
+                                    <th style="min-width: 100px;" class="text-center align-middle">700ml</th>
+                                    <th style="min-width: 100px;" class="text-center align-middle">250gr</th>
+                                    <th style="min-width: 100px;" class="text-center align-middle">300gr</th>
+                                    <th style="min-width: 100px;" class="text-center align-middle">500gr</th>
+                                    <th style="min-width: 100px;" class="text-center align-middle">300ml</th>
+                                    <th style="min-width: 100px;" class="text-center align-middle">400ml</th>
+                                    <th style="min-width: 100px;" class="text-center align-middle">700ml</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -177,11 +193,15 @@
             {data: '250grInput', name: '250grInput'},
             {data: '300grInput', name: '300grInput'},
             {data: '500grInput', name: '500grInput'},
-            {data: 'TabungInput', name: 'TabungInput'},
-            {data: '250grGrosirInput', name: '250grGrosirInput'},
-            {data: '300grGrosirInput', name: '300grGrosirInput'},
-            {data: '500grGrosirInput', name: '500grGrosirInput'},
-            {data: 'TabungGrosirInput', name: 'TabungGrosirInput'},
+            {data: '300mlInput', name: '300mlInput'},
+            {data: '400mlInput', name: '400mlInput'},
+            {data: '700mlInput', name: '700mlInput'},
+            {data: '250grGInput', name: '250grGInput'},
+            {data: '300grGInput', name: '300grGInput'},
+            {data: '500grGInput', name: '500grGInput'},
+            {data: '300mlGInput', name: '300mlGInput'},
+            {data: '400mlGInput', name: '400mlGInput'},
+            {data: '700mlGInput', name: '700mlGInput'},
             {data: 'KiloanInput', name: 'KiloanInput'},
         ],
         order: [],
@@ -257,6 +277,40 @@
         $('#filter #startdate, #filter #enddate').prop('disabled', $(this).is(':checked'));
 
         reloadData();
+    });
+
+    $('#formItem').on('submit', function (e) {
+        e.preventDefault();
+
+        let form = $(this);
+        let url = form.attr('action');
+        let method = form.attr('method');
+
+        $.ajax({
+            url: url,
+            type: method,
+            data: form.serialize(),
+            success: function (res) {
+                // Swal.fire({
+                //     icon: 'success',
+                //     title: 'Success',
+                //     text: res.message,
+                //     timer: 1200,
+                //     showConfirmButton: false
+                // });
+
+                $('#addModal').modal('hide');
+                form[0].reset();
+                reloadData();
+            },
+            error: function (xhr) {
+                Swal.fire(
+                    'Error!',
+                    xhr.responseJSON?.message ?? 'Terjadi kesalahan',
+                    'error'
+                );
+            }
+        });
     });
 
     $('.dataTable').on('click', '.btn-edit', function (e) {

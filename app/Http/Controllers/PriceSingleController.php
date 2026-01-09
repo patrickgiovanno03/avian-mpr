@@ -84,40 +84,17 @@ class PriceSingleController extends Controller
                 ]);
         }
 
-        switch ($request->input('weight')) {
-            case '250gr':
-                $pricesingle->Price250gr = $request->input('price');
-                break;
-            case '300gr':
-                $pricesingle->Price300gr = $request->input('price');
-                break;
-            case '500gr':
-                $pricesingle->Price500gr = $request->input('price');
-                break;
-            case 'Tabung':
-                $pricesingle->PriceTabung = $request->input('price');
-                break;
-            case '250grGrosir':
-                $pricesingle->Price250grGrosir = $request->input('price');
-                break;
-            case '300grGrosir':
-                $pricesingle->Price300grGrosir = $request->input('price');
-                break;
-            case '500grGrosir':
-                $pricesingle->Price500grGrosir = $request->input('price');
-                break;
-            case 'TabungGrosir':
-                $pricesingle->PriceTabungGrosir = $request->input('price');
-                break;
-            case 'Kiloan':
-                $pricesingle->PriceKiloan = $request->input('price');
-                break;
-        }
+        $pricesingle[$request->input('weight')] = $request->input('price');
         $pricesingle->save();
+
         return response()->json([
             'status' => 'success',
-            'message' => 'Price Single updated successfully.',
+            'message' => 'Price Single updated successfully'
         ]);
+        // return response()->json([
+        //     'status' => 'success',
+        //     'message' => 'Price Single updated successfully.',
+        // ]);
     }
 
     /**
@@ -138,31 +115,43 @@ class PriceSingleController extends Controller
 
         return datatables()->of($data)
             ->addColumn('250grInput', function ($row) {
-                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="250gr" value="' . number_format($row->Price250gr, 0, ',', '.') . '">';
+                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="250gr" value="' . number_format($row['250gr'], 0, ',', '.') . '">';
             })
             ->addColumn('300grInput', function ($row) {
-                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="300gr" value="' . number_format($row->Price300gr, 0, ',', '.') . '">';
+                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="300gr" value="' . number_format($row['300gr'], 0, ',', '.') . '">';
             })
             ->addColumn('500grInput', function ($row) {
-                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="500gr" value="' . number_format($row->Price500gr, 0, ',', '.') . '">';
+                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="500gr" value="' . number_format($row['500gr'], 0, ',', '.') . '">';
             })
-            ->addColumn('TabungInput', function ($row) {
-                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="Tabung" value="' . number_format($row->PriceTabung, 0, ',', '.') . '">';
+            ->addColumn('300mlInput', function ($row) {
+                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="300ml" value="' . number_format($row['300ml'], 0, ',', '.') . '">';
             })
-            ->addColumn('250grGrosirInput', function ($row) {
-                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="250grGrosir" value="' . number_format($row->Price250grGrosir, 0, ',', '.') . '">';
+            ->addColumn('400mlInput', function ($row) {
+                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="400ml" value="' . number_format($row['400ml'], 0, ',', '.') . '">';
             })
-            ->addColumn('300grGrosirInput', function ($row) {
-                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="300grGrosir" value="' . number_format($row->Price300grGrosir, 0, ',', '.') . '">';
+            ->addColumn('700mlInput', function ($row) {
+                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="700ml" value="' . number_format($row['700ml'], 0, ',', '.') . '">';
             })
-            ->addColumn('500grGrosirInput', function ($row) {
-                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="500grGrosir" value="' . number_format($row->Price500grGrosir, 0, ',', '.') . '">';
+            ->addColumn('250grGInput', function ($row) {
+                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="250grG" value="' . number_format($row['250grG'], 0, ',', '.') . '">';
             })
-            ->addColumn('TabungGrosirInput', function ($row) {
-                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="TabungGrosir" value="' . number_format($row->PriceTabungGrosir, 0, ',', '.') . '">';
+            ->addColumn('300grGInput', function ($row) {
+                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="300grG" value="' . number_format($row['300grG'], 0, ',', '.') . '">';
+            })
+            ->addColumn('500grGInput', function ($row) {
+                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="500grG" value="' . number_format($row['500grG'], 0, ',', '.') . '">';
+            })
+            ->addColumn('300mlGInput', function ($row) {
+                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="300mlG" value="' . number_format($row['300mlG'], 0, ',', '.') . '">';
+            })
+            ->addColumn('400mlGInput', function ($row) {
+                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="400mlG" value="' . number_format($row['400mlG'], 0, ',', '.') . '">';
+            })
+            ->addColumn('700mlGInput', function ($row) {
+                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="700mlG" value="' . number_format($row['700mlG'], 0, ',', '.') . '">';
             })
             ->addColumn('KiloanInput', function ($row) {
-                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="Kiloan" value="' . number_format($row->PriceKiloan, 0, ',', '.') . '">';
+                return '<input type="text" class="numeric form-control form-control-sm price-input" data-priceid="' . $row->PriceID . '" data-weight="Kiloan" value="' . number_format($row->Kiloan, 0, ',', '.') . '">';
             })
             // ->addColumn('action', function ($row) {
             //     $edit = '<button class="btn btn-avian-secondary btn-sm btn-edit" data-data=\'' . json_encode($row) . '\'><i class="fa fa-edit"></i></button>';
@@ -173,7 +162,20 @@ class PriceSingleController extends Controller
             //         ' . $delete . '
             //     </div>';
             // })
-            ->rawColumns(['action', '250grInput', '300grInput', '500grInput', 'TabungInput', '250grGrosirInput', '300grGrosirInput', '500grGrosirInput', 'TabungGrosirInput', 'KiloanInput'])
+            ->rawColumns(['action', 
+            '250grInput', 
+            '300grInput', 
+            '500grInput',
+            '300mlInput',
+            '400mlInput',
+            '700mlInput',
+            '250grGInput', 
+            '300grGInput', 
+            '500grGInput',
+            '300mlGInput',
+            '400mlGInput',
+            '700mlGInput',
+            'KiloanInput'])
             ->make(true);
     }
 }
