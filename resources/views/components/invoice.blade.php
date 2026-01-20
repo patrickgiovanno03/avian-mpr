@@ -2,7 +2,7 @@
 
 @if ($request->IsInvoice ?? $invoice->InvoiceNo ?? '' != null)
 <div class="page"> {{-- INVOICE --}}
-    <div class="{{ $page != 0 ? "copy" : "" }}"  @if($large ?? false) style="padding:50px;" @endif>
+    <div class="{{ $page != 0 ? "copy" : "" }}"  @if($large ?? false) style="padding:50px; @if(count($invoice->details) > 21) padding-top: 15px; padding-bottom: 15px"@endif @endif>
         <table width="100%">
         <tr>
         <td width="15%" align="center">
@@ -51,7 +51,7 @@
             </tr>
         </thead>
         <!-- Baris kosong -->
-        <tbody>
+        <tbody @if(count($invoice->details) > 21) style="font-size: 10px" @endif>
             @if($request->product != null) 
                 @php
                     $totalPrice = 0;
