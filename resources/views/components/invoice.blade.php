@@ -2,7 +2,7 @@
 
 @if ($request->IsInvoice ?? $invoice->InvoiceNo ?? '' != null)
 <div class="page"> {{-- INVOICE --}}
-    <div class="{{ $page != 0 ? "copy" : "" }}"  @if($large ?? false) style="padding:50px; @if(count($invoice->details) > 21) padding-top: 15px; padding-bottom: 15px"@endif @endif>
+    <div class="{{ $page != 0 ? "copy" : "" }}"  @if($large ?? false) style="padding:50px; @if(count($invoice->details) > 21) padding-top: 15px; padding-bottom: 15px @endif " @endif>
         <table width="100%">
         <tr>
         <td width="15%" align="center">
