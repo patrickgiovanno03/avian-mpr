@@ -55,7 +55,7 @@
     @if($request->IsEkspedisi ?? $invoice->IsEkspedisi ?? 0 != 0)
     <table width="100%" style="margin-top:0; font-size:13px;">
         <tr>
-        <td><b>Kirim Untuk :</b></td>
+        <td><b>Kirim {{ ($request->IsReseller ?? $invoice->IsReseller ?? 0 == 1) ? 'ke' : 'untuk' }} :</b></td>
         <td align="right">Telepon : {{ $request->telpekspedisi ?? $invoice->TelpEkspedisi ?? '' }}</td>
         </tr>
         <tr>
@@ -187,7 +187,7 @@
     <table width="100%" style="margin-top:15px; font-size:12px;">
         <tr>
         <td valign="top">
-            <div>Kode Order</div>
+            <div>{{ ($request->IsReseller ?? $invoice->IsReseller ?? 0 == 1) ? 'Kirim Untuk' : 'Kode Order' }}</div>
             <div><b><big><big>{{ $request->kode ?? $invoice->Kode ?? "-" }}</big></big></b></div>
             
             @if (($request->invoiceno ?? $invoice->InvoiceNo ?? '' != null) && ($request->IsKopSurat ?? $invoice->IsKopSurat ?? 0 != 0))

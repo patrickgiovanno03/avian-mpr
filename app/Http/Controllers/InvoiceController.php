@@ -113,6 +113,7 @@ class InvoiceController extends Controller
         $invoice->IsLarge = $request->input('IsLarge') ? 1 : 0;
         $invoice->IsDiscount = $request->input('IsDiscount') ? 1 : 0;
         $invoice->IsSJCustomer = $request->input('IsSJCustomer') ? 1 : 0;
+        $invoice->IsReseller = $request->input('IsReseller') ? 1 : 0;
         $invoice->save();
 
         $oldDetailID = 0;
@@ -147,13 +148,26 @@ class InvoiceController extends Controller
                 $oldDetailID = $dinvoice->DetailID;
             }
         }
-        if ($request->toPDF == '1') {
+        if ($request->toPDF != '0') {
+            if ($request->toPDF == 'view') {
+                return redirect()
+                    ->route('invoice.previewdynamic', $invoice->FormID);
+            } else if ($request->toPDF == 'download') {
+                return redirect()
+                    ->route('invoice.previewdynamic', ['id' => $invoice->FormID, 'download' => 1]);
+            }
+        }
+        if ($request->toHome == '1') {
             return redirect()
-                ->route('invoice.previewdynamic', $invoice->FormID);
+                ->route('invoice.index')
+                ->with('result', (object)[
+                    'type' => 'success',
+                    'message' => 'Invoice berhasil dibuat.',
+                ]);
         }
 
         return redirect()
-            ->route('invoice.index')
+            ->route('invoice.edit', $invoice->FormID)
             ->with('result', (object)[
                 'type' => 'success',
                 'message' => 'Invoice berhasil dibuat.',
@@ -258,6 +272,7 @@ class InvoiceController extends Controller
         $invoice->IsLarge = $request->input('IsLarge') ? 1 : 0;
         $invoice->IsDiscount = $request->input('IsDiscount') ? 1 : 0;
         $invoice->IsSJCustomer = $request->input('IsSJCustomer') ? 1 : 0;
+        $invoice->IsReseller = $request->input('IsReseller') ? 1 : 0;
         $invoice->save();
 
         $oldDetailID = 0;
@@ -313,19 +328,29 @@ class InvoiceController extends Controller
             }
         }
 
-        if ($request->toPDF == '1') {
-            return redirect()
-                ->route('invoice.previewdynamic', $invoice->FormID);
-        } else if ($request->toPDF == '2') { // download button
-            return redirect()
-                ->route('invoice.previewdynamic', ['id' => $invoice->FormID, 'download' => 1]);
+        if ($request->toPDF != '0') {
+            if ($request->toPDF == 'view') {
+                return redirect()
+                    ->route('invoice.previewdynamic', $invoice->FormID);
+            } else if ($request->toPDF == 'download') {
+                return redirect()
+                    ->route('invoice.previewdynamic', ['id' => $invoice->FormID, 'download' => 1]);
+            }
         }
-        
+        if ($request->toHome == '1') {
+            return redirect()
+                ->route('invoice.index')
+                ->with('result', (object)[
+                    'type' => 'success',
+                    'message' => 'Invoice berhasil dibuat.',
+                ]);
+        }
+
         return redirect()
-            ->route('invoice.index')
+            ->route('invoice.edit', $invoice->FormID)
             ->with('result', (object)[
                 'type' => 'success',
-                'message' => 'Invoice berhasil diupdate.',
+                'message' => 'Invoice berhasil dibuat.',
             ]);
     }
 

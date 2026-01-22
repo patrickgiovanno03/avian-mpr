@@ -26,12 +26,12 @@
                                 <i class="fas fa-eye-slash mr-2"></i>Hide Preview
                             </button>
                             @if($invoice != null)
-                            <a target="_blank" href="{{ route('invoice.previewdynamic', $invoice->FormID) }}" type="button" class="btn btn-sm btn-outline-secondary btn-pdf">
+                            {{-- <a target="_blank" href="{{ route('invoice.previewdynamic', $invoice->FormID) }}" type="button" class="btn btn-sm btn-outline-secondary btn-pdf">
                                 <i class="fas fa-file-pdf mr-lg-2"></i><span class="d-none d-lg-inline">Save & PDF</span>
                             </a>
                             <a target="_blank" href="{{ route('invoice.previewdynamic', ['id' => $invoice->FormID, 'download' => 1]) }}" type="button" class="btn btn-sm btn-outline-secondary btn-pdf">
                                 <i class="fas fa-file-download mr-lg-2"></i><span class="d-none d-lg-inline">Save & Download</span>
-                            </a>
+                            </a> --}}
                             @endif
                             <button type="submit" class="btn btn-sm btn-avian-secondary btn-submit"><i class="fas fa-save mr-2"></i>Save</button>
                         </div>
@@ -73,6 +73,7 @@
                     </div>
                     <div class="col-md-6 order-1 order-md-2" id="form-container">
                         <input type="hidden" id="toPDF" name="toPDF" value="0">
+                        <input type="hidden" id="toHome" name="toHome" value="0">
                         <div class="form-group row">
 							<label for="" class="col-sm-3 col-form-label">Tipe Form</label>
 							<div class="col-sm-9 d-flex flex-row flex-wrap align-items-center">
@@ -186,6 +187,12 @@
                                             <input class="form-check-input form-type-checkbox" type="checkbox" name="IsEkspedisi" id="IsEkspedisi" value="IsEkspedisi" {{ $invoice != null ? ((($invoice->IsEkspedisi ?? 0) == 0) ? "" : "checked") : "" }}>
                                             <label class="form-check-label" for="IsEkspedisi">
                                                 Ekspedisi
+                                            </label>
+                                        </div>
+                                        <div class="form-check pr-4">
+                                            <input class="form-check-input form-type-checkbox" type="checkbox" name="IsReseller" id="IsReseller" value="IsReseller" {{ $invoice != null ? ((($invoice->IsReseller ?? 0) == 0) ? "" : "checked") : "checked" }}>
+                                            <label class="form-check-label" for="IsReseller">
+                                                Reseller
                                             </label>
                                         </div>
                                         <div class="form-check pr-4">
@@ -486,23 +493,78 @@ $(document).ready(function () {
         Swal.fire({
             title: 'Apakah anda yakin untuk menyimpan data?',
             icon: 'warning',
-            showCancelButton: true,
-            showDenyButton: true,
-            confirmButtonColor: '#3085d6',
-            denyButtonColor: '#6c757d',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes!',
-            denyButtonText: `Save & PDF`
-        }).then((result) => {
-            if (result.isConfirmed) {
-                this.submit();
-            } else if (result.isDenied) {
-                $('#toPDF').val('1');
-                this.submit();
-            } else {
-                return false;
+            showConfirmButton: false,
+            showCancelButton: false,
+            allowOutsideClick: false,
+            html: `
+                <div class="d-grid gap-2">
+                    <button id="btnSave" class="swal2-confirm swal2-styled" style="background:#3085d6"><i class="fas fa-save pr-2"></i>Save</button>
+                    <button id="btnSaveHome" class="swal2-confirm swal2-styled" style="background:#28a745"><i class="fas fa-save pr-2"></i>Home</button>
+                    <button id="btnSavePDF" class="swal2-confirm swal2-styled" style="background:#d33"><i class="fas fa-save pr-2"></i>PDF</i>
+                    <button id="btnCancel" class="swal2-cancel swal2-styled">Cancel</button>
+                </div>
+            `,
+            didOpen: () => {
+                const popup = Swal.getPopup();
+
+                popup.querySelector('#btnSave').onclick = () => {
+                    Swal.close();
+                    this.submit();
+                };
+
+                popup.querySelector('#btnSaveHome').onclick = () => {
+                    $('#toHome').val('1');
+                    Swal.close();
+                    this.submit();
+                };
+
+                popup.querySelector('#btnSavePDF').onclick = () => {
+                    Swal.close();
+                    showPdfOption.call(this);
+                };
+
+                popup.querySelector('#btnCancel').onclick = () => {
+                    Swal.close();
+                };
             }
-            });
+        });
+function showPdfOption() {
+    Swal.fire({
+        title: 'Pilih aksi PDF',
+        icon: 'question',
+        showConfirmButton: false,
+        showCancelButton: false,
+        html: `
+            <div class="d-grid gap-2">
+                <button id="btnView" class="swal2-confirm swal2-styled" style="background:#17a2b8">View</button>
+                <button id="btnDownload" class="swal2-confirm swal2-styled" style="background:#f1c40f">Download</button>
+                <button id="btnBack" class="swal2-cancel swal2-styled">Cancel</button>
+            </div>
+        `,
+        didOpen: () => {
+            const popup = Swal.getPopup();
+
+            popup.querySelector('#btnView').onclick = () => {
+                $('#toPDF').val('view');
+                Swal.close();
+                this.submit();
+            };
+
+            popup.querySelector('#btnDownload').onclick = () => {
+                $('#toPDF').val('download');
+                Swal.close();
+                this.submit();
+            };
+
+            popup.querySelector('#btnBack').onclick = () => {
+                Swal.close();
+                // kembali ke modal pertama
+                Swal.fire(arguments.callee.caller);
+            };
+        }
+    });
+}
+
         }
     );
 
