@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DInvoice;
+use App\Models\HDiscount;
 use App\Models\HInvoice;
 use App\Models\HTandaTerima;
 use App\Models\MCustomer;
@@ -447,7 +448,7 @@ class InvoiceController extends Controller
         if ($id == 0) {
             $invoice = null;
         } else {
-            $invoice = HInvoice::findOrFail($id);
+            $invoice = HInvoice::with('discounts')->findOrFail($id);
         }
 
         if ($request->input('IsLarge') ?? ($invoice && $invoice->IsLarge)) {
@@ -556,5 +557,34 @@ class InvoiceController extends Controller
                 'type' => 'danger',
                 'message' => 'Form not found.',
             ]);
+    }
+
+    public function storeDiscount(Request $request)
+    {
+        HDiscount::where('FormID', $request->formid)->delete();
+        foreach ($request->spreadsheetData as $index => $row) {
+            if ($index == 0 || strtolower($row[0]) == 'subtotal' || $row[0] == '') continue; // skip header
+            $discount = new HDiscount();
+            $discount->FormID = $request->formid;
+            $discount->Idx = $index;
+            $discount->Description = $row[0];
+            $discount->Formula = $row[1];
+            $discount->save();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Discount saved successfully.',
+        ]);
+    }
+
+    public function getDiscount(Request $request)
+    {
+        $discounts = HDiscount::where('FormID', $request->formid)->orderBy('Idx')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'discounts' => $discounts,
+        ]);
     }
 }

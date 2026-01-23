@@ -29,6 +29,7 @@
         "autonumeric": "^4.6.0",
         "bluebird": "^3.7.2",
         "highcharts": "^9.2.2",
+        "jspreadsheet-ce": "^5.0.4",
         "moment": "^2.27.0",
         "puppeteer": "^24.29.1",
         "toastr": "^2.1.4"

@@ -288,6 +288,7 @@
                                                 <div class="input-group-append">
                                                     <span class="input-group-text">%</span>
                                                 </div>
+                                                <button class="btn btn-sm btn-info btn-discount ml-2"><i class="fas fa-plus"></i></button>
                                             </div>
                                         </div>
                                     </div>
@@ -356,11 +357,34 @@
                     </table>
                     </div>
                 </div>
-                <div class="card-footer">
+                <div class="card-footer d-flex justify-content-end align-items-center">
+                    {{-- button untuk langsung naik ke atas page --}}
+                    <button onclick="window.scrollTo({top: 1000, behavior: 'smooth'}); return false" class="btn btn-sm btn-secondary mr-2"><i class="fas fa-arrow-up"></i></button>
                     <h5 class="text-right">Total: <span id="grand-total">0</span></h5>
                 </div>
             </div>
         </form>
+    </div>
+</div>
+{{-- modal discount --}}
+<div class="modal fade" id="discountModal" tabindex="-1" role="dialog" aria-labelledby="discountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="discountModalLabel">Detail Discount</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="spreadsheet"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button class="btn btn-danger" id="resetDiscountDetails">Reset</button>
+                <button type="button" class="btn btn-primary" id="saveDiscountDetails">Save Details</button>
+            </div>
+        </div>
     </div>
 </div>
 <style>
@@ -463,6 +487,7 @@ $.ajaxSetup({
 
 var isChanged = false;
 var isLocked = false;
+var total = 0;
 
 $(document).ready(function () {
     $('.select2').css('width', '100%');
@@ -612,6 +637,116 @@ function showPdfOption() {
             }
         });
     });
+
+    let sheet = null;
+    $('.btn-discount').on('click', function(e) {
+        e.preventDefault();
+        $('#discountModal').modal('show');
+
+        if (!sheet) {
+            sheet = jspreadsheet(document.getElementById('spreadsheet'), {
+                worksheets: [{
+                    minDimensions: [2,3],
+                    data: [
+                        ["Description", "Formula"],
+                        ["Subtotal", total],
+                    ],
+                    columns: [
+                        { type: 'text', title: 'A', width: 200 },
+                        { type: 'number', title: 'B', width: 120 },
+                    ],
+                    style: {
+                        'A1': 'font-weight: bold',
+                        'B1': 'font-weight: bold',
+                    },
+                }]
+            });
+        }
+
+        loadDiscountDetails();
+    });
+
+    $('#saveDiscountDetails').on('click', function() {
+        $.ajax({
+            url: '{{ route("invoice.storeDiscount") }}',
+            method: 'POST',
+            data: {
+                formid: '{{ $invoice->FormID ?? 0 }}',
+                spreadsheetData: sheet[0].getData(),
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                $('#discountModal').modal('hide');
+                Swal.fire('Berhasil!', 'Detail discount telah disimpan.', 'success');
+            },
+            error: function(xhr) {
+                Swal.fire('Gagal!', 'Terjadi kesalahan saat menyimpan detail discount.', 'error');
+            }
+        });
+    })
+
+    $('#resetDiscountDetails').on('click', function() {
+        resetSheet();
+    });
+
+    function loadDiscountDetails() {
+        $.ajax({
+            url: '{{ route("invoice.getDiscount") }}',
+            method: 'GET',
+            data: {
+                formid: '{{ $invoice->FormID ?? 0 }}',
+            },
+            success: function(response) {
+                if (response.status !== 'success') return;
+
+                // reset row
+                resetSheet();
+
+                let records = [];
+                for (const data of response.discounts) {
+                    if (data.Idx >= 3) {
+                        sheet[0].insertRow();
+                    }
+                    records.push({
+                        x: 0,
+                        y: data.Idx,
+                        value: data.Description,
+                    }, {
+                        x: 1,
+                        y: data.Idx,
+                        value: data.Formula,
+                    });
+                }
+                // add rows if needed
+                sheet[0].setValue(records);
+            },
+            error: function(xhr) {
+                Swal.fire('Gagal!', 'Terjadi kesalahan saat memuat detail discount.', 'error');
+            }
+        });
+    }
+
+    function resetSheet() {
+        jspreadsheet.destroy(document.getElementById('spreadsheet'));
+        
+        sheet = jspreadsheet(document.getElementById('spreadsheet'), {
+            worksheets: [{
+                minDimensions: [2,3],
+                data: [
+                    ["Description", "Formula"],
+                    ["Subtotal", total],
+                ],
+                columns: [
+                    { type: 'text', title: 'A', width: 200 },
+                    { type: 'number', title: 'B', width: 120 },
+                ],
+                style: {
+                    'A1': 'font-weight: bold',
+                    'B1': 'font-weight: bold',
+                },
+            }]
+        });
+    }
 
     $('#categorycustomer').on('change', function() {
         // kalau tidak ada product di form, jangan tanya
@@ -1022,7 +1157,7 @@ function showPdfOption() {
         var $row = $(this).closest('.card-body, tr');
         var quantity = parseFloat($row.find('.quantity-input').inputmask('unmaskedvalue')) || 0;
         var price = parseFloat($row.find('.price-input').inputmask('unmaskedvalue')) || 0;
-        var total = quantity * price;
+        total = quantity * price;
         $row.find('input[name="total[]"]').val(total);
 
         // hitung grand total
@@ -1183,7 +1318,8 @@ function showPdfOption() {
                 $lastRow.next('tr').find('.btn-hide-product').removeClass('btn-warning').addClass('btn-secondary');
             @endif
         @endforeach
-        $('#grand-total').text(getGrandTotal().toLocaleString('id-ID'));
+        total = getGrandTotal();
+        $('#grand-total').text(total.toLocaleString('id-ID'));
     @else
         // @for($i = 0; $i < 13; $i++)
         //     addProduct();

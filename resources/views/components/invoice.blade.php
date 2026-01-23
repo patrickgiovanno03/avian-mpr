@@ -1,5 +1,19 @@
 @props(['request', 'invoice', 'page', 'large' => false])
 
+@php
+if (!function_exists('evalFormula')) {
+    function evalFormula($formula, $cells)
+    {
+        $expr = substr($formula, 1); // hapus "="
+
+        foreach ($cells as $cell => $value) {
+            $expr = str_replace($cell, $value, $expr);
+        }
+
+        return eval("return $expr;");
+    }
+}
+@endphp
 @if ($request->IsInvoice ?? $invoice->InvoiceNo ?? '' != null)
 <div class="page"> {{-- INVOICE --}}
     <div class="{{ $page != 0 ? "copy" : "" }}"  @if($large ?? false) style="padding:50px; @if(count($invoice->details) > 21) padding-top: 15px; padding-bottom: 15px @endif " @endif>
@@ -112,18 +126,36 @@
             @endif
             <tr>
                 <td colspan="3" rowspan="3" style="color: red; border:0; white-space: pre-line; line-height: 0.4;">{!! nl2br(e($request->Notes ?? $invoice->Notes ?? '')) !!}</td>
-                <td style="text-align:right; padding-right:12%; border: 0px">{{ ($request->IsDiscount ?? $invoice->IsDiscount ?? 0 != 0) ? 'Subtotal' : 'Total' }}</td>
+                <td style="text-align:right; padding-right:12%; border: 0px">{{ (($request->IsDiscount ?? $invoice->IsDiscount ?? 0 != 0) || $invoice->details) ? 'Subtotal' : 'Total' }}</td>
                 <td align="center"><b>{{ number_format($totalPrice, 0, ',', '.') }}</b></td>
             </tr>
-            @if($request->IsDiscount ?? $invoice->IsDiscount ?? 0 != 0)
+            @if ($invoice->discounts != null && $invoice->discounts->count() > 0)
+                @php
+                    $cellValues = [];
+                    $cellValues['B2'] = $totalPrice;
+                @endphp
+                @foreach ($invoice->discounts as $discount)
+                @php
+                    $cellValues['B' . ($discount->Idx + 1)] = evalFormula($discount->Formula, $cellValues);
+                @endphp
                 <tr>
-                    <td style="text-align:right; padding-right:12%; border: 0px">Disc {{ $request->Discount ?? $invoice->Discount ?? 0 }}%</td>
-                    <td align="center"><b>{{ number_format($totalPrice * ($request->Discount ?? $invoice->Discount ?? 0) / 100, 0, ',', '.') }}</b></td>
+                    <td style="text-align:right; padding-right:12%; border: 0px">{{ $discount->Description }}</td>
+                    <td align="center"><b>
+                        {{ $cellValues['B' . ($discount->Idx + 1)] != null ? number_format($cellValues['B' . ($discount->Idx + 1)], 0, ',', '.') : '' }}
+                    </b></td>
                 </tr>
-                <tr>
-                    <td style="text-align:right; padding-right:12%; border: 0px">Total</td>
-                    <td align="center"><b>{{ number_format($totalPrice - ($totalPrice * ($request->Discount ?? $invoice->Discount ?? 0) / 100), 0, ',', '.') }}</b></td>
-                </tr>
+                @endforeach
+            @else
+                @if($request->IsDiscount ?? $invoice->IsDiscount ?? 0 != 0)
+                    <tr>
+                        <td style="text-align:right; padding-right:12%; border: 0px">Disc {{ $request->Discount ?? $invoice->Discount ?? 0 }}%</td>
+                        <td align="center"><b>{{ number_format($totalPrice * ($request->Discount ?? $invoice->Discount ?? 0) / 100, 0, ',', '.') }}</b></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:right; padding-right:12%; border: 0px">Total</td>
+                        <td align="center"><b>{{ number_format($totalPrice - ($totalPrice * ($request->Discount ?? $invoice->Discount ?? 0) / 100), 0, ',', '.') }}</b></td>
+                    </tr>
+                @endif
             @endif
         </tbody>
     </table>

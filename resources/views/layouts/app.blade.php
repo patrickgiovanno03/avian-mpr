@@ -18,7 +18,13 @@
     <script src="{{ asset('js/vendor.js') }}?date={{ date('Ymd') }}"></script>
     <script src="{{ asset('js/inputmask.js') }}"></script>
     <script src="{{ asset('vendor/sweetalert/sweetalert.all.js') }}"></script>
+    <script src="https://bossanova.uk/jspreadsheet/v5/jspreadsheet.js"></script>
+    <script src="https://jsuites.net/v5/jsuites.js"></script>
+    <link rel="stylesheet" href="https://bossanova.uk/jspreadsheet/v5/jspreadsheet.css" type="text/css" />
+    <link rel="stylesheet" href="https://jsuites.net/v5/jsuites.css" type="text/css" />
 
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons" />
+    
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
 
     <!-- Styles -->

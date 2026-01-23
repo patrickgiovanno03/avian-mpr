@@ -58,6 +58,8 @@ Route::prefix('invoice')->group(function () {
     Route::get('/getProductDetails', 'InvoiceController@getProductDetails')->name('invoice.getProductDetails');
     Route::get('/getCustomerDetails', 'InvoiceController@getCustomerDetails')->name('invoice.getCustomerDetails');
     Route::get('/print/{id}/{download?}', 'InvoiceController@previewdynamic')->name('invoice.previewdynamic');
+    Route::post('/storeDiscount', 'InvoiceController@storeDiscount')->name('invoice.storeDiscount');
+    Route::get('/getDiscount', 'InvoiceController@getDiscount')->name('invoice.getDiscount');
 });
 Route::resource('invoice', 'InvoiceController');
 

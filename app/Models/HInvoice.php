@@ -59,4 +59,9 @@ class HInvoice extends Model
         $dtandaterima = DTandaTerima::where('InvoiceNo', $this->InvoiceNo)->first();
         return $dtandaterima->htandaterima ?? null;
     }
+
+    public function discounts()
+    {
+        return $this->hasMany(HDiscount::class, 'FormID', 'FormID');
+    }
 }

@@ -58,8 +58,9 @@
         .copy th {
         border-color: #006FBE !important;
         }
-        .copy b[style*="color:red"] {
-        color: #006FBE !important;
+
+        .copy * {
+            color: #006FBE !important;
         }
 
         .page {
