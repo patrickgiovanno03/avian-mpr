@@ -60,6 +60,7 @@ Route::prefix('invoice')->group(function () {
     Route::get('/print/{id}/{download?}', 'InvoiceController@previewdynamic')->name('invoice.previewdynamic');
     Route::post('/storeDiscount', 'InvoiceController@storeDiscount')->name('invoice.storeDiscount');
     Route::get('/getDiscount', 'InvoiceController@getDiscount')->name('invoice.getDiscount');
+    Route::get('/last', 'InvoiceController@last')->name('invoice.last');
 });
 Route::resource('invoice', 'InvoiceController');
 
@@ -109,3 +110,8 @@ Route::resource('tt', 'TandaTerimaController');
 Route::prefix('gaji')->group(function () {
     Route::get('/slipAll/{id}', 'GajiController@slipAll')->name('gaji.slipAll');
 });
+
+Route::prefix('nama')->group(function () {
+    Route::post('/generate', 'NamaController@generate')->name('nama.generate');
+});
+Route::resource('nama', 'NamaController');

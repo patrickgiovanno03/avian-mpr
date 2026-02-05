@@ -77,6 +77,10 @@
                             <i class="fas fa-plus nav-icon"></i>
                             <p>Create Invoice</p>
                         </a>
+                        <a href="{{ route('invoice.last') }}" class="nav-link {{ Route::is('invoice.last') ? 'active' : '' }}">
+                            <i class="fas fa-clock nav-icon"></i>
+                            <p>Last Invoice</p>
+                        </a>
                         <a href="{{ route('tt.index') }}" class="nav-link {{ (Route::is('tt.*')) ? 'active' : '' }}">
                             <i class="fas fa-file-invoice-dollar nav-icon"></i>
                             <p>Tanda Terima</p>
@@ -101,6 +105,23 @@
                         <a href="{{ route('pegawai.index') }}" class="nav-link {{ (Route::is('pegawai.*')) ? 'active' : '' }}">
                             <i class="fas fa-user-tag nav-icon"></i>
                             <p>Gaji Karyawan</p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item has-treeview {{ (Route::is('nama.*')) ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ (Route::is('nama.*')) ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-gears"></i>
+                    <p>
+                        Bloxify
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('nama.index') }}" class="nav-link {{ (Route::is('nama.*')) ? 'active' : '' }}">
+                            <i class="fas fa-font nav-icon"></i>
+                            <p>Nama</p>
                         </a>
                     </li>
                 </ul>

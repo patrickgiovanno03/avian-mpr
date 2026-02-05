@@ -16,7 +16,7 @@ if (!function_exists('evalFormula')) {
 @endphp
 @if ($request->IsInvoice ?? $invoice->InvoiceNo ?? '' != null)
 <div class="page"> {{-- INVOICE --}}
-    <div class="{{ $page != 0 ? "copy" : "" }}"  @if($large ?? false) style="padding:50px; @if(count($invoice->details) > 21) padding-top: 15px; padding-bottom: 15px @endif " @endif>
+    <div class="{{ $page != 0 ? "copy" : "" }}"  @if($large ?? false) style="padding:50px; @if(count($invoice->details ?? []) > 21) padding-top: 15px; padding-bottom: 15px @endif " @endif>
         <table width="100%">
         <tr>
         <td width="15%" align="center">
@@ -65,7 +65,7 @@ if (!function_exists('evalFormula')) {
             </tr>
         </thead>
         <!-- Baris kosong -->
-        <tbody @if(count($invoice->details) > 21) style="font-size: 10px" @endif>
+        <tbody @if(count($invoice->details ?? []) > 21) style="font-size: 10px" @endif>
             @if($request->product != null) 
                 @php
                     $totalPrice = 0;
@@ -126,15 +126,15 @@ if (!function_exists('evalFormula')) {
             @endif
             <tr>
                 <td colspan="3" rowspan="3" style="color: red; border:0; white-space: pre-line; line-height: 0.4;">{!! nl2br(e($request->Notes ?? $invoice->Notes ?? '')) !!}</td>
-                <td style="text-align:right; padding-right:12%; border: 0px">{{ (($request->IsDiscount ?? $invoice->IsDiscount ?? 0 != 0) || $invoice->details) ? 'Subtotal' : 'Total' }}</td>
+                <td style="text-align:right; padding-right:12%; border: 0px">{{ (($request->IsDiscount ?? $invoice->IsDiscount ?? 0 != 0) || ($invoice->details ?? [])) ? 'Subtotal' : 'Total' }}</td>
                 <td align="center"><b>{{ number_format($totalPrice, 0, ',', '.') }}</b></td>
             </tr>
-            @if ($invoice->discounts != null && $invoice->discounts->count() > 0)
+            @if ($invoice->discounts ?? [] != null && $invoice->discounts->count() > 0)
                 @php
                     $cellValues = [];
                     $cellValues['B2'] = $totalPrice;
                 @endphp
-                @foreach ($invoice->discounts as $discount)
+                @foreach ($invoice->discounts ?? [] as $discount)
                 @php
                     $cellValues['B' . ($discount->Idx + 1)] = evalFormula($discount->Formula, $cellValues);
                 @endphp

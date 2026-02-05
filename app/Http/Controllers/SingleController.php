@@ -152,84 +152,97 @@ class SingleController extends Controller
                 $nama = 'Merrygold ' . $single->Name . ' 250gr';
                 $price = $pricesingle['250gr'];
                 $kode = $single->Kode . 'K';
-                $this->syncInsert($nama, $price, $categoryName, $kode);
+                $satuan = 'toples';
+                $this->syncInsert($nama, $price, $categoryName, $kode, $satuan);
 
                 // 300gr
                 $nama = 'Merrygold ' . $single->Name . ' 300gr';
                 $price = $pricesingle['300gr'];
                 $kode = $single->Kode . 'S';
-                $this->syncInsert($nama, $price, $categoryName, $kode);
+                $satuan = 'toples';
+                $this->syncInsert($nama, $price, $categoryName, $kode, $satuan);
 
                 // 500gr
                 $nama = 'Merrygold ' . $single->Name . ' 500gr';
                 $price = $pricesingle['500gr'];
                 $kode = $single->Kode . 'B';
-                $this->syncInsert($nama, $price, $categoryName, $kode);
+                $satuan = 'toples';
+                $this->syncInsert($nama, $price, $categoryName, $kode, $satuan);
 
                 // 300ml
                 $nama = 'Merrygold ' . $single->Name . ' Tabung 300ml';
                 $price = $pricesingle['300ml'];
                 $kode = $single->Kode . 'TM';
-                $this->syncInsert($nama, $price, $categoryName, $kode);
+                $satuan = 'toples';
+                $this->syncInsert($nama, $price, $categoryName, $kode, $satuan);
 
                 // 400ml
                 $nama = 'Merrygold ' . $single->Name . ' Tabung 400ml';
                 $price = $pricesingle['400ml'];
                 $kode = $single->Kode . 'TK';
-                $this->syncInsert($nama, $price, $categoryName, $kode);
+                $satuan = 'toples';
+                $this->syncInsert($nama, $price, $categoryName, $kode, $satuan);
 
                 // 700ml
                 $nama = 'Merrygold ' . $single->Name . ' Tabung 700ml';
                 $price = $pricesingle['700ml'];
                 $kode = $single->Kode . 'TB';
-                $this->syncInsert($nama, $price, $categoryName, $kode);
+                $satuan = 'toples';
+                $this->syncInsert($nama, $price, $categoryName, $kode, $satuan);
 
                 // 250gr Grosir
                 $nama = 'Merrygold ' . $single->Name . ' isi 12x250gr';
                 $price = $pricesingle['250grG'];
                 $kode = $single->Kode . 'K12';
-                $this->syncInsert($nama, $price, $categoryName, $kode);
+                $satuan = 'dos';
+                $this->syncInsert($nama, $price, $categoryName, $kode, $satuan);
 
                 // 300gr Grosir
                 $nama = 'Merrygold ' . $single->Name . ' isi 12x300gr';
                 $price = $pricesingle['300grG'];
                 $kode = $single->Kode . 'S12';
-                $this->syncInsert($nama, $price, $categoryName, $kode);
+                $satuan = 'dos';
+                $this->syncInsert($nama, $price, $categoryName, $kode, $satuan);
 
                 // 500gr Grosir
                 $nama = 'Merrygold ' . $single->Name . ' isi 12x500gr';
                 $price = $pricesingle['500grG'];
                 $kode = $single->Kode . 'B12';
-                $this->syncInsert($nama, $price, $categoryName, $kode);
+                $satuan = 'dos';
+                $this->syncInsert($nama, $price, $categoryName, $kode, $satuan);
 
                 // 300ml Grosir
                 $nama = 'Merrygold ' . $single->Name . ' Tabung isi 12x300ml';
                 $price = $pricesingle['300mlG'];
                 $kode = $single->Kode . 'TM12';
-                $this->syncInsert($nama, $price, $categoryName, $kode);
+                $satuan = 'dos';
+                $this->syncInsert($nama, $price, $categoryName, $kode, $satuan);
 
                 // 400ml Grosir
                 $nama = 'Merrygold ' . $single->Name . ' Tabung isi 12x400ml';
                 $price = $pricesingle['400mlG'];
                 $kode = $single->Kode . 'TK12';
-                $this->syncInsert($nama, $price, $categoryName, $kode);
+                $satuan = 'dos';
+                $this->syncInsert($nama, $price, $categoryName, $kode, $satuan);
 
                 // 700ml Grosir
                 $nama = 'Merrygold ' . $single->Name . ' Tabung isi 12x700ml';
                 $price = $pricesingle['700mlG'];
                 $kode = $single->Kode . 'TB12';
-                $this->syncInsert($nama, $price, $categoryName, $kode);
+                $satuan = 'dos';
+                $this->syncInsert($nama, $price, $categoryName, $kode, $satuan);
 
                 // Kiloan
                 $nama = 'Merrygold ' . $single->Name . ' Kiloan';
                 $price = $pricesingle->PriceKiloan;
                 $kode = $single->Kode . 'KG';
-                $this->syncInsert($nama, $price, $categoryName, $kode);
+                $satuan = 'kg';
+                $this->syncInsert($nama, $price, $categoryName, $kode, $satuan);
             }
         }
     }
 
-    public function syncInsert($nama, $price, $categoryName, $kode = '')
+    public function syncInsert($nama, $price, $categoryName, $kode = '', $satuan = '')
     {
         $mproduct = MProduct::where('Name', $nama)->first();
         if ($mproduct) {
@@ -255,6 +268,7 @@ class SingleController extends Controller
             ]);
         }
         $mproduct->Kode = $kode;
+        $mproduct->Satuan = $satuan;
         $mproduct->save();
     }
 }

@@ -128,12 +128,20 @@ class CustomerController extends Controller
     public function destroy($id)
     {
         //
+        $user = MCustomer::findOrFail($id);
+        $user->IsDel = 1;
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Customer deleted successfully'
+        ]);
     }
     
     public function datatable(Request $request)
     {
         //
-        $data = MCustomer::with('category')->orderBy('CustomerID');
+        $data = MCustomer::with('category')->where('IsDel', 0)->orderBy('CustomerID');
 
         if ($request->has('pricecategoryfilter') && $request->pricecategoryfilter != 0) {
             $data->where('PriceCategory', $request->pricecategoryfilter);

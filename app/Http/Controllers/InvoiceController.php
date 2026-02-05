@@ -119,12 +119,32 @@ class InvoiceController extends Controller
 
         $oldDetailID = 0;
         foreach ($request->input('product') ?? [] as $index => $productName) {
+            if ($request->input('type')[$index] == 'delete') {
+                if ($request->input('detailid')[$index]) {
+                    $dinvoice = DInvoice::find($request->input('detailid')[$index]);
+                    if ($request->input('issj')[$index] == 1 && $dinvoice) {
+                        $dinvoice->IsSJ = 0;
+                        $dinvoice->NamaSJ = null;
+                        $dinvoice->SatuanSJ = null;
+                        $dinvoice->QtySJ = 0;
+                        $dinvoice->save();
+                    } else {
+                        if ($dinvoice)
+                            $dinvoice->delete();
+                    }
+                }
+                continue;
+            }
             if ($productName) {
-                if ($request->input('issj')[$index] == 1 && $oldDetailID != 0) {
-                    // check if previous detail was SJ, if yes, update that instead of creating new
-                    $dinvoice = DInvoice::find($oldDetailID);
+                if ($request->input('type')[$index] == 'update' && $request->input('detailid')[$index]) {
+                    $dinvoice = DInvoice::find($request->input('detailid')[$index]);
                 } else {
-                    $dinvoice = new DInvoice();
+                    if ($request->input('issj')[$index] == 1 && $oldDetailID != 0) {
+                        // check if previous detail was SJ, if yes, update that instead of creating new
+                        $dinvoice = DInvoice::find($oldDetailID);
+                    } else {
+                        $dinvoice = new DInvoice();
+                    }
                 }
                 $dinvoice->FormID = $invoice->FormID;
                 if ($request->input('issj')[$index] == 1) {
@@ -138,7 +158,7 @@ class InvoiceController extends Controller
                     $dinvoice->Nama = $productName;
                     $dinvoice->Harga = $request->input('price')[$index] != null ? str_replace('.', '', $request->input('price')[$index]) : 0;
                     $dinvoice->Satuan = $request->input('unit')[$index];
-                    $dinvoice->Qty = $request->input('quantity')[$index] != null ? str_replace('.', '', $request->input('quantity')[$index]) : 0;
+                    $dinvoice->Qty = $request->input('quantity')[$index] != null ? str_replace(',', '.', str_replace('.', '', $request->input('quantity')[$index])) : 0;
                     $dinvoice->DosLuar = $request->input('dosluar')[$index] != null ? str_replace('.', '', $request->input('dosluar')[$index]) : 0;
                     $dinvoice->Isi = $request->input('isi')[$index] != null ? str_replace('.', '', $request->input('isi')[$index]) : 0;
                     $dinvoice->DosGabung = $request->input('dosgabung')[$index] != null ? str_replace('.', '', $request->input('dosgabung')[$index]) : 0;
@@ -215,6 +235,22 @@ class InvoiceController extends Controller
         return view('invoice.form', $params);
     }
 
+    public function last()
+    {
+        //
+        $invoice = HInvoice::orderBy('FormID', 'desc')->first();
+        if (!$invoice) {
+            return redirect()
+                ->route('invoice.index')
+                ->with('result', (object)[
+                    'type' => 'error',
+                    'message' => 'No invoices found.',
+                ]);
+        }
+        return redirect()
+            ->route('invoice.edit', $invoice->FormID);
+    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -281,7 +317,7 @@ class InvoiceController extends Controller
             if ($request->input('type')[$index] == 'delete') {
                 if ($request->input('detailid')[$index]) {
                     $dinvoice = DInvoice::find($request->input('detailid')[$index]);
-                    if ($request->input('issj')[$index] == 1) {
+                    if ($request->input('issj')[$index] == 1 && $dinvoice) {
                         $dinvoice->IsSJ = 0;
                         $dinvoice->NamaSJ = null;
                         $dinvoice->SatuanSJ = null;

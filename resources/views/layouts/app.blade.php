@@ -42,6 +42,24 @@
             background-color: #e9ecef !important;
             opacity: 1 !important;
         }
+    * {
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    table {
+        overflow: hidden;
+    }
+    
+    table tbody tr {
+        transition: all 0.3s ease;
+    }
+    
+
+    table tbody tr:hover:not(:has(.dropdown-menu.show)) {
+        transform: translateX(5px);
+        background-color: #f7fafc;
+        transform: translateX(5px);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
     </style>
     <link href="{{ asset('css/app.css') }}?date={{ date('Ymd') }}" rel="stylesheet">
     <link href="{{ asset('css/vendor.css') }}?date={{ date('Ymd') }}" rel="stylesheet">

@@ -3,484 +3,107 @@
 @section('title', 'MPR | '.($invoice == null ? 'Create' : 'Edit') .' Invoice')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <form id="formInput" class="col-md-12" method="post" action="{{ ($invoice == null || ($isDuplicate ?? null)) ? route('invoice.store') : route('invoice.update', $invoice->FormID) }}" enctype="multipart/form-data" autocomplete="off">
-            @csrf
-            @if($invoice != null && !($isDuplicate ?? null))
-                @method('PUT')
-            @endif
-            <h1 class="p-0">Form</h1>
-            <div class="card">
-                <div class="card-header">
-                    <div class="d-flex flex-row justify-content-between">
-                        <div>{{ ($isDuplicate ?? null) ? 'Duplicate' : ($invoice != null ? 'Edit' : 'Create') }} Form</div>
-                        <div class="btn-group">
-                            <a href="{{ route('invoice.index') }}" type="button" class="btn btn-sm btn-outline-secondary">
-                                <i class="fas fa-angle-left mr-lg-2"></i><span class="d-none d-lg-inline">Back</span>
-                            </a>
-                            {{-- <button type="button" class="btn btn-sm btn-outline-secondary btn-excel">
-                                <i class="fas fa-file-excel mr-2"></i>Excel
-                            </button> --}}
-                            <button type="button" class="btn btn-sm btn-outline-secondary btn-toggle-preview">
-                                <i class="fas fa-eye-slash mr-2"></i>Hide Preview
-                            </button>
-                            @if($invoice != null)
-                            {{-- <a target="_blank" href="{{ route('invoice.previewdynamic', $invoice->FormID) }}" type="button" class="btn btn-sm btn-outline-secondary btn-pdf">
-                                <i class="fas fa-file-pdf mr-lg-2"></i><span class="d-none d-lg-inline">Save & PDF</span>
-                            </a>
-                            <a target="_blank" href="{{ route('invoice.previewdynamic', ['id' => $invoice->FormID, 'download' => 1]) }}" type="button" class="btn btn-sm btn-outline-secondary btn-pdf">
-                                <i class="fas fa-file-download mr-lg-2"></i><span class="d-none d-lg-inline">Save & Download</span>
-                            </a> --}}
-                            @endif
-                            <button type="submit" class="btn btn-sm btn-avian-secondary btn-submit"><i class="fas fa-save mr-2"></i>Save</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body row">
-                    @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        {{ session('error') }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    @endif
-                    @if ($errors->any())
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        @foreach ($errors->all() as $error)
-                            {{ $error }}<br />
-                        @endforeach
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    @endif
-                    <div class="col-md-6 order-2 order-md-1 pr-4" id="iframe-container">
-                        <div style="position: sticky; top: 20px;">
-                            <div class="card">
-                                <div class="card-header">
-                                    <i class="fas fa-file-pdf mr-2"></i>Live Preview
-                                </div>
-                                <div class="card-body p-0">
-                                    <iframe
-                                        id="print_preview"
-                                        src=""
-                                        style="width: 100%; height: 750px; border: none;"
-                                    ></iframe>
-                                </div>
-                                <div class="card-footer text-center" style="background: #fff3cd;">
-                                    <small class="text-warning"><i class="fas fa-info-circle mr-2"></i>Preview mungkin tidak sepenuhnya akurat. Buka PDF untuk tampilan final.</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 order-1 order-md-2" id="form-container">
-                        <input type="hidden" id="toPDF" name="toPDF" value="0">
-                        <input type="hidden" id="toHome" name="toHome" value="0">
-                        <div class="form-group row">
-							<label for="" class="col-sm-3 col-form-label">Tipe Form</label>
-							<div class="col-sm-9 d-flex flex-row flex-wrap align-items-center">
-								<div class="form-check pr-4">
-									<input class="form-check-input form-type-checkbox" type="checkbox" name="IsInvoice" id="IsInvoice" value="IsInvoice" {{ $invoice != null ? ($invoice->InvoiceNo == null ? "" : "checked") : "checked" }}>
-									<label class="form-check-label" for="IsInvoice">
-										Invoice
-									</label>
-								</div>
-								<div class="form-check pr-4">
-									<input class="form-check-input form-type-checkbox" type="checkbox" name="IsSJ" id="IsSJ" value="IsSJ"{{ $invoice != null ? ($invoice->SJNo == null ? "" : "checked") : "checked" }} >
-									<label class="form-check-label" for="IsSJ">
-										Surat Jalan
-									</label>
-								</div>
-							</div>
-						</div>
-                        <div class="form-group row invoice-container {{ $invoice != null ? ($invoice->InvoiceNo == null ? 'd-none' : '') : '' }}">
-                            <label for="invoiceno" class="form-label col-md-3">Invoice No.</label>
-                            <div class="col-md-9">
-                                <input type="text" class="form-control readonly-color" id="invoiceno" name="invoiceno"
-                                    value="{{ ($isDuplicate ?? null) ? app(\App\Models\HInvoice::class)->getNewInvoiceNo() : ($invoice->InvoiceNo ?? app(\App\Models\HInvoice::class)->getNewInvoiceNo()) }}">
-                            </div>
-                        </div>
-                        <div class="form-group row sj-container {{ $invoice != null ? ($invoice->SJNo == null ? 'd-none' : '') : '' }}">
-                            <label for="sjno" class="form-label col-md-3">Surat Jalan No.</label>
-                            <div class="col-md-9">
-                                <input type="text" class="form-control readonly-color" id="sjno" name="sjno"
-                                    value="{{ ($isDuplicate ?? null) ? app(\App\Models\HInvoice::class)->getNewSJNo() : ($invoice->SJNo ?? app(\App\Models\HInvoice::class)->getNewSJNo()) }}">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="invoicedate" class="form-label col-md-3">Tanggal Invoice</label>
-                            <div class="col-md-9">
-                                <input style="background-color: #E7F1DC" type="text" class="form-control datepicker" id="invoicedate" name="invoicedate"
-                                    value="{{ $invoice != null ? Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y') : Carbon\Carbon::now()->format('d/m/Y') }}" tabindex="1">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="sjdate" class="form-label col-md-3">Tanggal SJ</label>
-                            <div class="col-md-9">
-                                <input type="text" class="form-control datepicker" id="sjdate" name="sjdate"
-                                    value="{{ $invoice != null ? Carbon\Carbon::parse($invoice->SJDate)->format('d/m/Y') : Carbon\Carbon::now()->format('d/m/Y') }}">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="kode" class="form-label col-md-3">Kode</label>
-                            <div class="col-md-9">
-                                <input type="text" class="form-control" id="kode" name="kode"
-                                    value="{{ $invoice->Kode ?? '' }}" tabindex="3">
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="form-group row">
-                            <label for="namacustomer" class="form-label col-md-3">Nama Customer</label>
-                            <div class="col-md-9">
-                                <select style="background-color: #ffcccc" class="form-control select2-tags" id="namacustomer" name="namacustomer" tabindex="2">
-                                    <option value="">Pilih Customer</option>
-                                    @foreach($customers as $customer)
-                                        <option value="{{ $customer }}" {{ (isset($invoice) && $invoice->NamaCustomer == $customer) ? 'selected' : '' }}>
-                                            {{ $customer }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="alamatcustomer" class="form-label col-md-3">Alamat Customer</label>
-                            <div class="col-md-9">
-                                <textarea class="form-control" id="alamatcustomer" name="alamatcustomer">{{ $invoice->AlamatCustomer ?? '' }}</textarea>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="telpcustomer" class="form-label col-md-3">Telp Customer</label>
-                            <div class="col-md-9">
-                                <input type="text" class="form-control" id="telpcustomer" name="telpcustomer"
-                                    value="{{ $invoice->TelpCustomer ?? '' }}">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="categorycustomer" class="form-label col-md-3">Kategori Customer</label>
-                            <div class="col-md-9">
-                                <select class="form-control select2-tags" id="categorycustomer" name="categorycustomer">
-                                    <option {{ (isset($invoice) && $invoice->PriceCategory == 1) ? 'selected' : '' }} value="1">Konsumen</option>
-                                    <option {{ (isset($invoice) && $invoice->PriceCategory == 2) ? 'selected' : '' }} value="2">Supplier-1</option>
-                                    <option {{ (isset($invoice) && $invoice->PriceCategory == 3) ? 'selected' : '' }} value="3">Supplier-2</option>
-                                    <option {{ (isset($invoice) && $invoice->PriceCategory == 4) ? 'selected' : '' }} value="4">Distributor</option>
-                                </select>
-                            </div>
-                        </div>
-                        <hr>
-                        <div>
-                        <div class="collapsible-section">
-                            <div class="collapsible-header" data-toggle="collapse" href="#collapse1">
-                                <div>
-                                    <i class="fas fa-cog mr-2"></i>
-                                    <strong>Advanced Options</strong>
-                                </div>
-                                <i class="fas fa-chevron-down"></i>
-                            </div>
-                            <div id="collapse1" class="panel-collapse collapse mt-3">
-                            <ul class="list-group">
-                                <li class="list-group-item border-0">
-                                <div class="form-group row">
-                                    <div class="col-sm-9 d-flex flex-row flex-wrap align-items-center">
-                                        <div class="form-check pr-4">
-                                            <input class="form-check-input form-type-checkbox" type="checkbox" name="IsKonsinyasi" id="IsKonsinyasi" value="IsKonsinyasi" {{ $invoice != null ? ((($invoice->IsKonsinyasi ?? 0) == 0) ? "" : "checked") : "" }}>
-                                            <label class="form-check-label" for="IsKonsinyasi">
-                                                Konsinyasi
-                                            </label>
-                                        </div>
-                                        <div class="form-check pr-4">
-                                            <input class="form-check-input form-type-checkbox" type="checkbox" name="IsEkspedisi" id="IsEkspedisi" value="IsEkspedisi" {{ $invoice != null ? ((($invoice->IsEkspedisi ?? 0) == 0) ? "" : "checked") : "" }}>
-                                            <label class="form-check-label" for="IsEkspedisi">
-                                                Ekspedisi
-                                            </label>
-                                        </div>
-                                        <div class="form-check pr-4">
-                                            <input class="form-check-input form-type-checkbox" type="checkbox" name="IsReseller" id="IsReseller" value="IsReseller" {{ $invoice != null ? ((($invoice->IsReseller ?? 0) == 0) ? "" : "checked") : "checked" }}>
-                                            <label class="form-check-label" for="IsReseller">
-                                                Reseller
-                                            </label>
-                                        </div>
-                                        <div class="form-check pr-4">
-                                            <input class="form-check-input form-type-checkbox" type="checkbox" name="IsKopSurat" id="IsKopSurat" value="IsKopSurat" {{ $invoice != null ? ((($invoice->IsKopSurat ?? 0) == 0) ? "" : "checked") : "checked" }}>
-                                            <label class="form-check-label" for="IsKopSurat">
-                                                Kop Surat (SJ)
-                                            </label>
-                                        </div>
-                                        <div class="form-check pr-4">
-                                            <input class="form-check-input form-type-checkbox" type="checkbox" name="IsSJCustomer" id="IsSJCustomer" value="IsSJCustomer" {{ $invoice != null ? ((($invoice->IsSJCustomer ?? 0) == 0) ? "" : "checked") : "checked" }}>
-                                            <label class="form-check-label" for="IsSJCustomer">
-                                                SJ Customer
-                                            </label>
-                                        </div>
-                                        <div class="form-check pr-4">
-                                            <input class="form-check-input form-type-checkbox" type="checkbox" name="IsLarge" id="IsLarge" value="IsLarge" {{ $invoice != null ? ((($invoice->IsLarge ?? 0) == 0) ? "" : "checked") : "" }}>
-                                            <label class="form-check-label" for="IsLarge">
-                                                Uk. Besar
-                                            </label>
-                                        </div>
-                                        <div class="form-check pr-4">
-                                            <input class="form-check-input form-type-checkbox" type="checkbox" name="IsDiscount" id="IsDiscount" value="IsDiscount" {{ $invoice != null ? ((($invoice->IsDiscount ?? 0) == 0) ? "" : "checked") : "" }}>
-                                            <label class="form-check-label" for="IsDiscount">
-                                                Discount
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="kode" class="form-label col-md-3">Jatuh Tempo</label>
-                                    <div class="col-md-9">
-                                        <div class="input-group">
-                                            <input type="text" class="numeric form-control" id="JatuhTempo" name="JatuhTempo"
-                                                value="{{ $invoice != null ? ($invoice->JatuhTempo ?? '0') : '0' }}">                                
-                                                <div class="input-group-append">
-                                                <span class="input-group-text p-0 border-0">
-                                                    <div style="min-width: 100px;">
-                                                        <select name="JatuhTempoSatuan" id="JatuhTempoSatuan" class="form-control select2" required>
-                                                            <option {{ ($invoice != null ? ($invoice->JatuhTempoSatuan == "1") ? 'selected' : '' : '') }} value="1">Hari</option>
-                                                            <option {{ ($invoice != null ? ($invoice->JatuhTempoSatuan == "2") ? 'selected' : '' : '') }} value="2">Minggu</option>
-                                                            <option {{ ($invoice != null ? ($invoice->JatuhTempoSatuan == "3") ? 'selected' : '' : '') }} value="3">Bulan</option>
-                                                        </select>
-                                                    </div>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="ekspedisi-container {{ $invoice != null ? (($invoice->IsEkspedisi ?? 0) == 0 ? "d-none" : "") : "d-none" }}">
-                                    <div class="form-group row">
-                                        <label for="NamaEkspedisi" class="form-label col-md-3">Nama Ekspedisi</label>
-                                        <div class="col-md-9">
-                                            <select class="form-control select2-tags" id="NamaEkspedisi" name="NamaEkspedisi">
-                                                <option value="">Pilih Ekspedisi</option>
-                                                @foreach($ekspedisi as $expedisi)
-                                                    <option value="{{ $expedisi }}" {{ (isset($invoice) && $invoice->NamaEkspedisi == $expedisi) ? 'selected' : '' }}>
-                                                        {{ $expedisi }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label for="AlamatEkspedisi" class="form-label col-md-3">Alamat Ekspedisi</label>
-                                        <div class="col-md-9">
-                                            <textarea class="form-control" id="AlamatEkspedisi" name="AlamatEkspedisi">{{ $invoice->AlamatEkspedisi ?? '' }}</textarea>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label for="TelpEkspedisi" class="form-label col-md-3">Telp Ekspedisi</label>
-                                        <div class="col-md-9">
-                                            <input type="text" class="form-control" id="TelpEkspedisi" name="TelpEkspedisi"
-                                                value="{{ $invoice->TelpEkspedisi ?? '' }}">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="ttd-container {{ $invoice != null ? (($invoice->IsKopSurat ?? 0) == 0 ? "d-none" : "") : "d-none" }}">
-                                    <div class="form-group row">
-                                        <label for="TTD" class="form-label col-md-3">TTD Customer</label>
-                                        <div class="col-md-9">
-                                            <input type="text" class="form-control" id="TTD" name="TTD"
-                                                value="{{ $invoice->TTD ?? '' }}">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="discount-container {{ $invoice != null ? (($invoice->IsDiscount ?? 0) == 0 ? "d-none" : "") : "d-none" }}">
-                                    <div class="form-group row">
-                                        <label for="Discount" class="form-label col-md-3">Discount</label>
-                                        <div class="col-md-9">
-                                            <div class="input-group mb-3">
-                                                <input type="text" class="form-control numeric" id="Discount" name="Discount"
-                                                value="{{ $invoice->Discount ?? '' }}">
-                                                <div class="input-group-append">
-                                                    <span class="input-group-text">%</span>
-                                                </div>
-                                                <button class="btn btn-sm btn-info btn-discount ml-2"><i class="fas fa-plus"></i></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="Notes" class="form-label col-md-3">Notes</label>
-                                    <div class="col-md-9">
-                                        <textarea rows="3" class="form-control" id="Notes" name="Notes">{{ $invoice->Notes ?? '' }}</textarea>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="NotesSJ" class="form-label col-md-3">Notes SJ</label>
-                                    <div class="col-md-9">
-                                        <textarea rows="3" class="form-control" id="NotesSJ" name="NotesSJ">{{ $invoice->NotesSJ ?? '' }}</textarea>
-                                    </div>
-                                </div>
-                                </li>
-                            </ul>
-                        </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>
-
-            {{-- ITEM LIST --}}
-            <button class="btn btn-avian-secondary d-md-none fab-add-text-left" type="button" id="btnAddByTextMobile" onclick="$('#btnAddByText').click();">
-                <i class="fas fa-font"></i>
-            </button>
-            <button class="btn btn-avian-secondary d-md-none fab-add-text" type="button" id="btnAddByTextMobile" onclick="$('.btn-submit').click();">
-                <i class="fas fa-save"></i>
-            </button>
-            <div class="card">
-                <div class="card-header">
-                    <div class="d-flex flex-row justify-content-between">
-                        <div>Product List</div>
-                        <div class="btn-group">
-                            <button class="btn btn-clear btn-danger"><i class="fas fa-trash mr-lg-2"></i><span class="d-none d-lg-inline">Clear</span></button>
-                            <button class="btn btn-lock btn-outline-secondary"><i class="fas fa-lock mr-lg-2"></i><span class="d-none d-lg-inline">Lock</span></button>
-                            <button class="btn btn-sm btn-outline-secondary" id="btnAddDetailMultiple" type="button">
-                                <i class="fas fa-plus mr-lg-2"></i><span class="d-none d-lg-inline">Add Multiple</span>
-                            </button>
-                            <button class="btn btn-avian-primary" type="button" id="btnAddDetail"><i class="fas fa-plus mr-2"></i>Add<span class="d-none d-lg-inline"> Item</span></button>
-                            <button class="btn btn-avian-secondary" type="button" id="btnAddByText"><i class="fas fa-font mr-lg-2"></i><span class="d-none d-lg-inline">Add by Text</span></button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                    <table class="dataTable table table-striped table-hover table-bordered w-100 responsive-table" id="product-list-table">
-                        <thead>
-                        <tr>
-                            <th width="500">Inv No.</th>
-                            <th>Quantity</th>
-                            <th>Unit</th>
-                            <th width="100">Price</th>
-                            <th width="150">Total</th>
-                            <th>Dos Luar / Isi</th>
-                            <th>Dos Gabung</th>
-                            <th>Inv</th>
-                            <th>SJ</th>
-                            <th>Action</th>
-                        </tr>
-                        </thead>
-                        <tbody id="product-list-body"></tbody>
-                    </table>
-                    </div>
-                </div>
-                <div class="card-footer d-flex justify-content-end align-items-center">
-                    {{-- button untuk langsung naik ke atas page --}}
-                    <button onclick="window.scrollTo({top: 1000, behavior: 'smooth'}); return false" class="btn btn-sm btn-secondary mr-2"><i class="fas fa-arrow-up"></i></button>
-                    <h5 class="text-right">Total: <span id="grand-total">0</span></h5>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-{{-- modal discount --}}
-<div class="modal fade" id="discountModal" tabindex="-1" role="dialog" aria-labelledby="discountModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="discountModalLabel">Detail Discount</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="spreadsheet"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button class="btn btn-danger" id="resetDiscountDetails">Reset</button>
-                <button type="button" class="btn btn-primary" id="saveDiscountDetails">Save Details</button>
-            </div>
-        </div>
-    </div>
-</div>
 <style>
-    li.select2-results__option {
-  white-space: nowrap;
-}
-
-/* --- Versi Responsive --- */
-@media (max-width: 1200px) {
-  .responsive-table thead {
-    display: none; /* sembunyikan header tabel */
-  }
-
-  .responsive-table tr {
-    display: block;
-    margin-bottom: 1rem;
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
-    background: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    padding: 0.75rem;
-  }
-
-  .responsive-table td {
-    display: block; /* biar vertikal */
-    border: none;
-    padding: 0.5rem 0;
-  }
-
-  .responsive-table td::before {
-    content: attr(data-label);
-    display: block;
-    font-weight: 600;
-    text-transform: capitalize;
-    color: #555;
-    margin-bottom: 4px; /* beri jarak antara label dan input */
-  }
-
-  .responsive-table td input,
-  .responsive-table td select {
-    width: 100%; /* isi penuh */
-    font-size: 0.9rem;
-  }
-
-  .responsive-table td[data-label="Dos / Isi"] .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px; /* jarak antar input */
-    margin-bottom: 0;
-  }
-
-  .responsive-table td[data-label="Dos / Isi"] .input-group input {
-    width: 100%; /* isi penuh */
-  }
-  .responsive-table .invoice-item-row:nth-child(odd) {
-    background: #fff3f1 !important;
-  }
-
-  .responsive-table .invoice-item-row:nth-child(even) {
-    background: #ffffe6 !important;
-  }
-
-}
-.fab-add-text {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.fab-add-text-left {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    .modern-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: none;
+        margin-bottom: 25px;
+        transition: all 0.3s ease;
+    }
+    .modern-card:hover {
+        box-shadow: 0 6px 30px rgba(0,0,0,0.12);
+    }
+    .modern-card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0 !important;
+        padding: 20px 30px;
+        border: none;
+    }
+    .section-header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .section-header-blue {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .section-header-green {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+    .modern-form-label {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+    }
+    .modern-input {
+        border-radius: 10px;
+        border: 2px solid #e2e8f0;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+    .modern-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    .modern-checkbox {
+        transform: scale(1.2);
+        margin-right: 8px;
+    }
+    .checkbox-group {
+        background: #f7fafc;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+    .section-divider {
+        height: 3px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        margin: 25px 0;
+    }
+    .btn-modern {
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .btn-modern-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    .btn-modern-success {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        color: white;
+    }
+    .btn-modern-danger {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 25px;
+    }
+    .info-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
     .collapsible-section {
+        background: #f7fafc;
         border-radius: 10px;
         padding: 20px;
         margin-top: 20px;
@@ -493,32 +116,817 @@
         padding: 15px;
         background: white;
         border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         transition: all 0.3s ease;
     }
     .collapsible-header:hover {
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .form-card-section {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    .section-title i {
+        margin-right: 10px;
+        color: #667eea;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <form id="formInput" class="col-md-12" method="post" action="{{ ($invoice == null || ($isDuplicate ?? null)) ? route('invoice.store') : route('invoice.update', $invoice->FormID) }}" enctype="multipart/form-data" autocomplete="off">
+            @csrf
+            @if($invoice != null && !($isDuplicate ?? null))
+                @method('PUT')
+            @endif
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="page-title mb-0">
+                    <i class="fas fa-file-invoice mr-2"></i>
+                    {{ ($isDuplicate ?? null) ? 'Duplicate Invoice' : ($invoice != null ? 'Edit Invoice' : 'Create Invoice') }}
+                </h1>
+                <span class="info-badge">
+                    <i class="fas fa-calendar-alt mr-2"></i>{{ Carbon\Carbon::now()->format('d M Y') }}
+                </span>
+            </div>
+            
+            <div class="card modern-card">
+                <div class="card-header modern-card-header">
+                    <div class="d-flex flex-row justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-edit mr-3" style="font-size: 1.5rem;"></i>
+                            <span style="font-size: 1.2rem; font-weight: 600;">Invoice Form</span>
+                        </div>
+                        <div class="btn-group">
+                            <a href="{{ route('invoice.index') }}" type="button" class="btn btn-sm btn-light">
+                                <i class="fas fa-angle-left mr-lg-2"></i><span class="d-none d-lg-inline">Back</span>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-light btn-toggle-preview">
+                                <i class="fas fa-eye-slash mr-2"></i><span class="d-none d-lg-inline">Hide Preview</span>
+                            </button>
+                            @if($invoice != null)
+                            @endif
+                            <button type="submit" class="btn btn-sm btn-modern btn-modern-success btn-submit">
+                                <i class="fas fa-save mr-2"></i>Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body row" style="padding: 30px;">
+                    @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 10px; border-left: 5px solid #f5576c;">
+                        <i class="fas fa-exclamation-circle mr-2"></i>{{ session('error') }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    @endif
+                    @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 10px; border-left: 5px solid #f5576c;">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        @foreach ($errors->all() as $error)
+                            {{ $error }}<br />
+                        @endforeach
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    @endif
+                    
+                    <div class="col-md-6 order-2 order-md-1" id="iframe-container">
+                        <div style="position: sticky; top: 20px;">
+                            <div class="card modern-card">
+                                <div class="card-header section-header-blue">
+                                    <i class="fas fa-file-pdf mr-2"></i>Live Preview
+                                </div>
+                                <div class="card-body p-0">
+                                    <iframe
+                                        id="print_preview"
+                                        src=""
+                                        style="width: 100%; height: 750px; border: none; border-radius: 0 0 15px 15px;"
+                                    ></iframe>
+                                </div>
+                                <div class="card-footer text-center" style="background: #fff3cd; border-radius: 0 0 15px 15px;">
+                                    <small class="text-warning"><i class="fas fa-info-circle mr-2"></i>Preview mungkin tidak sepenuhnya akurat. Buka PDF untuk tampilan final.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 order-1 order-md-2" id="form-container">
+                        <input type="hidden" id="toPDF" name="toPDF" value="0">
+                        <input type="hidden" id="toHome" name="toHome" value="0">
+                        
+                        <!-- Form Type Section -->
+                        <div class="form-card-section">
+                            <div class="section-title">
+                                <i class="fas fa-file-alt"></i>Tipe Form
+                            </div>
+                            <div class="checkbox-group">
+                                <div class="form-check form-check-inline mr-4">
+                                    <input class="form-check-input modern-checkbox form-type-checkbox" type="checkbox" name="IsInvoice" id="IsInvoice" value="IsInvoice" {{ $invoice != null ? ($invoice->InvoiceNo == null ? "" : "checked") : "checked" }}>
+                                    <label class="form-check-label" for="IsInvoice">
+                                        <i class="fas fa-file-invoice text-primary mr-1"></i><strong>Invoice</strong>
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input modern-checkbox form-type-checkbox" type="checkbox" name="IsSJ" id="IsSJ" value="IsSJ"{{ $invoice != null ? ($invoice->SJNo == null ? "" : "checked") : "checked" }} >
+                                    <label class="form-check-label" for="IsSJ">
+                                        <i class="fas fa-truck text-success mr-1"></i><strong>Surat Jalan</strong>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Invoice & SJ Numbers -->
+                        <div class="form-card-section invoice-container {{ $invoice != null ? ($invoice->InvoiceNo == null ? 'd-none' : '') : '' }}">
+                            <div class="form-group row align-items-center">
+                                <label for="invoiceno" class="modern-form-label col-md-4 mb-0">
+                                    <i class="fas fa-hashtag text-primary mr-2"></i>Invoice No.
+                                </label>
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control modern-input readonly-color" id="invoiceno" name="invoiceno"
+                                        value="{{ ($isDuplicate ?? null) ? app(\App\Models\HInvoice::class)->getNewInvoiceNo() : ($invoice->InvoiceNo ?? app(\App\Models\HInvoice::class)->getNewInvoiceNo()) }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-card-section sj-container {{ $invoice != null ? ($invoice->SJNo == null ? 'd-none' : '') : '' }}">
+                            <div class="form-group row align-items-center">
+                                <label for="sjno" class="modern-form-label col-md-4 mb-0">
+                                    <i class="fas fa-truck text-success mr-2"></i>Surat Jalan No.
+                                </label>
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control modern-input readonly-color" id="sjno" name="sjno"
+                                        value="{{ ($isDuplicate ?? null) ? app(\App\Models\HInvoice::class)->getNewSJNo() : ($invoice->SJNo ?? app(\App\Models\HInvoice::class)->getNewSJNo()) }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Date & Code Section -->
+                        <div class="form-card-section">
+                            <div class="section-title">
+                                <i class="fas fa-calendar-check"></i>Tanggal & Kode
+                            </div>
+                            <div class="form-group row align-items-center mb-3">
+                                <label for="invoicedate" class="modern-form-label col-md-4 mb-0">
+                                    <i class="fas fa-calendar-alt text-info mr-2"></i>Tanggal Invoice
+                                </label>
+                                <div class="col-md-8">
+                                    <input style="background-color: #e3f2fd" type="text" class="form-control modern-input datepicker" id="invoicedate" name="invoicedate"
+                                        value="{{ $invoice != null ? Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y') : Carbon\Carbon::now()->format('d/m/Y') }}" tabindex="1">
+                                </div>
+                            </div>
+                            <div class="form-group row align-items-center mb-3">
+                                <label for="sjdate" class="modern-form-label col-md-4 mb-0">
+                                    <i class="fas fa-calendar-day text-warning mr-2"></i>Tanggal SJ
+                                </label>
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control modern-input datepicker" id="sjdate" name="sjdate"
+                                        value="{{ $invoice != null ? Carbon\Carbon::parse($invoice->SJDate)->format('d/m/Y') : Carbon\Carbon::now()->format('d/m/Y') }}">
+                                </div>
+                            </div>
+                            <div class="form-group row align-items-center mb-0">
+                                <label for="kode" class="modern-form-label col-md-4 mb-0">
+                                    <i class="fas fa-barcode text-secondary mr-2"></i>Kode
+                                </label>
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control modern-input" id="kode" name="kode"
+                                        value="{{ $invoice->Kode ?? '' }}" tabindex="3">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="section-divider"></div>
+                        
+                        <!-- Customer Information -->
+                        <div class="form-card-section">
+                            <div class="section-title">
+                                <i class="fas fa-user-tie"></i>Informasi Customer
+                            </div>
+                            <div class="form-group row align-items-center mb-3">
+                                <label for="namacustomer" class="modern-form-label col-md-4 mb-0">
+                                    <i class="fas fa-user text-danger mr-2"></i>Nama Customer
+                                </label>
+                                <div class="col-md-8">
+                                    <select style="background-color: #ffe6e6" class="form-control modern-input select2-tags" id="namacustomer" name="namacustomer" tabindex="2">
+                                    <select style="background-color: #ffe6e6" class="form-control modern-input select2-tags" id="namacustomer" name="namacustomer" tabindex="2">
+                                        <option value="">Pilih Customer</option>
+                                        @foreach($customers as $customer)
+                                            <option value="{{ $customer }}" {{ (isset($invoice) && $invoice->NamaCustomer == $customer) ? 'selected' : '' }}>
+                                                {{ $customer }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row align-items-center mb-3">
+                                <label for="alamatcustomer" class="modern-form-label col-md-4 mb-0">
+                                    <i class="fas fa-map-marker-alt text-danger mr-2"></i>Alamat
+                                </label>
+                                <div class="col-md-8">
+                                    <textarea class="form-control modern-input" rows="3" id="alamatcustomer" name="alamatcustomer">{{ $invoice->AlamatCustomer ?? '' }}</textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row align-items-center mb-3">
+                                <label for="telpcustomer" class="modern-form-label col-md-4 mb-0">
+                                    <i class="fas fa-phone text-success mr-2"></i>Telepon
+                                </label>
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control modern-input" id="telpcustomer" name="telpcustomer"
+                                        value="{{ $invoice->TelpCustomer ?? '' }}">
+                                </div>
+                            </div>
+                            <div class="form-group row align-items-center mb-0">
+                                <label for="categorycustomer" class="modern-form-label col-md-4 mb-0">
+                                    <i class="fas fa-tags text-info mr-2"></i>Kategori
+                                </label>
+                                <div class="col-md-8">
+                                    <select class="form-control modern-input select2-tags" id="categorycustomer" name="categorycustomer">
+                                        <option {{ (isset($invoice) && $invoice->PriceCategory == 1) ? 'selected' : '' }} value="1">Konsumen</option>
+                                        <option {{ (isset($invoice) && $invoice->PriceCategory == 2) ? 'selected' : '' }} value="2">Supplier-1</option>
+                                        <option {{ (isset($invoice) && $invoice->PriceCategory == 3) ? 'selected' : '' }} value="3">Supplier-2</option>
+                                        <option {{ (isset($invoice) && $invoice->PriceCategory == 4) ? 'selected' : '' }} value="4">Distributor</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="section-divider"></div>
+                        
+                        <!-- Options Section (Collapsible) -->
+                        <div class="collapsible-section">
+                            <div class="collapsible-header" data-toggle="collapse" href="#collapse1">
+                                <div>
+                                    <i class="fas fa-cog mr-2"></i>
+                                    <strong>Advanced Options</strong>
+                                </div>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div id="collapse1" class="collapse mt-3">
+                            <div id="collapse1" class="collapse mt-3">
+                                <div class="form-card-section mb-3">
+                                    <div class="checkbox-group">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input modern-checkbox form-type-checkbox" type="checkbox" name="IsKonsinyasi" id="IsKonsinyasi" value="IsKonsinyasi" {{ $invoice != null ? ((($invoice->IsKonsinyasi ?? 0) == 0) ? "" : "checked") : "" }}>
+                                                    <label class="form-check-label" for="IsKonsinyasi">
+                                                        <i class="fas fa-handshake text-warning mr-1"></i>Konsinyasi
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input modern-checkbox form-type-checkbox" type="checkbox" name="IsEkspedisi" id="IsEkspedisi" value="IsEkspedisi" {{ $invoice != null ? ((($invoice->IsEkspedisi ?? 0) == 0) ? "" : "checked") : "" }}>
+                                                    <label class="form-check-label" for="IsEkspedisi">
+                                                        <i class="fas fa-shipping-fast text-info mr-1"></i>Ekspedisi
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input modern-checkbox form-type-checkbox" type="checkbox" name="IsReseller" id="IsReseller" value="IsReseller" {{ $invoice != null ? ((($invoice->IsReseller ?? 0) == 0) ? "" : "checked") : "checked" }}>
+                                                    <label class="form-check-label" for="IsReseller">
+                                                        <i class="fas fa-store text-success mr-1"></i>Reseller
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input modern-checkbox form-type-checkbox" type="checkbox" name="IsKopSurat" id="IsKopSurat" value="IsKopSurat" {{ $invoice != null ? ((($invoice->IsKopSurat ?? 0) == 0) ? "" : "checked") : "checked" }}>
+                                                    <label class="form-check-label" for="IsKopSurat">
+                                                        <i class="fas fa-file-alt text-primary mr-1"></i>Kop Surat (SJ)
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input modern-checkbox form-type-checkbox" type="checkbox" name="IsSJCustomer" id="IsSJCustomer" value="IsSJCustomer" {{ $invoice != null ? ((($invoice->IsSJCustomer ?? 0) == 0) ? "" : "checked") : "checked" }}>
+                                                    <label class="form-check-label" for="IsSJCustomer">
+                                                        <i class="fas fa-user-check text-secondary mr-1"></i>SJ Customer
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input modern-checkbox form-type-checkbox" type="checkbox" name="IsLarge" id="IsLarge" value="IsLarge" {{ $invoice != null ? ((($invoice->IsLarge ?? 0) == 0) ? "" : "checked") : "" }}>
+                                                    <label class="form-check-label" for="IsLarge">
+                                                        <i class="fas fa-expand-arrows-alt text-danger mr-1"></i>Uk. Besar
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input modern-checkbox form-type-checkbox" type="checkbox" name="IsDiscount" id="IsDiscount" value="IsDiscount" {{ $invoice != null ? ((($invoice->IsDiscount ?? 0) == 0) ? "" : "checked") : "" }}>
+                                                    <label class="form-check-label" for="IsDiscount">
+                                                        <i class="fas fa-percentage text-warning mr-1"></i>Discount
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                                
+                                <div class="form-card-section mb-3">
+                                    <div class="form-group row align-items-center mb-0">
+                                        <label for="JatuhTempo" class="modern-form-label col-md-4 mb-0">
+                                            <i class="fas fa-clock text-warning mr-2"></i>Jatuh Tempo
+                                        </label>
+                                        <div class="col-md-8">
+                                            <div class="input-group">
+                                                <input type="text" class="numeric form-control modern-input" id="JatuhTempo" name="JatuhTempo"
+                                                    value="{{ $invoice != null ? ($invoice->JatuhTempo ?? '0') : '0' }}">                                
+                                                <div class="input-group-append">
+                                                    <select name="JatuhTempoSatuan" id="JatuhTempoSatuan" class="form-control modern-input" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" required>
+                                                        <option {{ ($invoice != null ? ($invoice->JatuhTempoSatuan == "1") ? 'selected' : '' : '') }} value="1">Hari</option>
+                                                        <option {{ ($invoice != null ? ($invoice->JatuhTempoSatuan == "2") ? 'selected' : '' : '') }} value="2">Minggu</option>
+                                                        <option {{ ($invoice != null ? ($invoice->JatuhTempoSatuan == "3") ? 'selected' : '' : '') }} value="3">Bulan</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ekspedisi-container {{ $invoice != null ? (($invoice->IsEkspedisi ?? 0) == 0 ? "d-none" : "") : "d-none" }}">
+                                    <div class="form-card-section mb-3">
+                                        <div class="section-title" style="font-size: 1rem;">
+                                            <i class="fas fa-shipping-fast"></i>Informasi Ekspedisi
+                                        </div>
+                                        <div class="form-group row align-items-center mb-2">
+                                            <label for="NamaEkspedisi" class="modern-form-label col-md-4 mb-0">Nama</label>
+                                            <div class="col-md-8">
+                                                <select class="form-control modern-input select2-tags" id="NamaEkspedisi" name="NamaEkspedisi">
+                                                    <option value="">Pilih Ekspedisi</option>
+                                                    @foreach($ekspedisi as $expedisi)
+                                                        <option value="{{ $expedisi }}" {{ (isset($invoice) && $invoice->NamaEkspedisi == $expedisi) ? 'selected' : '' }}>
+                                                            {{ $expedisi }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row align-items-center mb-2">
+                                            <label for="AlamatEkspedisi" class="modern-form-label col-md-4 mb-0">Alamat</label>
+                                            <div class="col-md-8">
+                                                <textarea class="form-control modern-input" rows="2" id="AlamatEkspedisi" name="AlamatEkspedisi">{{ $invoice->AlamatEkspedisi ?? '' }}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row align-items-center mb-0">
+                                            <label for="TelpEkspedisi" class="modern-form-label col-md-4 mb-0">Telepon</label>
+                                            <div class="col-md-8">
+                                                <input type="text" class="form-control modern-input" id="TelpEkspedisi" name="TelpEkspedisi"
+                                                    value="{{ $invoice->TelpEkspedisi ?? '' }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ttd-container {{ $invoice != null ? (($invoice->IsKopSurat ?? 0) == 0 ? "d-none" : "") : "d-none" }}">
+                                    <div class="form-card-section mb-3">
+                                        <div class="form-group row align-items-center mb-0">
+                                            <label for="TTD" class="modern-form-label col-md-4 mb-0">
+                                                <i class="fas fa-signature text-primary mr-2"></i>TTD Customer
+                                            </label>
+                                            <div class="col-md-8">
+                                                <input type="text" class="form-control modern-input" id="TTD" name="TTD"
+                                                    value="{{ $invoice->TTD ?? '' }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="discount-container {{ $invoice != null ? (($invoice->IsDiscount ?? 0) == 0 ? "d-none" : "") : "d-none" }}">
+                                    <div class="form-card-section mb-3">
+                                        <div class="form-group row align-items-center mb-0">
+                                            <label for="Discount" class="modern-form-label col-md-4 mb-0">
+                                                <i class="fas fa-percentage text-success mr-2"></i>Discount
+                                            </label>
+                                            <div class="col-md-8">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control modern-input numeric" id="Discount" name="Discount"
+                                                    value="{{ $invoice->Discount ?? '' }}">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text" style="border-radius: 0 10px 10px 0;">%</span>
+                                                    </div>
+                                                    <button class="btn btn-modern btn-modern-success btn-discount ml-2"><i class="fas fa-plus"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-card-section mb-3">
+                                    <div class="form-group row align-items-center mb-3">
+                                        <label for="Notes" class="modern-form-label col-md-4 mb-0">
+                                            <i class="fas fa-sticky-note text-warning mr-2"></i>Notes
+                                        </label>
+                                        <div class="col-md-8">
+                                            <textarea rows="3" class="form-control modern-input" id="Notes" name="Notes">{{ $invoice->Notes ?? '' }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row align-items-center mb-0">
+                                        <label for="NotesSJ" class="modern-form-label col-md-4 mb-0">
+                                            <i class="fas fa-comment-alt text-info mr-2"></i>Notes SJ
+                                        </label>
+                                        <div class="col-md-8">
+                                            <textarea rows="3" class="form-control modern-input" id="NotesSJ" name="NotesSJ">{{ $invoice->NotesSJ ?? '' }}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            {{-- ITEM LIST --}}
+            <button class="btn btn-modern btn-modern-primary d-md-none fab-add-text-left" type="button" id="btnAddByTextMobile" onclick="$('#btnAddByText').click();">
+                <i class="fas fa-font"></i>
+            </button>
+            <button class="btn btn-modern btn-modern-success d-md-none fab-add-text" type="button" id="btnAddByTextMobile" onclick="$('.btn-submit').click();">
+                <i class="fas fa-save"></i>
+            </button>
+            
+            <div class="card modern-card">
+                <div class="card-header section-header-green">
+                    <div class="d-flex flex-row justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-box-open mr-3" style="font-size: 1.5rem;"></i>
+                            <span style="font-size: 1.2rem; font-weight: 600;">Product List</span>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-modern btn-modern-danger btn-clear">
+                                <i class="fas fa-trash mr-lg-2"></i><span class="d-none d-lg-inline">Clear</span>
+                            </button>
+                            <button class="btn btn-sm btn-light btn-lock">
+                                <i class="fas fa-lock mr-lg-2"></i><span class="d-none d-lg-inline">Lock</span>
+                            </button>
+                            <button class="btn btn-sm btn-light" id="btnAddDetailMultiple" type="button">
+                                <i class="fas fa-plus mr-lg-2"></i><span class="d-none d-lg-inline">Add Multiple</span>
+                            </button>
+                            <button class="btn btn-sm btn-modern btn-modern-primary" type="button" id="btnAddDetail">
+                                <i class="fas fa-plus mr-2"></i>Add<span class="d-none d-lg-inline"> Item</span>
+                            </button>
+                            <button class="btn btn-sm btn-modern btn-modern-success" type="button" id="btnAddByText">
+                                <i class="fas fa-font mr-lg-2"></i><span class="d-none d-lg-inline">Add by Text</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body" style="padding: 25px;">
+                    <div class="table-responsive">
+                    <table class="dataTable table table-hover table-bordered w-100 responsive-table" id="product-list-table" style="border-radius: 10px; overflow: hidden;">
+                        <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <tr>
+                            <th width="500"><i class="fas fa-barcode mr-2"></i>Inv No.</th>
+                            <th><i class="fas fa-sort-numeric-up mr-2"></i>Quantity</th>
+                            <th><i class="fas fa-cube mr-2"></i>Unit</th>
+                            <th width="100"><i class="fas fa-dollar-sign mr-2"></i>Price</th>
+                            <th width="150"><i class="fas fa-calculator mr-2"></i>Total</th>
+                            <th><i class="fas fa-boxes mr-2"></i>Dos Luar / Isi</th>
+                            <th><i class="fas fa-layer-group mr-2"></i>Dos Gabung</th>
+                            <th>Inv</th>
+                            <th>SJ</th>
+                            <th><i class="fas fa-cog mr-2"></i>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody id="product-list-body"></tbody>
+                    </table>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center" style="background: #f7fafc; border-radius: 0 0 15px 15px; padding: 20px 25px;">
+                    <button onclick="window.scrollTo({top: 1000, behavior: 'smooth'}); return false" class="btn btn-modern btn-modern-primary">
+                        <i class="fas fa-arrow-up mr-2"></i>Scroll Up
+                    </button>
+                    <h4 class="text-right mb-0">
+                        <span class="text-muted">Total:</span> 
+                        <span class="info-badge" style="font-size: 1.2rem; padding: 8px 20px;" id="grand-total">0</span>
+                    </h4>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- modal discount --}}
+<div class="modal fade" id="discountModal" tabindex="-1" role="dialog" aria-labelledby="discountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="border-radius: 15px; border: none;">
+            <div class="modal-header section-header-green" style="border-radius: 15px 15px 0 0;">
+                <h5 class="modal-title" id="discountModalLabel">
+                    <i class="fas fa-percentage mr-2"></i>Detail Discount
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 25px;">
+                <div id="spreadsheet"></div>
+            </div>
+            <div class="modal-footer" style="background: #f7fafc; border-radius: 0 0 15px 15px;">
+                <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                <button class="btn btn-modern btn-modern-danger" id="resetDiscountDetails">
+                    <i class="fas fa-redo mr-2"></i>Reset
+                </button>
+                <button type="button" class="btn btn-modern btn-modern-success" id="saveDiscountDetails">
+                    <i class="fas fa-save mr-2"></i>Save Details
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    li.select2-results__option {
+        white-space: nowrap;
     }
     
-    /* Toggle Button Styling */
-    .btn-toggle-input {
-        border-left: none !important;
+    /* Animasi smooth */
+    * {
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    
+    /* Enhanced Input Focus Effects */
+    .modern-input:focus,
+    .select2-container--default .select2-selection--single:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+        transform: translateY(-1px);
+    }
+    
+    /* Table Enhancements */
+    #product-list-table tbody tr {
         transition: all 0.3s ease;
     }
     
-    .btn-toggle-input:hover {
-        background-color: #d62828 !important;
-        color: white !important;
-        transform: scale(1.05);
+    #product-list-table tbody tr:hover {
+        background-color: #f7fafc;
+        transform: translateX(5px);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     }
     
-    .btn-toggle-input i {
+    #product-list-table thead th {
+        font-weight: 600;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        border: none !important;
+        padding: 15px !important;
+    }
+    
+    #product-list-table tbody td {
+        vertical-align: middle;
+        padding: 12px !important;
+    }
+    
+    /* Collapsible Animation */
+    .collapsible-header i:last-child {
         transition: transform 0.3s ease;
     }
     
-    .btn-toggle-input:hover i {
+    .collapsible-header[aria-expanded="true"] i:last-child {
         transform: rotate(180deg);
     }
+    
+    /* Loading Animation for Preview */
+    #print_preview {
+        border: none;
+        transition: opacity 0.3s ease;
+    }
+    
+    /* Button Hover Enhancements */
+    .btn-group .btn {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-group .btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    /* Checkbox Modern Style */
+    .modern-checkbox:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+    
+    /* Alert Styling */
+    .alert {
+        border-radius: 12px !important;
+        border-left-width: 5px !important;
+        animation: slideInDown 0.5s ease;
+    }
+    
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Card Animations */
+    .form-card-section {
+        animation: fadeInUp 0.5s ease;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Select2 Customization */
+    .select2-container--default .select2-selection--single {
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        height: calc(2.25rem + 2px);
+        padding: 6px 12px;
+    }
+    
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: #667eea;
+    }
+    
+    /* FAB Button Pulse Effect */
+    .fab-add-text, .fab-add-text-left {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        }
+        50% {
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+        }
+    }
+    
+    /* Readonly Input Styling */
+    .readonly-color {
+        background-color: #f0f4f8 !important;
+        cursor: not-allowed;
+    }
+
+/* --- Versi Responsive --- */
+@media (max-width: 1200px) {
+  .responsive-table thead {
+    display: none; /* sembunyikan header tabel */
+  }
+
+  .responsive-table tr {
+    display: block;
+    margin-bottom: 1.5rem;
+    border: none;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+    padding: 1rem;
+  }
+
+  .responsive-table td {
+    display: block;
+    border: none;
+    padding: 0.75rem 0;
+  }
+
+  .responsive-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-weight: 700;
+    text-transform: capitalize;
+    color: #667eea;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+  }
+
+  .responsive-table td input,
+  .responsive-table td select {
+    width: 100%;
+    font-size: 0.95rem;
+    border-radius: 8px;
+  }
+
+  .responsive-table td[data-label="Dos / Isi"] .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 0;
+  }
+
+  .responsive-table td[data-label="Dos / Isi"] .input-group input {
+    width: 100%;
+  }
+  
+  .responsive-table .invoice-item-row:nth-child(odd) {
+    background: linear-gradient(135deg, #fff3f1 0%, #ffe6e6 100%) !important;
+  }
+
+  .responsive-table .invoice-item-row:nth-child(even) {
+    background: linear-gradient(135deg, #ffffe6 0%, #ffffcc 100%) !important;
+  }
+  
+  /* Mobile adaptations */
+  .page-title {
+    font-size: 1.5rem !important;
+  }
+  
+  .modern-card-header {
+    padding: 15px 20px !important;
+  }
+  
+  .form-card-section {
+    padding: 15px !important;
+  }
+  
+  .section-title {
+    font-size: 1rem !important;
+  }
+  
+  .btn-group {
+    flex-wrap: wrap !important;
+  }
+  
+  .btn-group .btn {
+    margin-bottom: 5px !important;
+  }
+
+}
+
+@media (max-width: 768px) {
+  .info-badge {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+  }
+  
+  .modern-form-label {
+    font-size: 0.85rem;
+  }
+  
+  .modern-input {
+    font-size: 0.85rem;
+    padding: 10px 12px;
+  }
+}
+.fab-add-text {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    border: none;
+}
+.fab-add-text:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+}
+.fab-add-text-left {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    border: none;
+}
+.fab-add-text-left:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+}
 </style>
 @endsection
 
@@ -886,17 +1294,9 @@ function showPdfOption() {
                 <input type="hidden" name="isinvoice[]" value="1" />
                 ${!isSJ ? `
                 <td data-label="Product">
-                    <div class="input-group">
-                        <select class="form-control select2-tags product-select" name="product[]" style="display: block;">
-                            <option value="">Pilih Product</option>
-                        </select>
-                        <input type="text" class="form-control product-input-manual" name="product_manual[]" style="display: none;" placeholder="Ketik nama product...">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary btn-toggle-input" type="button" title="Toggle antara Select dan Input">
-                                <i class="fas fa-exchange-alt"></i>
-                            </button>
-                        </div>
-                    </div>
+                    <select class="form-control select2-tags product-select" name="product[]">
+                        <option value="">Pilih Product</option>
+                    </select>
                 </td>
                 ` : `
                 <td data-label="Product">
@@ -1175,27 +1575,6 @@ function showPdfOption() {
         }
         handleProductSelect($(this));
     });
-    
-    $(document).on('blur', '.product-input-manual', function (e) {
-        if (isLocked) {
-            return;
-        }
-        var productName = $(this).val();
-        if (productName) {
-            var $row = $(this).closest('tr, .card-body');
-            getProductDetails(productName, function(productDetails) {
-                if (productDetails) {
-                    $row.find('input[name="unit[]"]').val(productDetails.Satuan);
-                    var category = $('#categorycustomer').val();
-                    var price = category === '1' ? productDetails.price.PriceKonsumen
-                        : category === '2' ? productDetails.price.PriceSup1
-                        : category === '3' ? productDetails.price.PriceSup2
-                        : productDetails.price.PriceDistributor;
-                    $row.find('input[name="price[]"]').val(price).trigger('change');
-                }
-            });
-        }
-    });
 
     function handleProductSelect($selectElement) {
         var selectedProduct = $selectElement.find('option:selected').text();
@@ -1285,50 +1664,6 @@ function showPdfOption() {
             row.find('input[name="isinvoice[]"]').val('0');
         }
         embedPreviewData();
-    });
-
-    $(document).on('click', '.btn-toggle-input', function (e) {
-        e.preventDefault();
-        var $container = $(this).closest('td').find('.input-group');
-        var $select = $container.find('.product-select');
-        var $input = $container.find('.product-input-manual');
-        var $select2Container = $select.next('.select2-container');
-        
-        if ($select.is(':visible')) {
-            // Switch to manual input
-            var currentValue = $select.val();
-            $input.val(currentValue);
-            $select.hide();
-            $select2Container.hide(); // Hide select2 container juga
-            $input.show().focus();
-            $(this).html('<i class="fas fa-list"></i>');
-            $(this).attr('title', 'Kembali ke Select');
-            
-            // Disable name attribute pada select, enable pada input
-            $select.attr('name', 'product_disabled[]');
-            $input.attr('name', 'product[]');
-        } else {
-            // Switch to select2
-            var currentValue = $input.val();
-            if (currentValue) {
-                // Add option if not exists
-                if ($select.find("option[value='" + currentValue + "']").length === 0) {
-                    $select.append(new Option(currentValue, currentValue, true, true));
-                } else {
-                    $select.val(currentValue);
-                }
-                $select.trigger('change');
-            }
-            $input.hide();
-            $select.show();
-            $select2Container.show(); // Show select2 container kembali
-            $(this).html('<i class="fas fa-exchange-alt"></i>');
-            $(this).attr('title', 'Toggle antara Select dan Input');
-            
-            // Enable name attribute pada select, disable pada input
-            $select.attr('name', 'product[]');
-            $input.attr('name', 'product_manual[]');
-        }
     });
 
     $(document).on('click', '.btn-remove-product', function (e) {
