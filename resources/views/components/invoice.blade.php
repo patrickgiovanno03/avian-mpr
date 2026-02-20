@@ -166,7 +166,7 @@ if (!function_exists('evalFormula')) {
             @if($request->IsKonsinyasi ?? $invoice->IsKonsinyasi ?? 0 != 0)
                 <div><b style="color:red;">KONSINYASI</b></div>
             @else
-                @if(($request->JatuhTempo ?? $invoice->JatuhTempo ?? 0 != 0) && ($request->JatuhTempo ?? $invoice->JatuhTempo ?? 0 != -1))
+                @if((($request->JatuhTempo ?? $invoice->JatuhTempo ?? 0) != 0) && (($request->JatuhTempo ?? $invoice->JatuhTempo ?? 0) != -1))
                     @if($request->JatuhTempoSatuan ?? $invoice->JatuhTempoSatuan == 1)
                         <div>Jatuh Tempo Tanggal : <b style="color:red;">{{ $request->invoicedate != null ? \Carbon\Carbon::createFromFormat('d/m/Y', $request->invoicedate)->addDays($request->JatuhTempo ?? $invoice->JatuhTempo)->format('d F Y') : \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->InvoiceDate)->addDays($request->JatuhTempo ?? $invoice->JatuhTempo)->format('d F Y') }}</b></div>
                     @elseif($request->JatuhTempoSatuan ?? $invoice->JatuhTempoSatuan == 2)
