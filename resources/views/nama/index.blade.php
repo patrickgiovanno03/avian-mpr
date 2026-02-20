@@ -5,11 +5,20 @@
 @section('content')
 <div class="container-fluid">
     <div class="row">
-        <form method="POST" action="{{ route('nama.generate') }}">
-            @csrf
-            <input type="text" name="text" placeholder="Masukkan nama" required>
-            <button type="submit">Generate</button>
-        </form>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" action="{{ route('nama.generate') }}">
+                        @csrf
+                        <div class="form-group">
+                            <label>Masukkan Nama (pisahkan dengan Enter)</label>
+                            <textarea name="text" class="form-control" rows="8" placeholder="Nama 1&#10;Nama 2&#10;Nama 3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-avian-primary">Generate</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection

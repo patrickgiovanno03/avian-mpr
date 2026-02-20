@@ -88,8 +88,8 @@
                     </li>
                 </ul>
             </li>
-            <li class="nav-item has-treeview {{ (Route::is('gaji.*') || Route::is('pegawai.*')) ? 'menu-open' : '' }}">
-                <a href="#" class="nav-link {{ (Route::is('gaji.*') || Route::is('pegawai.*')) ? 'active' : '' }}">
+            <li class="nav-item has-treeview {{ (Route::is('gaji.*') || Route::is('pegawai.*') || Route::is('whatsapp.*')) ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ (Route::is('gaji.*') || Route::is('pegawai.*') || Route::is('whatsapp.*')) ? 'active' : '' }}">
                     <i class="nav-icon fas fa-sack-dollar"></i>
                     <p>
                         Gaji
@@ -105,6 +105,10 @@
                         <a href="{{ route('pegawai.index') }}" class="nav-link {{ (Route::is('pegawai.*')) ? 'active' : '' }}">
                             <i class="fas fa-user-tag nav-icon"></i>
                             <p>Gaji Karyawan</p>
+                        </a>
+                        <a href="{{ route('whatsapp.index') }}" class="nav-link {{ (Route::is('whatsapp.*')) ? 'active' : '' }}">
+                            <i class="fab fa-whatsapp nav-icon"></i>
+                            <p>WhatsApp</p>
                         </a>
                     </li>
                 </ul>

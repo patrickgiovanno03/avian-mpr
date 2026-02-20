@@ -111,7 +111,15 @@ Route::prefix('gaji')->group(function () {
     Route::get('/slipAll/{id}', 'GajiController@slipAll')->name('gaji.slipAll');
 });
 
+Route::prefix('whatsapp')->group(function () {
+    Route::get('/', 'WhatsAppController@index')->name('whatsapp.index');
+    Route::get('/getQR', 'WhatsAppController@getQR')->name('whatsapp.getQR');
+    Route::get('/status', 'WhatsAppController@status')->name('whatsapp.status');
+    Route::post('/send', 'WhatsAppController@send')->name('whatsapp.send');
+});
+
 Route::prefix('nama')->group(function () {
     Route::post('/generate', 'NamaController@generate')->name('nama.generate');
+    Route::get('/download/{filename}', 'NamaController@downloadFile')->name('nama.download');
 });
 Route::resource('nama', 'NamaController');

@@ -126,7 +126,7 @@
                                     @if($gaji->PegawaiID)
                                     <button 
                                         class="btn btn-success btn-sm btn-whatsapp"
-                                        data-id="{{ $gaji->HeaderID }}">
+                                        data-id="{{ $gaji->HeaderID }}" data-nama="{{ $gaji->pegawai->Nama }}">
                                         <i class="fa-brands fa-whatsapp"></i>
                                     </button>
                                     <a 
@@ -738,8 +738,12 @@ $('#modalGaji').on('change', '.tanggal', function() {
 
 // Download PNG
 $('.btn-whatsapp').on('click', function (e, isAlert = true) {
+    var nama = $(this).data('nama');
+toastr.success('Gaji ' + nama + ' berhasil dikirim.');
+    return;
     console.log('isAlert:', isAlert);
     var id = $(this).data('id');
+    var nama = $(this).data('nama');
     Swal.fire({
         title: 'Apakah anda yakin untuk mengirim ke whatsapp?',
         icon: 'warning',
@@ -842,7 +846,7 @@ $('.btn-whatsapp-all').on('click', function () {
                     index++;
 
                     // delay antar kirim (WA API perlu ini)
-                    setTimeout(sendNext, 1000);
+                    setTimeout(sendNext, (Math.random() * 5000) + 10000); // delay acak antara 1-3 detik
                 } else {
                     Swal.fire({
                         icon: 'success',

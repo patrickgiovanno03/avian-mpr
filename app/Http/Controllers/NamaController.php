@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Symfony\Component\Process\Process;
+use ZipArchive;
 
 class NamaController extends Controller
 {
@@ -85,21 +87,68 @@ class NamaController extends Controller
 
     public function generate(Request $request)
     {
-        $text = preg_replace('/[^a-zA-Z0-9]/', '', $request->text);
+        // Validasi input
+        $request->validate([
+            'text' => 'required|string'
+        ]);
 
-        $scadTemplate = file_get_contents(storage_path('app/template.scad'));
+        // Pisahkan nama berdasarkan enter/newline
+        $names = array_filter(array_map('trim', explode("\n", $request->text)));
+        
+        if (empty($names)) {
+            return back()->with('error', 'Tidak ada nama yang diinput');
+        }
 
-        // Inject text
-        $scad = str_replace('__TEXT__', $text, $scadTemplate);
+        $scadFile = storage_path('app/public/bloxify/templatev1.scad');
+        $generatedFiles = [];
 
-        $scadPath = storage_path("app/tmp/{$text}.scad");
-        $stlPath  = storage_path("app/public/{$text}.stl");
+        // Generate STL untuk setiap nama
+        foreach ($names as $name) {
+            $cleanName = preg_replace('/[^a-zA-Z0-9\s]/', '', $name);
+            $outputFile = $cleanName . '.stl';
+            $outputStl = storage_path("app/public/bloxify/names/{$outputFile}");
 
-        file_put_contents($scadPath, $scad);
+            // Buat direktori jika belum ada
+            if (!file_exists(dirname($outputStl))) {
+                mkdir(dirname($outputStl), 0755, true);
+            }
 
-        // Run OpenSCAD
-        exec("openscad -o {$stlPath} {$scadPath}");
+            $process = new Process([
+                'C:\Program Files\OpenSCAD\openscad.exe',
+                '-o',
+                $outputStl,
+                '-D',
+                "text=\"{$cleanName}\"",
+                $scadFile
+            ]);
 
-        return response()->download($stlPath);
+            $process->setTimeout(60);
+            $process->run();
+
+            if ($process->isSuccessful() && file_exists($outputStl)) {
+                $generatedFiles[] = [
+                    'url' => route('nama.download', ['filename' => $outputFile]),
+                    'name' => $outputFile
+                ];
+            }
+        }
+
+        if (empty($generatedFiles)) {
+            return back()->with('error', 'Gagal generate file');
+        }
+
+        // Return view dengan daftar file untuk di-download
+        return view('nama.download', compact('generatedFiles'));
+    }
+
+    public function downloadFile($filename)
+    {
+        $filePath = storage_path("app/public/bloxify/names/{$filename}");
+        
+        if (!file_exists($filePath)) {
+            abort(404);
+        }
+
+        return response()->download($filePath);
     }
 }

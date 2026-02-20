@@ -20,6 +20,8 @@
     <script src="{{ asset('vendor/sweetalert/sweetalert.all.js') }}"></script>
     <script src="https://bossanova.uk/jspreadsheet/v5/jspreadsheet.js"></script>
     <script src="https://jsuites.net/v5/jsuites.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link rel="stylesheet" href="https://bossanova.uk/jspreadsheet/v5/jspreadsheet.css" type="text/css" />
     <link rel="stylesheet" href="https://jsuites.net/v5/jsuites.css" type="text/css" />
 
