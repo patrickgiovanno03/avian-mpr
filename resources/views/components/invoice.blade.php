@@ -174,8 +174,9 @@ if (!function_exists('evalFormula')) {
                     @elseif($request->JatuhTempoSatuan ?? $invoice->JatuhTempoSatuan == 3)
                         <div>Jatuh Tempo Tanggal : <b style="color:red;">{{ $request->invoicedate != null ? \Carbon\Carbon::createFromFormat('d/m/Y', $request->invoicedate)->addMonths($request->JatuhTempo ?? $invoice->JatuhTempo)->format('d F Y') : \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->InvoiceDate)->addMonths($request->JatuhTempo ?? $invoice->JatuhTempo)->format('d F Y') }}</b></div>
                     @endif
-                @else
+                @elseif($request->JatuhTempo != "-1")
                     <div>Jatuh Tempo Tanggal : <b style="color:red;">{{ $request->invoicedate != null ? \Carbon\Carbon::createFromFormat('d/m/Y', $request->invoicedate)->format('d F Y') : \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->InvoiceDate)->format('d F Y') }}</b></div>
+                @else
                 @endif
             @endif
             <div style="margin-top:5px;"><b>Pembayaran harap transfer ke :</b></div>
