@@ -740,10 +740,69 @@ $('#modalGaji').on('change', '.tanggal', function() {
 $('.btn-whatsapp').on('click', function (e, isAlert = true) {
     var nama = $(this).data('nama');
 toastr.success('Gaji ' + nama + ' berhasil dikirim.');
-    return;
     console.log('isAlert:', isAlert);
     var id = $(this).data('id');
     var nama = $(this).data('nama');
+    $.ajax({
+                url: '{{ route("gaji.getData") }}',
+                type: 'GET',
+                data: {
+                    headerid: id
+                },
+                success: function(response) {
+                    console.log(response);
+                    $('#slip-jpg').html(response.html);
+                    $('#slip-jpg').removeClass('d-none');
+                    const el = document.getElementById('slip-jpg');
+
+                    html2canvas(el, {
+                        scale: 2,               // KUNCI BIAR TAJAM
+                        useCORS: true,
+                        backgroundColor: '#ffffff',
+                        windowWidth: el.scrollWidth,
+                        windowHeight: el.scrollHeight
+                    }).then(canvas => {
+                        console.log(canvas);
+                        // var link = document.createElement('a');
+                        // link.href = canvas.toDataURL('image/png');
+                        // link.download = 'slip-gaji.png';
+                        // link.click();
+                        $('#slip-jpg').addClass('d-none');
+                        $.ajax({
+                            url: '{{ route("gaji.sendWA") }}',
+                            type: 'POST',
+                            data: {
+                                image: canvas.toDataURL('image/jpeg', 0.85),
+                                hgaji: response.hgaji,
+                            },
+                            success: function(response) {
+                                if (!isAlert) {
+                                    return;
+                                }
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Gambar PNG berhasil dikirim.',
+                                });
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Terjadi kesalahan saat mengirim gambar.',
+                                    text: xhr.responseText
+                                });
+                            }
+                        });
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Terjadi kesalahan saat mengambil data slip gaji.',
+                        text: xhr.responseText
+                    });
+                }
+            });
+            return;
     Swal.fire({
         title: 'Apakah anda yakin untuk mengirim ke whatsapp?',
         icon: 'warning',
