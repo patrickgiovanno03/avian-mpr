@@ -299,6 +299,7 @@
         $('#formItem #bankrek').val(data.BankRek).trigger('change');
         $('#formItem #norek').val(data.NoRek);
         $('#formItem #anrek').val(data.ANRek);
+        $('#formItem #hp').val(data.HP);
         $('#addModalLabel').text('Edit Pegawai');
         $('#addModal').modal('show');
         $('#formItem').attr('action', "{{ route('pegawai.update', '@id') }}".replace('@id', data.PegawaiID));

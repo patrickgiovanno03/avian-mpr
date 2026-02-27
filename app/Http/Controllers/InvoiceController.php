@@ -154,6 +154,7 @@ class InvoiceController extends Controller
                     $dinvoice->QtySJ = $request->input('quantity')[$index] != null ? str_replace('.', '', $request->input('quantity')[$index]) : 0;
                 } else { // detail inv
                     $dinvoice->IsSJ = 0;
+                    $dinvoice->Warna = $request->input('warna')[$index] ?? 1;
                     $dinvoice->IsInvoice = $request->input('isinvoice')[$index] == 1 ? 1 : 0;
                     $dinvoice->Nama = $productName;
                     $dinvoice->Harga = $request->input('price')[$index] != null ? str_replace('.', '', $request->input('price')[$index]) : 0;
@@ -232,7 +233,7 @@ class InvoiceController extends Controller
         $params['customers'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 0)->get()->pluck('Nama');
         $params['ekspedisi'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 1)->get()->pluck('Nama');
 
-        return view('invoice.form', $params);
+        return view('invoice.1form', $params);
     }
 
     public function last()
@@ -349,6 +350,7 @@ class InvoiceController extends Controller
                     $dinvoice->QtySJ = $request->input('quantity')[$index] != null ? str_replace('.', '', $request->input('quantity')[$index]) : 0;
                 } else { // detail inv
                     $dinvoice->IsSJ = 0;
+                    $dinvoice->Warna = $request->input('warna')[$index] ?? 1;
                     $dinvoice->IsInvoice = $request->input('isinvoice')[$index] == 1 ? 1 : 0;
                     $dinvoice->Nama = $productName;
                     $dinvoice->Harga = $request->input('price')[$index] != null ? str_replace('.', '', $request->input('price')[$index]) : 0;

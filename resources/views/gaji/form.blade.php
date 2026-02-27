@@ -183,7 +183,9 @@
                         <div class="mb-3">
                         <label>Pegawai</label>
                         <select class="form-control select2 pegawai-select" id="pegawai" name="pegawai" tabindex="1">
-                            
+                            @foreach($pegawaiList as $pegawai)
+                                <option value="{{ $pegawai->PegawaiID }}">{{ $pegawai->Nama }}</option>
+                            @endforeach
                         </select>
                         </div>
 
@@ -518,30 +520,30 @@ document.addEventListener('DOMContentLoaded', function () {
     inputMakan.addEventListener('input', hitungTotal);
 });
 $('#modalGaji').on('shown.bs.modal', function () {
-    $(this).find('.pegawai-select').select2({
-        dropdownParent: $(this), // penting untuk modal
-        placeholder: 'Pilih Pegawai...',
-        theme: 'bootstrap4',
-        tags: true,
-        ajax: {
-            url: '{{ route("pegawai.getPegawai") }}',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return { search: params.term };
-            },
-            processResults: function (data) {
-                return {
-                    results: data.pegawais.map(function (item) {
-                        return { 
-                            id: item.PegawaiID, text: item.Nama, pokok: item.GajiPokok, lembur: item.GajiLembur
-                         };
-                    })
-                };
-            },
-            cache: true
-        }
-    });
+    // $(this).find('.pegawai-select').select2({
+    //     dropdownParent: $(this), // penting untuk modal
+    //     placeholder: 'Pilih Pegawai...',
+    //     theme: 'bootstrap4',
+    //     tags: true,
+    //     ajax: {
+    //         url: '{{ route("pegawai.getPegawai") }}',
+    //         dataType: 'json',
+    //         delay: 250,
+    //         data: function (params) {
+    //             return { search: params.term };
+    //         },
+    //         processResults: function (data) {
+    //             return {
+    //                 results: data.pegawais.map(function (item) {
+    //                     return { 
+    //                         id: item.PegawaiID, text: item.Nama, pokok: item.GajiPokok, lembur: item.GajiLembur
+    //                      };
+    //                 })
+    //             };
+    //         },
+    //         cache: true
+    //     }
+    // });
 });
 
 $('.pegawai-select').on('select2:select', function (e) {

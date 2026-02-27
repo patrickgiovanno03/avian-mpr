@@ -78,7 +78,7 @@ if (!function_exists('evalFormula')) {
                     $totalNow = (float)str_replace(['.', ','], ['', ''], $request->quantity[$key]) * (float)str_replace(['.', ','], ['', ''], $request->price[$key]);
                     $totalPrice += $totalNow;
                 @endphp
-                <tr>
+                <tr style="color: {{ $request->warna[$key] == 2 ? 'red' : ($request->warna[$key] == 3 ? '#006FBE' : 'black') }};">
                     <td align="center">{!! $request->quantity[$key] ?? '&nbsp;' !!}</td>
                     <td align="center">{{ $request->unit[$key] }}</td>
                     <td>{{ $product }}</td>
@@ -106,7 +106,7 @@ if (!function_exists('evalFormula')) {
                 @php
                     $totalPrice += $detail->Qty * $detail->Harga;
                 @endphp
-                <tr>
+                <tr style="color: {{ $detail->Warna == 2 ? 'red' : ($detail->Warna == 3 ? '#006FBE' : 'black') }};">
                     <td align="center">{{ $detail->Qty }}</td>
                     <td align="center">{{ $detail->Satuan }}</td>
                     <td>{{ $detail->Nama }}</td>
@@ -114,7 +114,7 @@ if (!function_exists('evalFormula')) {
                     <td align="center">{{ number_format($detail->Qty * $detail->Harga, 0, ',', '.') }}</td>
                 </tr>
                 @endforeach
-                @for($i = count($invoice->details ?? []); $i < (($large ?? false) ? 21 : 13); $i++)
+                @for($i = count($invoice->details ?? []); $i < ((($large ?? false) ? 21 : 13) - (count($invoice->discounts ?? []) - 1)); $i++)
                 <tr>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>

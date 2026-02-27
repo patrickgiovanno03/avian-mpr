@@ -234,7 +234,7 @@ class SingleController extends Controller
 
                 // Kiloan
                 $nama = 'Merrygold ' . $single->Name . ' Kiloan';
-                $price = $pricesingle->PriceKiloan;
+                $price = $pricesingle->Kiloan;
                 $kode = $single->Kode . 'KG';
                 $satuan = 'kg';
                 $this->syncInsert($nama, $price, $categoryName, $kode, $satuan);

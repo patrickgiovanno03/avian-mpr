@@ -62,6 +62,26 @@
         transform: translateX(5px);
         box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     }
+    
+    input:not([type="checkbox"]) .form-control,
+    select .form-control,
+    textarea .form-control {
+        width: 100%!important;
+        font-size: 1rem!important;
+        padding: 0.625rem 0.75rem!important;
+        border: 1px solid #e0e0e0!important;
+        border-radius: 6px!important;
+        transition: border-color 0.2s!important;
+        background: #fff!important;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #d62828!important;
+        outline: none!important;
+        box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.08)!important;
+    }
     </style>
     <link href="{{ asset('css/app.css') }}?date={{ date('Ymd') }}" rel="stylesheet">
     <link href="{{ asset('css/vendor.css') }}?date={{ date('Ymd') }}" rel="stylesheet">
