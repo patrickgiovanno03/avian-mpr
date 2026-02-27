@@ -322,7 +322,7 @@
             </div>
 
             {{-- ITEM LIST --}}
-            <button class="btn btn-avian-secondary d-md-none fab-add-text-left" type="button" id="btnAddByTextMobile" onclick="$('.btnAddByText').click();">
+            <button class="btn btn-avian-secondary d-md-none fab-add-text-left" type="button" id="btnAddByTextMobile" onclick="$('#btnAddByText').click();">
                 <i class="fas fa-font"></i>
             </button>
             <button class="btn btn-avian-secondary d-md-none fab-add-text" type="button" id="btnAddByTextMobile" onclick="$('.btn-submit').click();">
@@ -330,34 +330,31 @@
             </button>
             <div class="card">
                 <div class="card-header">
-                    <div class="d-flex flex-row justify-content-between">
-                        <div>Product List</div>
-                        <div>
-                            <button onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); return false" class="btn btn-sm btn-secondary mr-2"><i class="fas fa-arrow-down"></i></button>
-                            <div class="btn-group d-none d-lg-inline-flex">
-                                <!-- Desktop Buttons -->
-                                <button class="btn btn-toggle-dos btn-outline-info" type="button"><i class="fas fa-eye-slash mr-lg-2 pt-1"></i><span class="d-none d-lg-inline">Hide Dos</span></button>
-                                <button class="btn btn-clear btn-danger"><i class="fas fa-trash mr-lg-2 pt-1"></i><span class="d-none d-lg-inline">Clear</span></button>
-                                <button class="btn btn-lock btn-outline-secondary"><i class="fas fa-lock mr-lg-2 pt-1"></i><span class="d-none d-lg-inline">Lock</span></button>
-                                <button class="btn btn-sm btn-outline-secondary btnAddDetailMultiple" type="button">
-                                    <i class="fas fa-plus mr-lg-2 pt-1"></i><span class="d-none d-lg-inline">Add Multiple</span>
-                                </button>
-                                <button class="btn btn-avian-primary btnAddDetail" type="button"><i class="fas fa-plus mr-2 pt-1"></i>Add<span class="d-none d-lg-inline pl-1"> Item</span></button>
-                                <button class="btn btn-avian-secondary btnAddByText" type="button"><i class="fas fa-font mr-lg-2 pt-1"></i><span class="d-none d-lg-inline">Add by Text</span></button>
-                            </div>
-                            <div class="btn-group d-lg-none">
-                                <!-- Mobile Buttons -->
-                                <button class="btn btn-sm btn-avian-primary btnAddDetail" type="button"><i class="fas fa-plus mr-2"></i>Add</button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <button class="dropdown-item btnAddByText" type="button"><i class="fas fa-font mr-2"></i>Add by Text</button>
-                                    <button class="dropdown-item btnAddDetailMultiple" type="button"><i class="fas fa-plus mr-2"></i>Add Multiple</button>
-                                    <div class="dropdown-divider"></div>
-                                    <button class="dropdown-item btn-lock" type="button"><i class="fas fa-lock mr-2"></i>Lock</button>
-                                    <button class="dropdown-item btn-clear text-danger" type="button"><i class="fas fa-trash mr-2"></i>Clear All</button>
-                                </div>
-                                <button class="btn btn-sm btn-outline-secondary" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </button>
+                    <div class="d-flex flex-row justify-content-between align-items-center">
+                        <div class="font-weight-bold">Product List</div>
+                        <div class="btn-group">
+                            <!-- Desktop Buttons -->
+                            <button class="btn btn-toggle-dos btn-outline-info d-none d-lg-inline-flex" type="button"><i class="fas fa-eye-slash mr-lg-2 pt-1"></i><span class="d-none d-lg-inline">Hide Dos</span></button>
+                            <button class="btn btn-clear btn-danger d-none d-lg-inline-flex"><i class="fas fa-trash mr-lg-2 pt-1"></i><span class="d-none d-lg-inline">Clear</span></button>
+                            <button class="btn btn-lock btn-outline-secondary d-none d-lg-inline-flex"><i class="fas fa-lock mr-lg-2 pt-1"></i><span class="d-none d-lg-inline">Lock</span></button>
+                            <button class="btn btn-sm btn-outline-secondary d-none d-lg-inline-flex" id="btnAddDetailMultiple" type="button">
+                                <i class="fas fa-plus mr-lg-2 pt-2"></i><span class="d-none d-lg-inline pt-1">Add Multiple</span>
+                            </button>
+                            <button class="btn btn-avian-primary d-none d-lg-inline-flex" type="button" id="btnAddDetail"><i class="fas fa-plus mr-2 pt-1"></i>Add<span class="d-none d-lg-inline"> Item</span></button>
+                            <button class="btn btn-avian-secondary d-none d-lg-inline-flex" type="button" id="btnAddByText"><i class="fas fa-font mr-lg-2 pt-1"></i><span class="d-none d-lg-inline">Add by Text</span></button>
+                            
+                            <!-- Mobile Buttons -->
+                            <button class="btn btn-sm btn-avian-primary d-lg-none" type="button" id="btnAddDetailMobile"><i class="fas fa-plus"></i></button>
+                            <button class="btn btn-sm btn-outline-secondary d-lg-none" type="button" data-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <button class="dropdown-item btn-toggle-dos-mobile" type="button"><i class="fas fa-eye-slash mr-2"></i>Hide Dos</button>
+                                <button class="dropdown-item" type="button" id="btnAddByTextMobileMenu"><i class="fas fa-font mr-2"></i>Add by Text</button>
+                                <button class="dropdown-item" type="button" id="btnAddDetailMultipleMobile"><i class="fas fa-plus mr-2"></i>Add Multiple</button>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item btn-lock-mobile" type="button"><i class="fas fa-lock mr-2"></i>Lock</button>
+                                <button class="dropdown-item btn-clear-mobile text-danger" type="button"><i class="fas fa-trash mr-2"></i>Clear All</button>
                             </div>
                         </div>
                     </div>
@@ -367,17 +364,16 @@
                     <table class="dataTable table table-striped table-hover table-bordered w-100 responsive-table" id="product-list-table">
                         <thead>
                         <tr>
-                            <th width="500">Name</th>
-                            <th width="50">Quantity</th>
-                            <th width="70">Unit</th>
+                            <th width="500">Inv No.</th>
+                            <th>Quantity</th>
+                            <th>Unit</th>
                             <th width="100">Price</th>
                             <th width="150">Total</th>
-                            <th width="100"class="dos-column">Warna</th>
-                            <th width="200" class="dos-column">Dos Luar / Isi</th>
-                            <th width="100" class="dos-column">Dos Gabung</th>
-                            <th width="50" class="dos-column">Inv</th>
-                            <th width="50" class="dos-column">SJ</th>
-                            <th width="70">Action</th>
+                            <th class="dos-column">Dos Luar / Isi</th>
+                            <th class="dos-column">Dos Gabung</th>
+                            <th class="dos-column">Inv</th>
+                            <th class="dos-column">SJ</th>
+                            <th>Action</th>
                         </tr>
                         </thead>
                         <tbody id="product-list-body"></tbody>
@@ -450,11 +446,11 @@
   }
 
   .responsive-table .invoice-item-row::before {
-    background: #d62828;
+    background: #2196F3;
   }
 
   .responsive-table .sj-item-row::before {
-    background: #d62828;
+    background: #00BCD4;
   }
 
   .responsive-table td {
@@ -482,7 +478,7 @@
 
   /* Minimal color accent for product */
   .responsive-table td[data-label="Product"]::before {
-    color: #d62828;
+    color: #2196F3;
   }
 
   /* Clean action area */
@@ -495,6 +491,25 @@
 
   .responsive-table td[data-label="Aksi"]::before {
     display: none;
+  }
+
+  /* Clean input styling */
+  .responsive-table td input,
+  .responsive-table td select {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    transition: border-color 0.2s;
+    background: #fff;
+  }
+
+  .responsive-table td input:focus,
+  .responsive-table td select:focus {
+    border-color: #2196F3;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.08);
   }
 
   /* Subtle emphasis on key fields */
@@ -542,7 +557,7 @@
     width: 28px;
     height: 28px;
     cursor: pointer;
-    accent-color: #d62828;
+    accent-color: #2196F3;
   }
 
   /* Clean button styling */
@@ -555,8 +570,8 @@
 
   /* Minimal SJ Label */
   .responsive-table .sj-label {
-    background: #d62828;
-    color: white!important;
+    background: #00BCD4;
+    color: white;
     padding: 0.75rem 1rem;
     font-weight: 500;
     text-align: center;
@@ -593,66 +608,204 @@
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 55px;
-    height: 55px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     z-index: 999;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
+
+.fab-add-text:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
 .fab-add-text-left {
     position: fixed;
     bottom: 20px;
     left: 20px;
-    width: 55px;
-    height: 55px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     z-index: 999;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.fab-add-text-left:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    /* Clean header */
+    .card-header {
+        padding: 0.875rem 1rem;
+        background: #fafafa;
+        border-bottom: 1px solid #e8e8e8;
+    }
+
+    /* Cleaner spacing */
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    /* Consistent button sizing */
+    .btn {
+        min-height: 44px;
+        padding: 0.625rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-sm {
+        min-height: 38px;
+        padding: 0.5rem 0.875rem;
+        font-size: 0.85rem;
+    }
+
+    /* Clean footer */
+    .card-footer {
+        padding: 1rem;
+        background: #fafafa;
+        border-top: 1px solid #e8e8e8;
+    }
+
+    .card-footer h5 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+        color: #333;
+    }
+
+    /* Clean dropdown */
+    .dropdown-menu {
+        font-size: 0.9rem;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-radius: 8px;
+    }
+
+    .dropdown-item {
+        padding: 0.75rem 1rem;
+        transition: background-color 0.15s;
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item:focus {
+        background-color: #f5f5f5;
+    }
+
+    .dropdown-divider {
+        margin: 0.5rem 0;
+        border-color: #e8e8e8;
+    }
+
+    /* Clean form inputs */
+    .form-control {
+        font-size: 1rem;
+        border-color: #e0e0e0;
+    }
+
+    .form-control:focus {
+        border-color: #2196F3;
+        box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.08);
+    }
+
+    /* Clean select2 */
+    .select2-container--bootstrap4 .select2-selection {
+        min-height: 44px;
+        border-color: #e0e0e0;
+    }
+
+    /* Cleaner collapsible */
+    .collapsible-section {
+        padding: 0;
+    }
+
+    .collapsible-header {
+        background: #fafafa;
+        border: 1px solid #e8e8e8;
+        box-shadow: none;
+    }
+
+    /* Adjust FAB positions */
+    .fab-add-text {
+        bottom: 80px;
+        right: 16px;
+    }
+
+    .fab-add-text-left {
+        bottom: 80px;
+        left: 16px;
+    }
+
+    /* Clean card */
+    .card {
+        border: 1px solid #e8e8e8;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        border-radius: 8px;
+    }
+
+    /* Clean table-responsive */
+    .table-responsive {
+        border: none;
+    }
 }
     .collapsible-section {
-        border-radius: 10px;
-        padding: 20px;
-        margin-top: 20px;
+        border-radius: 8px;
+        padding: 1rem 0;
+        margin-top: 1rem;
     }
+    
     .collapsible-header {
         cursor: pointer;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 15px;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-        transition: all 0.3s ease;
-    }
-    .collapsible-header:hover {
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        padding: 1rem;
+        background: #fafafa;
+        border-radius: 8px;
+        border: 1px solid #e8e8e8;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        transition: background-color 0.2s;
     }
     
-    /* Toggle Button Styling */
+    .collapsible-header:hover {
+        background-color: #f5f5f5;
+    }
+    
+    /* Clean toggle button styling */
     .btn-toggle-input {
         border-left: none !important;
-        transition: all 0.3s ease;
+        transition: background-color 0.2s;
     }
     
     .btn-toggle-input:hover {
-        background-color: #d62828 !important;
-        color: white !important;
-        transform: scale(1.05);
+        background-color: #f5f5f5 !important;
     }
     
-    .btn-toggle-input i {
-        transition: transform 0.3s ease;
+    .btn-toggle-input:active {
+        transform: scale(0.98);
     }
-    
-    .btn-toggle-input:hover i {
-        transform: rotate(180deg);
+
+    /* Mobile touch feedback */
+    @media (max-width: 768px) {
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Better form control focus */
+        .form-control:focus {
+            border-width: 1px;
+        }
     }
 </style>
 @endsection
@@ -712,11 +865,6 @@ $(document).ready(function () {
             didOpen: () => {
                 const popup = Swal.getPopup();
 
-                // if locked, then unlock
-                if (isLocked) {
-                    $('#product-list-body').find('select:not([name="product[]"]), input').prop('disabled', false);
-                }
-
                 popup.querySelector('#btnSave').onclick = () => {
                     Swal.close();
                     this.submit();
@@ -756,7 +904,6 @@ function showPdfOption() {
 
             popup.querySelector('#btnView').onclick = () => {
                 $('#toPDF').val('view');
-                this.target = '_blank'; 
                 Swal.close();
                 this.submit();
             };
@@ -939,6 +1086,51 @@ function showPdfOption() {
         toggleDetails();
     });
 
+    // Mobile toggle dos handler
+    $(document).on('click', '.btn-toggle-dos-mobile', function(e) {
+        e.preventDefault();
+        toggleDetails();
+        // Update mobile button text
+        const isVisible = $('.dos-column').first().is(':visible');
+        if (isVisible) {
+            $(this).html('<i class="fas fa-eye mr-2"></i>Show Dos');
+        } else {
+            $(this).html('<i class="fas fa-eye-slash mr-2"></i>Hide Dos');
+        }
+    });
+
+    // Mobile button handlers
+    $('#btnAddDetailMobile').on('click', function() {
+        $('#btnAddDetail').click();
+    });
+
+    $('#btnAddByTextMobileMenu').on('click', function() {
+        $('#btnAddByText').click();
+    });
+
+    $('#btnAddDetailMultipleMobile').on('click', function() {
+        $('#btnAddDetailMultiple').click();
+    });
+
+    $(document).on('click', '.btn-lock-mobile', function(e) {
+        e.preventDefault();
+        const $lockBtn = $('.btn-lock');
+        $lockBtn.click();
+        // Update mobile button text based on lock state
+        setTimeout(() => {
+            if (isLocked) {
+                $(this).html('<i class="fas fa-unlock mr-2"></i>Unlock');
+            } else {
+                $(this).html('<i class="fas fa-lock mr-2"></i>Lock');
+            }
+        }, 100);
+    });
+
+    $(document).on('click', '.btn-clear-mobile', function(e) {
+        e.preventDefault();
+        $('.btn-clear').click();
+    });
+
     function toggleDetails() {
         const $icon = $('.btn-toggle-dos').find('i');
         const $text = $('.btn-toggle-dos').find('span');
@@ -949,7 +1141,7 @@ function showPdfOption() {
             $icon.removeClass('fa-eye-slash').addClass('fa-eye');
             $text.text('Show Details');
             // Update colspan untuk SJ label (6 - 2 dos columns = 4)
-            $('.sj-label').attr('colspan', '2');
+            $('.sj-label').attr('colspan', '4');
         } else {
             // Show dos columns
             $('.dos-column').show();
@@ -1037,14 +1229,7 @@ function showPdfOption() {
                 cache: true
             }
         });
-        
-        $('.warna-select2').select2({
-            placeholder: 'Pilih...',
-            theme: 'bootstrap4',
-        });
 
-        toggleDetails(); // pastikan kolom dos sesuai dengan state saat ini
-        toggleDetails(); // toggle lagi untuk reset posisi kolom dos sesuai state
         setTimeout(() => {
             reorderTabIndex();
         }, 200);
@@ -1089,13 +1274,6 @@ function showPdfOption() {
                 </td>
                 <td data-label="Total">
                     <input type="text" class="form-control numeric" name="total[]" readonly />
-                </td>
-                <td class="dos-column" data-label="Warna">
-                    <select class="form-control warna-select2" name="warna[]">
-                        <option value="1" selected>Hitam</option>
-                        <option value="2">Merah</option>
-                        <option value="3">Biru</option>
-                    </select>
                 </td>
                 <td class="dos-column" data-label="Dos / Isi">
                     <div class="input-group mb-3">
@@ -1168,11 +1346,11 @@ function showPdfOption() {
         });
     }
 
-    $('.btnAddDetail').on('click', function() {
+    $('#btnAddDetail').on('click', function() {
         addProduct();
     });
     
-    $('.btnAddByText').on('click', async function() {
+    $('#btnAddByText').on('click', async function() {
         const result = await Swal.fire({
             title: 'Add Products by Text',
             input: 'textarea',
@@ -1254,18 +1432,13 @@ function showPdfOption() {
             }
         });
 
-        $('.select2').select2({
-            placeholder: 'Pilih...',
-            theme: 'bootstrap4',
-        });
-
         reorderTabIndex();
 
         // move to bottom
-        // window.scrollTo(0, document.body.scrollHeight);
+        window.scrollTo(0, document.body.scrollHeight);
     });
 
-    $('.btnAddDetailMultiple').on('click', function(e) {
+    $('#btnAddDetailMultiple').on('click', function(e) {
         e.preventDefault();
         // swal fire input angka
         Swal.fire({
@@ -1445,7 +1618,7 @@ function showPdfOption() {
             var newRow = $('#product-list-body tr').last();
             newRow.insertAfter(row);
             // buat backgroundnya beda warna
-            newRow.css('background-color', '#fffdde');
+            newRow.css('background-color', '#e9f7ef');
             // assign data seperti data diatas ini
             newRow.find('input[name="type[]"]').val('update');
             newRow.find('input[name="issj[]"]').val('1');
@@ -1608,7 +1781,6 @@ function showPdfOption() {
             $lastRow.find('input[name="detailid[]"]').val('{{ $detail->DetailID }}');
             $lastRow.find('input[name="type[]"]').val('update');
             $lastRow.find('.inv-checkbox').prop('checked', {{ $detail->IsInvoice ?? 1 == 1 ? 'true' : 'false' }});
-            $lastRow.find('.warna-select2').val('{{ $detail->Warna ?? 1 }}').trigger('change');
             $lastRow.find('input[name="isinvoice[]"]').val('{{ $detail->IsInvoice ?? 1 == 1 ? 1 : 0 }}');
             @if($detail->IsSJ ?? 0 == 1)
                 $lastRow.find('.sj-checkbox').prop('checked', true).trigger('change');
@@ -1708,11 +1880,11 @@ function showPdfOption() {
         if (isLocked) {
             // Lock
             $('#product-list-body').find('select:not([name="product[]"]), input').prop('disabled', true);
-            $(this).html('<i class="fas fa-unlock mr-2"></i>Unlock');
+            $(this).html('<i class="fas fa-unlock mr-lg-2"></i><span class="d-none d-lg-inline">Unlock</span>');
         } else {
             // Unlock
             $('#product-list-body').find('select:not([name="product[]"]), input').prop('disabled', false);
-            $(this).html('<i class="fas fa-lock mr-2"></i>Lock');
+            $(this).html('<i class="fas fa-lock mr-lg-2"></i><span class="d-none d-lg-inline">Lock</span>');
         }
     });
 

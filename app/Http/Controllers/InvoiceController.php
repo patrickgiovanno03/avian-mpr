@@ -233,7 +233,7 @@ class InvoiceController extends Controller
         $params['customers'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 0)->get()->pluck('Nama');
         $params['ekspedisi'] = MCustomer::distinct('Nama')->where('IsEkspedisi', 1)->get()->pluck('Nama');
 
-        return view('invoice.1form', $params);
+        return view('invoice.form', $params);
     }
 
     public function last()
