@@ -87,28 +87,27 @@ class NamaController extends Controller
 
     public function generate(Request $request)
     {
-        // Validasi input
         $request->validate([
             'text' => 'required|string'
         ]);
 
-        // Pisahkan nama berdasarkan enter/newline
         $names = array_filter(array_map('trim', explode("\n", $request->text)));
-        
+
         if (empty($names)) {
             return back()->with('error', 'Tidak ada nama yang diinput');
         }
 
-        $scadFile = storage_path('app/public/bloxify/templatev1.scad');
+        $scadFile = storage_path('app/public/bloxify/templatev'.($request->styleSelect ?? 1).'.scad');
         $generatedFiles = [];
+        $processes = [];
 
-        // Generate STL untuk setiap nama
         foreach ($names as $name) {
-            $cleanName = preg_replace('/[^a-zA-Z0-9\s]/', '', $name);
+
+            // $cleanName = preg_replace('/[^a-zA-Z0-9\s]/', '', $name);
+            $cleanName = $name;
             $outputFile = $cleanName . '.stl';
             $outputStl = storage_path("app/public/bloxify/names/{$outputFile}");
 
-            // Buat direktori jika belum ada
             if (!file_exists(dirname($outputStl))) {
                 mkdir(dirname($outputStl), 0755, true);
             }
@@ -122,13 +121,31 @@ class NamaController extends Controller
                 $scadFile
             ]);
 
-            $process->setTimeout(60);
-            $process->run();
+            $process->setTimeout(120);
 
-            if ($process->isSuccessful() && file_exists($outputStl)) {
+            // 🔥 JANGAN run(), tapi start()
+            $process->start();
+
+            $processes[] = [
+                'process' => $process,
+                'outputFile' => $outputFile,
+                'outputStl' => $outputStl
+            ];
+        }
+
+        // 🔥 Tunggu semua proses selesai
+        foreach ($processes as $item) {
+
+            $process = $item['process'];
+
+            while ($process->isRunning()) {
+                usleep(100000); // 0.1 detik biar CPU tidak 100%
+            }
+
+            if ($process->isSuccessful() && file_exists($item['outputStl'])) {
                 $generatedFiles[] = [
-                    'url' => route('nama.download', ['filename' => $outputFile]),
-                    'name' => $outputFile
+                    'url' => route('nama.download', ['filename' => $item['outputFile']]),
+                    'name' => $item['outputFile']
                 ];
             }
         }
@@ -137,7 +154,6 @@ class NamaController extends Controller
             return back()->with('error', 'Gagal generate file');
         }
 
-        // Return view dengan daftar file untuk di-download
         return view('nama.download', compact('generatedFiles'));
     }
 

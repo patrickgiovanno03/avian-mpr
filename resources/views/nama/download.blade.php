@@ -3,9 +3,9 @@
 @section('title', 'MPR | Download Files')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-6">
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Files Ready for Download</h3>

@@ -125,11 +125,11 @@ if (!function_exists('evalFormula')) {
                 @endfor
             @endif
             <tr>
-                <td colspan="3" rowspan="{{ max($invoice->discounts->count()+1, 3) }}" style="color: red; border:0; white-space: pre-line; line-height: 0.4;">{!! nl2br(e($request->Notes ?? $invoice->Notes ?? '')) !!}</td>
-                <td style="text-align:right; padding-right:12%; border: 0px">{{ (($request->IsDiscount ?? $invoice->IsDiscount ?? 0 != 0) || ($invoice->discounts->count() > 0)) ? 'Subtotal' : 'Total' }}</td>
+                <td colspan="3" rowspan="{{ max(($invoice->discounts ?? collect())->count()+1, 3) }}" style="color: red; border:0; white-space: pre-line; line-height: 0.4;">{!! nl2br(e($request->Notes ?? $invoice->Notes ?? '')) !!}</td>
+                <td style="text-align:right; padding-right:12%; border: 0px">{{ (($request->IsDiscount ?? $invoice->IsDiscount ?? 0 != 0) || (($invoice->discounts ?? collect())->count() > 0)) ? 'Subtotal' : 'Total' }}</td>
                 <td align="center"><b>{{ number_format($totalPrice, 0, ',', '.') }}</b></td>
             </tr>
-            @if (($invoice->discounts ?? null) != null && $invoice->discounts->count() > 0)
+            @if (($invoice->discounts ?? null) != null && ($invoice->discounts ?? collect())->count() > 0)
                 @php
                     $cellValues = [];
                     $cellValues['B2'] = $totalPrice;

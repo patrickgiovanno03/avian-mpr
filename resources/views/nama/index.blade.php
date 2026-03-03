@@ -1,20 +1,55 @@
 @extends('layouts.app')
 
-@section('title', 'MPR | List Price')
+@section('title', 'MPR | Generate Nama')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-6">
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
             <div class="card">
-                <div class="card-body">
+                <div class="card-body p-4">
+
+                    <h4 class="mb-3 fw-bold">Generate Nama</h4>
+                    <p class="text-muted small mb-4">
+                        Masukkan beberapa nama (pisahkan dengan Enter), lalu pilih tipe style.
+                    </p>
+
                     <form method="POST" action="{{ route('nama.generate') }}">
                         @csrf
-                        <div class="form-group">
-                            <label>Masukkan Nama (pisahkan dengan Enter)</label>
-                            <textarea name="text" class="form-control" rows="8" placeholder="Nama 1&#10;Nama 2&#10;Nama 3" required></textarea>
+
+                        <!-- Pilih Style -->
+                        <div class="mb-3">
+                            <label for="styleSelect" class="form-label fw-semibold">
+                                Pilih Style
+                            </label>
+                            <select class="form-select select2" id="styleSelect" name="styleSelect" required>
+                                <option value="1">Normal</option>
+                                <option value="2">Outline</option>
+                                <option value="3">Minecraft</option>
+                                <option value="4">Mini</option>
+                            </select>
                         </div>
-                        <button type="submit" class="btn btn-avian-primary">Generate</button>
+
+                        <!-- Input Nama -->
+                        <div class="mb-3">
+                            <label for="text" class="form-label fw-semibold">
+                                Daftar Nama
+                            </label>
+                            <textarea 
+                                id="text"
+                                name="text" 
+                                class="form-control" 
+                                rows="6" 
+                                placeholder="Nama 1&#10;Nama 2&#10;Nama 3"
+                                required></textarea>
+                        </div>
+
+                        <!-- Button -->
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-avian-primary btn-lg">
+                                Generate
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>

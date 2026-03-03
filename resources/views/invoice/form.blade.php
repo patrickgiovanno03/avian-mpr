@@ -1254,7 +1254,7 @@ function showPdfOption() {
             }
         });
 
-        $('.select2').select2({
+        $('.warna-select2').select2({
             placeholder: 'Pilih...',
             theme: 'bootstrap4',
         });
