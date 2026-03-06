@@ -1045,6 +1045,7 @@ $('.btn-whatsapp-all').on('click', function () {
 });
 
 // Preview files untuk modal assign photos
+@if ($mgaji)
 function previewAssignFiles(event) {
     const preview = document.getElementById('previewAssign');
     const container = document.getElementById('assignmentContainer');
@@ -1175,6 +1176,7 @@ $('#btnSaveAssignment').on('click', function() {
         }
     });
 });
+@endif
 
 // Reset modal when closed
 $('#modalAssignPhotos').on('hidden.bs.modal', function() {
