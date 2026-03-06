@@ -108,8 +108,8 @@ class GajiController extends Controller
         //
         $gaji = MGaji::findOrFail($id);
         foreach ($gaji->hgaji as $hgaji) {
-            if (File::exists(storage_path('app/public/' . $hgaji->URL))) {
-                File::delete(storage_path('app/public/' . $hgaji->URL));
+            if (File::exists(config('app.public_html') . '/' . $hgaji->URL)) {
+                File::delete(config('app.public_html') . '/' . $hgaji->URL);
             }
             foreach ($hgaji->dgaji as $dgaji) {
                 $dgaji->delete();
@@ -174,8 +174,7 @@ class GajiController extends Controller
         $mgaji->save();
 
         foreach ($request->file('photos') ?? [] as $photo) {
-            $folder = storage_path('app/public/gaji/' . $mgaji->GajiID);
-            // $folder = public_path('storage/gaji/' . $mgaji->GajiID);
+            $folder = config('app.public_html') . '/gaji/' . $mgaji->GajiID;
 
             if (!file_exists($folder)) {
                 mkdir($folder, 0775, true);
@@ -234,7 +233,7 @@ class GajiController extends Controller
     {
         //
         $params['hgaji'] = HGaji::with('pegawai', 'dgaji')->findOrFail($id);
-        $path = storage_path('app/public/' . $params['hgaji']->URL);
+        $path = config('app.public_html') . '/' . $params['hgaji']->URL;
         // ambil orientasi
         [$w, $h] = getimagesize($path);
         $isPortrait = $h > $w;
@@ -271,7 +270,7 @@ class GajiController extends Controller
         $html = '';
         foreach ($hgajis as $index => $hgaji) {
             $params['hgaji'] = $hgaji;
-            $path = storage_path('app/public/' . $params['hgaji']->URL);
+            $path = config('app.public_html') . '/' . $params['hgaji']->URL;
             // ambil orientasi
             [$w, $h] = getimagesize($path);
             $isPortrait = $h > $w;
@@ -313,7 +312,7 @@ class GajiController extends Controller
     {
         //
         $hgaji = HGaji::findOrFail($request->input('headerid'));
-        $path = storage_path('app/public/' . $hgaji->URL);
+        $path = config('app.public_html') . '/' . $hgaji->URL;
 
         // load image
         $image = Image::make($path);
@@ -331,7 +330,7 @@ class GajiController extends Controller
     {
         //
         $params['hgaji'] = HGaji::with('pegawai', 'dgaji')->findOrFail($request->input('headerid'));
-        $path = storage_path('app/public/' . $params['hgaji']->URL);
+        $path = config('app.public_html') . '/' . $params['hgaji']->URL;
         // ambil orientasi
         [$w, $h] = getimagesize($path);
         $isPortrait = $h > $w;
@@ -359,7 +358,7 @@ class GajiController extends Controller
         $image = base64_decode($image);
 
         $filename = 'slip' . $hgaji->HeaderID . '.jpg';
-        $folder = storage_path('app/public/gaji/' . $hgaji->mgaji->GajiID);
+        $folder = config('app.public_html') . '/gaji/' . $hgaji->mgaji->GajiID;
         $path = $folder . '/' . $filename;
 
         if (!file_exists($folder)) {
@@ -379,7 +378,7 @@ class GajiController extends Controller
         $response = $this->sendWhatsApp(
             'Bukti Transfer ' . $hgaji->pegawai->Nama,
             '6281230333587',
-            'https://www.senyumqu.com/storage/' . $hgaji->URLTF,
+            config('app.public_html') . '/' . $hgaji->URLTF,
             ''
         );
         if ($response['success']) {
@@ -437,7 +436,7 @@ class GajiController extends Controller
     {
         foreach ($request->photos as $index => $photo) {    
             $hgaji = HGaji::findOrFail($request->input('header_ids')[$index]);
-            $folder = storage_path('app/public/gaji/' . $hgaji->GajiID . '/TF');
+            $folder = config('app.public_html') . '/gaji/' . $hgaji->GajiID . '/TF';
 
             if (!file_exists($folder)) {
                 mkdir($folder, 0775, true);
@@ -455,8 +454,8 @@ class GajiController extends Controller
     public function deleteTF(Request $request)
     {
         $hgaji = HGaji::findOrFail($request->input('headerid'));
-        if ($hgaji->URLTF && File::exists(storage_path('app/public/' . $hgaji->URLTF))) {
-            File::delete(storage_path('app/public/' . $hgaji->URLTF));
+        if ($hgaji->URLTF && File::exists(config('app.public_html') . '/' . $hgaji->URLTF)) {
+            File::delete(config('app.public_html') . '/' . $hgaji->URLTF);
         }
         $hgaji->URLTF = null;
         $hgaji->save();
