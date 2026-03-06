@@ -369,7 +369,7 @@ class GajiController extends Controller
 
         $response = $this->sendWhatsApp(
             'Gaji ' . $hgaji->pegawai->Nama,
-            '6281230333587',
+            $hgaji->pegawai->HP,
             'https://www.senyumqu.com/storage/gaji/' . $hgaji->mgaji->GajiID . '/' . $filename,
             ''
         );
@@ -377,7 +377,7 @@ class GajiController extends Controller
         sleep(2);
         $response = $this->sendWhatsApp(
             'Bukti Transfer ' . $hgaji->pegawai->Nama,
-            '6281230333587',
+            $hgaji->pegawai->HP,
             config('app.public_html') . '/' . $hgaji->URLTF,
             ''
         );
