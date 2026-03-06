@@ -9,8 +9,8 @@
             <h1 class="p-0">Gaji</h1>
             <div class="card">
                 <div class="card-header">
-                    <div class="d-flex flex-row justify-content-between">
-                        <div>{{ !$mgaji ? 'Upload Foto Slip Gaji' : 'Daftar Slip Gaji ('.Carbon\Carbon::parse($mgaji->Tanggal)->format('d/m/Y').')' }}</div>
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-end align-items-md-center">
+                        <div class="mb-2 mb-md-0">{{ !$mgaji ? 'Upload Foto Slip Gaji' : 'Daftar Slip Gaji ('.Carbon\Carbon::parse($mgaji->Tanggal)->format('d/m/Y').')' }}</div>
                         <div class="btn-group">
                             <a href="{{ route('gaji.index') }}" type="button" class="btn btn-sm btn-outline-secondary">
                                 <i class="fas fa-angle-left mr-lg-2"></i><span class="d-none d-lg-inline">Back</span>
@@ -22,8 +22,8 @@
                             <button type="button" class="btn btn-sm btn-outline-secondary btn-whatsapp-all" data-gajiid="{{ $mgaji->GajiID }}">
                                 <i class="fa-brands fa-whatsapp mr-lg-2"></i><span class="d-none d-lg-inline">Blast WhatsApp</span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modalAssignPhotos">
-                                <i class="fas fa-images mr-lg-2"></i><span class="d-none d-lg-inline">Assign Foto ke Pegawai</span>
+                            <button type="button" alt="Assign Photos" class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#modalAssignPhotos">
+                                <i class="fas fa-money-bill-transfer mr-lg-2"></i><span class="d-none d-lg-inline">Assign Foto ke Pegawai</span>
                             </button>
                             <a class="btn btn-sm btn-info" href="{{ route('gaji.show', $mgaji->GajiID) }}"><i class="fas fa-upload mr-lg-2"></i><span class="d-none d-lg-inline">Upload Slip Gaji</span></a>
                             <a class="btn btn-warning btn-sm shadow-sm" href="{{ route('gaji.slipAll', $mgaji->GajiID) }}" target="_blank">
@@ -143,9 +143,10 @@
                                     @if($gaji->URLTF)
                                     {{-- button view bukti tf pakai modal --}}
                                     <button 
-                                        class="btn btn-secondary btn-sm btn-view-tf"
+                                        class="btn btn-secondary btn-sm btn-view-tf" data-headerid="{{ $gaji->HeaderID }}"
                                         data-url="{{ asset('storage/' . $gaji->URLTF) }}">
                                         <i class="fas fa-money-bill-transfer"></i>
+                                    </button>
                                     @endif
                                     <button 
                                         class="btn btn-danger btn-sm btn-delete"
@@ -180,8 +181,8 @@
             <div class="modal-body">
                 @csrf
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3 text-center">
+                    <div class="col-md-6 col-12 mb-3">
+                        <div class="text-center">
                             <label class="font-weight-bold d-block mb-2">Foto Slip</label>
 
                             <div class="image-preview-wrapper mx-auto">
@@ -189,7 +190,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 col-12">
                         <div class="mb-3">
                         <label>Pegawai</label>
                         <select class="form-control select2 pegawai-select" id="pegawai" name="pegawai" tabindex="1">
@@ -208,21 +209,21 @@
 
                         <!-- Input gaji pokok & lembur -->
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-6 col-12 mb-2 mb-md-0">
                                 <label>Gaji Pokok (per hari)</label>
                                 <input type="number" step="any" class="form-control" id="gaji_pokok" placeholder="Masukkan gaji pokok" name="gajipokok" tabindex="3">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6 col-12">
                                 <label>Gaji Lembur (per hari)</label>
                                 <input type="number" step="any" class="form-control" id="gaji_lembur" placeholder="Masukkan gaji lembur" name="gajilembur" tabindex="4">
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-6 col-12 mb-2 mb-md-0">
                                 <label>Uang Makan</label>
                                 <input type="number" step="any" class="form-control" id="uangmakan" placeholder="Masukkan uang makan" name="uangmakan" tabindex="5">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6 col-12">
                                 <label>Bonus</label>
                                 <input type="number" step="any" class="form-control" id="bonus" placeholder="Masukkan bonus (opsional)" name="bonus" tabindex="6">
                             </div>
@@ -254,8 +255,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-avian-secondary">Simpan</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-avian-secondary btn-sm">Simpan</button>
             </div>
         </form>
     </div>
@@ -265,18 +266,19 @@
 <div class="modal fade" id="modalAssignPhotos" tabindex="-1" aria-labelledby="modalAssignPhotosLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header">
                 <h5 class="modal-title" id="modalAssignPhotosLabel">
-                    <i class="fas fa-images mr-2"></i>Assign Foto ke Pegawai yang Sudah Ada
+                    Upload Bukti Transfer
                 </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle mr-2"></i>
-                    Upload beberapa foto dan assign ke pegawai yang sudah ada di daftar slip gaji.
+                    <span class="d-none d-sm-inline">Upload beberapa foto dan assign ke pegawai yang sudah ada di daftar slip gaji.</span>
+                    <span class="d-inline d-sm-none">Upload foto dan pilih pegawai.</span>
                 </div>
 
                 <form id="formAssignPhotos" enctype="multipart/form-data">
@@ -300,8 +302,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="btnSaveAssignment">
-                    <i class="fas fa-save mr-2"></i>Simpan
+                <button type="button" class="btn btn-avian-primary" id="btnSaveAssignment">
+                    </i>Simpan
                 </button>
             </div>
         </div>
@@ -324,7 +326,10 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-danger btn-sm" id="btnDeleteTF">
+                    <i class="fas fa-trash mr-2"></i>Hapus Bukti Transfer
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Tutup</button>
             </div>
 
         </div>
@@ -333,6 +338,12 @@
 
 <div id="slip-jpg" style="min-width: 900px; min-height:1100px; max-width: 900px"></div>
 <style>
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+        -webkit-tap-highlight-color: transparent;
+    }
+
     /* Upload dashed input hover */
     input[type="file"]:hover {
         border-color: #6610f2;
@@ -355,6 +366,33 @@
     body.modal-open {
         overflow: auto !important;     /* supaya halaman bisa scroll */
         padding-right: 0 !important;
+    }
+
+    /* Prevent horizontal scroll on mobile */
+    body {
+        overflow-x: hidden;
+    }
+
+    .container-fluid {
+        overflow-x: hidden;
+    }
+
+    /* Better touch targets for mobile */
+    @media (max-width: 768px) {
+        button, .btn, a.btn {
+            min-height: 36px;
+            touch-action: manipulation;
+        }
+
+        .gaji-actions .btn {
+            min-width: 36px;
+            min-height: 36px;
+        }
+
+        /* Hide slip-jpg on mobile */
+        #slip-jpg {
+            display: none !important;
+        }
     }
 
     .image-preview-wrapper {
@@ -634,29 +672,11 @@ document.addEventListener('DOMContentLoaded', function () {
     inputMakan.addEventListener('input', hitungTotal);
 });
 $('#modalGaji').on('shown.bs.modal', function () {
-    // $(this).find('.pegawai-select').select2({
-    //     dropdownParent: $(this), //penting untuk modal
-    //     placeholder: 'Pilih Pegawai...',
-    //     theme: 'bootstrap4',
-    //     ajax: {
-    //         url: '{{ route("pegawai.getPegawai") }}',
-    //         dataType: 'json',
-    //         delay: 250,
-    //         data: function (params) {
-    //             return { search: params.term };
-    //         },
-    //         processResults: function (data) {
-    //             return {
-    //                 results: data.pegawais.map(function (item) {
-    //                     return { 
-    //                         id: item.PegawaiID, text: item.Nama, pokok: item.GajiPokok, lembur: item.GajiLembur
-    //                      };
-    //                 })
-    //             };
-    //         },
-    //         cache: true
-    //     }
-    // });
+    $(this).find('.pegawai-select').select2({
+        dropdownParent: $('#modalGaji'), // penting kalau di modal
+        placeholder: 'Pilih Pegawai...',
+        theme: 'bootstrap4',
+    });
 });
 
 $('.pegawai-select').on('select2:select', function (e) {
@@ -749,6 +769,8 @@ $('.btn-rotate').on('click', function() {
 
 $('.btn-view-tf').on('click', function() {
     var url = $(this).data('url');
+    var headerid = $(this).data('headerid');
+    $('#btnDeleteTF').data('headerid', headerid);
     $('#modalViewTF img').attr('src', url);
     $('#modalViewTF').modal('show');
 });
@@ -830,9 +852,12 @@ $('.btn-validate').on('click', function() {
 });
 
 $('#modalGaji').on('shown.bs.modal', function () {
-    $(this).find('.modal-dialog').draggable({
-        handle: ".modal-header"
-    });
+    // Disable draggable on mobile devices
+    if ($(window).width() > 768) {
+        $(this).find('.modal-dialog').draggable({
+            handle: ".modal-header"
+        });
+    }
     
     $('#pegawai').next('.select2-container')
     .find('.select2-selection')
@@ -1082,7 +1107,11 @@ function previewAssignFiles(event) {
                         <label class="font-weight-bold">Pilih Pegawai untuk Foto ${index + 1}</label>
                         <select class="form-control select2-assign" name="pegawai_assign[${index}]" data-index="${index}" required>
                             <option value="">-- Pilih Pegawai --</option>
-                            ${pegawaiList.map(p => `<option value="${p.id}" data-headerid="${p.headerid}">${p.nama}</option>`).join('')}
+                            ${pegawaiList.map((p, i) => `
+                                <option value="${p.id}" data-headerid="${p.headerid}" ${i === index ? 'selected' : ''}>
+                                    ${p.nama}
+                                </option>
+                            `).join('')}
                         </select>
                     </div>
                 </div>
@@ -1193,6 +1222,44 @@ $('#assignPhotos').on('change', function() {
     $(this).next('.custom-file-label').text(label);
 });
 
+
+$('#btnDeleteTF').on('click', function() {
+    var headerid = $(this).data('headerid');
+    Swal.fire({
+        title: 'Apakah anda yakin untuk menghapus bukti transfer?',
+        icon: 'warning',
+        showCancelButton: true,
+        cancelButtonColor: '#6c757d',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Yes!'
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                url: '{{ route("gaji.deleteTF") }}',
+                type: 'POST',
+                data: {
+                    headerid: headerid
+                },
+                success: function(response) {
+                    $('#modalViewTF').modal('hide');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Bukti transfer berhasil dihapus.'
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Terjadi kesalahan saat menghapus bukti transfer.',
+                        text: xhr.responseText
+                    });
+                }
+            });
+        } else {
+            return false;
+        }
+    });
+});
 
 </script>
 @endsection

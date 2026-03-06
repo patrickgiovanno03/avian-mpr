@@ -174,9 +174,7 @@ class GajiController extends Controller
         $mgaji->save();
 
         foreach ($request->file('photos') ?? [] as $photo) {
-            $publicHtml = config('app.public_html');
-            
-            $folder = $publicHtml . '/gaji/' . $mgaji->GajiID;
+            $folder = storage_path('app/public/gaji/' . $mgaji->GajiID);
             // $folder = public_path('storage/gaji/' . $mgaji->GajiID);
 
             if (!file_exists($folder)) {
@@ -236,7 +234,7 @@ class GajiController extends Controller
     {
         //
         $params['hgaji'] = HGaji::with('pegawai', 'dgaji')->findOrFail($id);
-        $path = config('app.public_html') . '/' . $params['hgaji']->URL;
+        $path = storage_path('app/public/' . $params['hgaji']->URL);
         // ambil orientasi
         [$w, $h] = getimagesize($path);
         $isPortrait = $h > $w;
@@ -273,7 +271,7 @@ class GajiController extends Controller
         $html = '';
         foreach ($hgajis as $index => $hgaji) {
             $params['hgaji'] = $hgaji;
-            $path = config('app.public_html') . '/' . $params['hgaji']->URL;
+            $path = storage_path('app/public/' . $params['hgaji']->URL);
             // ambil orientasi
             [$w, $h] = getimagesize($path);
             $isPortrait = $h > $w;
@@ -315,7 +313,7 @@ class GajiController extends Controller
     {
         //
         $hgaji = HGaji::findOrFail($request->input('headerid'));
-        $path = config('app.public_html') . '/' . $hgaji->URL;
+        $path = storage_path('app/public/' . $hgaji->URL);
 
         // load image
         $image = Image::make($path);
@@ -333,7 +331,7 @@ class GajiController extends Controller
     {
         //
         $params['hgaji'] = HGaji::with('pegawai', 'dgaji')->findOrFail($request->input('headerid'));
-        $path = config('app.public_html') . '/' . $params['hgaji']->URL;
+        $path = storage_path('app/public/' . $params['hgaji']->URL);
         // ambil orientasi
         [$w, $h] = getimagesize($path);
         $isPortrait = $h > $w;
@@ -360,10 +358,8 @@ class GajiController extends Controller
         $image = preg_replace('#^data:image/\w+;base64,#i', '', $request->image);
         $image = base64_decode($image);
 
-        $publicHtml = config('app.public_html');
-        
         $filename = 'slip' . $hgaji->HeaderID . '.jpg';
-        $folder = $publicHtml . '/gaji/' . $hgaji->mgaji->GajiID;
+        $folder = storage_path('app/public/gaji/' . $hgaji->mgaji->GajiID);
         $path = $folder . '/' . $filename;
 
         if (!file_exists($folder)) {
@@ -440,9 +436,8 @@ class GajiController extends Controller
     public function assignPhotos(Request $request)
     {
         foreach ($request->photos as $index => $photo) {    
-            $publicHtml = config('app.public_html');
             $hgaji = HGaji::findOrFail($request->input('header_ids')[$index]);
-            $folder = $publicHtml . '/gaji/' . $hgaji->GajiID . '/TF';
+            $folder = storage_path('app/public/gaji/' . $hgaji->GajiID . '/TF');
 
             if (!file_exists($folder)) {
                 mkdir($folder, 0775, true);
@@ -455,5 +450,17 @@ class GajiController extends Controller
         }
 
         return response()->json(['success' => true, 'message' => 'Photos assigned successfully.']);
+    }
+
+    public function deleteTF(Request $request)
+    {
+        $hgaji = HGaji::findOrFail($request->input('headerid'));
+        if ($hgaji->URLTF && File::exists(storage_path('app/public/' . $hgaji->URLTF))) {
+            File::delete(storage_path('app/public/' . $hgaji->URLTF));
+        }
+        $hgaji->URLTF = null;
+        $hgaji->save();
+
+        return response()->json(['success' => true, 'message' => 'Bukti transfer deleted successfully.']);
     }
 }

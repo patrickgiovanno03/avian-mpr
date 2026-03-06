@@ -89,6 +89,7 @@ Route::prefix('gaji')->group(function () {
     Route::post('/sendWhatsApp', 'GajiController@sendWhatsApp')->name('gaji.sendWhatsApp');
     Route::get('/slipAll/{id}', 'GajiController@slipAll')->name('gaji.slipAll');
     Route::post('/assignPhotos', 'GajiController@assignPhotos')->name('gaji.assignPhotos');
+    Route::post('/deleteTF', 'GajiController@deleteTF')->name('gaji.deleteTF');
 });
 Route::resource('gaji', 'GajiController');
 
