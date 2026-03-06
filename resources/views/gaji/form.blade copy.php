@@ -16,9 +16,9 @@
                                 <i class="fas fa-angle-left mr-lg-2"></i><span class="d-none d-lg-inline">Back</span>
                             </a>
                             @if ($mgaji)
-                            {{-- <button type="button" class="btn btn-sm btn-outline-secondary btn-validate" data-gajiid="{{ $mgaji->GajiID }}">
+                            <button type="button" class="btn btn-sm btn-outline-secondary btn-validate" data-gajiid="{{ $mgaji->GajiID }}">
                                 <i class="fas fa-check mr-lg-2"></i><span class="d-none d-lg-inline">Send Validate</span>
-                            </button> --}}
+                            </button>
                             <button type="button" class="btn btn-sm btn-outline-secondary btn-whatsapp-all" data-gajiid="{{ $mgaji->GajiID }}">
                                 <i class="fa-brands fa-whatsapp mr-lg-2"></i><span class="d-none d-lg-inline">Blast WhatsApp</span>
                             </button>
@@ -122,7 +122,7 @@
                                     <button 
                                         class="btn btn-info btn-sm btn-rotate"
                                         data-id="{{ $gaji->HeaderID }}">
-                                        <i class="fas fa-camera-rotate"></i>
+                                        <i class="fas fa-rotate-left"></i>
                                     </button>
 
                                     <!-- PDF -->
@@ -139,13 +139,6 @@
                                     >
                                         <i class="fas fa-file-pdf"></i>
                                     </a>
-                                    @endif
-                                    @if($gaji->URLTF)
-                                    {{-- button view bukti tf pakai modal --}}
-                                    <button 
-                                        class="btn btn-secondary btn-sm btn-view-tf"
-                                        data-url="{{ asset('storage/' . $gaji->URLTF) }}">
-                                        <i class="fas fa-money-bill-transfer"></i>
                                     @endif
                                     <button 
                                         class="btn btn-danger btn-sm btn-delete"
@@ -304,29 +297,6 @@
                     <i class="fas fa-save mr-2"></i>Simpan
                 </button>
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalViewTF" tabindex="-1" role="dialog" aria-labelledby="modalViewTFLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalViewTFLabel">Lihat Bukti Transfer</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <div class="modal-body text-center">
-                <img src="" class="img-fluid" alt="Bukti Transfer">
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-            </div>
-
         </div>
     </div>
 </div>
@@ -747,12 +717,6 @@ $('.btn-rotate').on('click', function() {
     });
 });
 
-$('.btn-view-tf').on('click', function() {
-    var url = $(this).data('url');
-    $('#modalViewTF img').attr('src', url);
-    $('#modalViewTF').modal('show');
-});
-
 $('.btn-delete').on('click', function() {
     var gajiId = $(this).data('id');
     var card = $(this).closest('.gaji-card');
@@ -1052,18 +1016,14 @@ function previewAssignFiles(event) {
     container.innerHTML = '';
     
     const files = event.target.files;
-    const pegawaiList = @json(
-        $mgaji->hgaji
-            ->map(function($g) {
-                return $g->pegawai ? [
-                    'id' => $g->pegawai->PegawaiID,
-                    'nama' => $g->pegawai->Nama,
-                    'headerid' => $g->HeaderID
-                ] : null;
-            })
-            ->filter()
-            ->values()
-    );
+    const pegawaiList = @json($mgaji ? $mgaji->hgaji->filter(function($item) { return $item->pegawai; })->values()->map(function($item) {
+        return [
+            'id' => $item->HeaderID,
+            'pegawai_id' => $item->PegawaiID,
+            'nama' => $item->pegawai ? $item->pegawai->Nama : '',
+            'photo' => asset('storage/' . $item->URL)
+        ];
+    }) : []);
     
     Array.from(files).forEach((file, index) => {
         const reader = new FileReader();
@@ -1081,7 +1041,7 @@ function previewAssignFiles(event) {
                         <label class="font-weight-bold">Pilih Pegawai untuk Foto ${index + 1}</label>
                         <select class="form-control select2-assign" name="pegawai_assign[${index}]" data-index="${index}" required>
                             <option value="">-- Pilih Pegawai --</option>
-                            ${pegawaiList.map(p => `<option value="${p.id}" data-headerid="${p.headerid}">${p.nama}</option>`).join('')}
+                            ${pegawaiList.map(p => `<option value="${p.pegawai_id}" data-headerid="${p.id}">${p.nama}</option>`).join('')}
                         </select>
                     </div>
                 </div>

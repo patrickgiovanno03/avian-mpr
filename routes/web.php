@@ -87,6 +87,8 @@ Route::prefix('gaji')->group(function () {
     Route::post('/sendValidate', 'GajiController@sendValidate')->name('gaji.sendValidate');
     Route::post('/rotateImage', 'GajiController@rotateImage')->name('gaji.rotateImage');
     Route::post('/sendWhatsApp', 'GajiController@sendWhatsApp')->name('gaji.sendWhatsApp');
+    Route::get('/slipAll/{id}', 'GajiController@slipAll')->name('gaji.slipAll');
+    Route::post('/assignPhotos', 'GajiController@assignPhotos')->name('gaji.assignPhotos');
 });
 Route::resource('gaji', 'GajiController');
 
@@ -106,9 +108,6 @@ Route::prefix('tt')->group(function () {
     Route::get('/print/{id}/{download?}', 'TandaTerimaController@previewdynamic')->name('tt.previewdynamic');
 });
 Route::resource('tt', 'TandaTerimaController');
-});
-Route::prefix('gaji')->group(function () {
-    Route::get('/slipAll/{id}', 'GajiController@slipAll')->name('gaji.slipAll');
 });
 
 Route::prefix('whatsapp')->group(function () {

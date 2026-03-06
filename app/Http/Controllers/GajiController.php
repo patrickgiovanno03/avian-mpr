@@ -40,6 +40,7 @@ class GajiController extends Controller
         //
         $params['mgaji'] = null;
         $params['upload'] = false;
+        $params['pegawaiList'] = MPegawai::all();
         return view('gaji.form', $params);
     }
 
@@ -65,6 +66,7 @@ class GajiController extends Controller
         //
         $params['mgaji'] = MGaji::with('hgaji')->findOrFail($id);
         $params['upload'] = true;
+        $params['pegawaiList'] = MPegawai::all();
         return view('gaji.form', $params);
     }
 
@@ -372,8 +374,16 @@ class GajiController extends Controller
 
         $response = $this->sendWhatsApp(
             'Gaji ' . $hgaji->pegawai->Nama,
-            '6281332879850',
+            '6281230333587',
             'https://www.senyumqu.com/storage/gaji/' . $hgaji->mgaji->GajiID . '/' . $filename,
+            ''
+        );
+        // add delay 2-3second
+        sleep(2);
+        $response = $this->sendWhatsApp(
+            'Bukti Transfer ' . $hgaji->pegawai->Nama,
+            '6281230333587',
+            'https://www.senyumqu.com/storage/' . $hgaji->URLTF,
             ''
         );
         if ($response['success']) {
@@ -425,5 +435,25 @@ class GajiController extends Controller
         ]);
 
         return $response;
+    }
+
+    public function assignPhotos(Request $request)
+    {
+        foreach ($request->photos as $index => $photo) {    
+            $publicHtml = config('app.public_html');
+            $hgaji = HGaji::findOrFail($request->input('header_ids')[$index]);
+            $folder = $publicHtml . '/gaji/' . $hgaji->GajiID . '/TF';
+
+            if (!file_exists($folder)) {
+                mkdir($folder, 0775, true);
+            }
+
+            $filename = time() . '_' . $photo->getClientOriginalName();
+            $photo->move($folder, $filename);
+            $hgaji->URLTF = 'gaji/' . $hgaji->GajiID . '/TF/' . $filename;
+            $hgaji->save();
+        }
+
+        return response()->json(['success' => true, 'message' => 'Photos assigned successfully.']);
     }
 }
