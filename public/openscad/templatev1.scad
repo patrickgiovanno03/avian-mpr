@@ -1,6 +1,6 @@
 /* [Text] */
 // Text
-text = "TRi";
+text = "Aya";
 
 /* [General Settings] */
 // Font
@@ -169,6 +169,7 @@ kerning_pairs = [
     ["AT", -0.06],
     ["TA", -0.05],
     ["AY", -0.1],
+    ["Ay", -0.1],
     ["YA", -0.1],
     ["PA", -0.09],
     ["TT", 0.1],
