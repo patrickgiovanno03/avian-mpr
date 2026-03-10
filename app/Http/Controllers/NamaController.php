@@ -97,7 +97,7 @@ class NamaController extends Controller
             return back()->with('error', 'Tidak ada nama yang diinput');
         }
 
-        $scadFile = storage_path('app/public/bloxify/templatev'.($request->styleSelect ?? 1).'.scad');
+        $scadFile = public_path('openscad/templatev'.($request->styleSelect ?? 1).'.scad');
         $generatedFiles = [];
         $processes = [];
 
