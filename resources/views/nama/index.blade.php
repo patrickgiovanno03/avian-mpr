@@ -27,6 +27,7 @@
                                 <option value="2">Outline</option>
                                 <option value="3">Minecraft</option>
                                 <option value="4">Mini</option>
+                                <option value="5">Flexible</option>
                             </select>
                         </div>
 
