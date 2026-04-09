@@ -23,11 +23,14 @@
                                 Pilih Style
                             </label>
                             <select class="form-select select2" id="styleSelect" name="styleSelect" required>
-                                <option value="1">Normal</option>
-                                <option value="2">Outline</option>
-                                <option value="3">Minecraft</option>
-                                <option value="4">Mini</option>
-                                <option value="5">Flexible</option>
+                                <option value="normal">Normal</option>
+                                <option value="outline">Outline</option>
+                                <option value="mc">Minecraft</option>
+                                <option value="mini">Mini</option>
+                                <option value="flex">Flexible</option>
+                                <option value="6">Barbie</option>
+                                <option value="bob">Spongebob</option>
+                                <option value="stand">Standing</option>
                             </select>
                         </div>
 

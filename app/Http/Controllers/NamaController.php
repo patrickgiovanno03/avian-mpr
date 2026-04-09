@@ -113,7 +113,7 @@ class NamaController extends Controller
             }
 
             $process = new Process([
-                'C:\Program Files\OpenSCAD\openscad.exe',
+                '/Applications/OpenSCAD-2021.01.app/Contents/MacOS/OpenSCAD',
                 '-o',
                 $outputStl,
                 '-D',

@@ -47,8 +47,13 @@ document.getElementById('downloadAllBtn').addEventListener('click', function() {
             a.click();
             document.body.removeChild(a);
         }, delay);
-        delay += 500; // delay 500ms antar download
+        delay += 500;
     });
+
+    // 👉 redirect setelah semua download selesai
+    setTimeout(() => {
+        window.location.href = "{{ route('nama.index') }}";
+    }, delay + 500); // kasih buffer biar aman
 });
 </script>
 @endsection

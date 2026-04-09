@@ -133,9 +133,9 @@ function in_string(c, s) = len(search(c, s)) > 0;
 
 function get_letter_width(c) =
     in_string(c, 
-    "I" ) ? 0.3
+    "I." ) ? 0.3
     : in_string(c, 
-    "ilI!j|[]'.," ) ? 0.36
+    "ilI!j|[]'," ) ? 0.36
     : in_string(c, 
     "ft") ? 0.45
     : in_string(c, 
@@ -167,6 +167,8 @@ kerning_pairs = [
     ["AW", -0.1],
     ["WA", -0.1],
     ["AT", -0.06],
+    ["Fa", -0.06],
+    ["aj", -0.06],
     ["TA", -0.05],
     ["AY", -0.1],
     ["Ay", -0.1],
