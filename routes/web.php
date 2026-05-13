@@ -19,8 +19,10 @@ Auth::routes([
     'reset' => false,
 ]);
 
-Route::middleware('auth')->group(function () {
 Route::get('/', 'HomeController@index')->name('home');
+
+Route::middleware('auth')->group(function () {
+Route::get('/home', 'HomeController@dashboard')->name('dashboard');
 
 Route::get('/userguide', 'SecurityController@userguide')->name('userguide');
 Route::match(['get', 'post'], '/security', 'SecurityController@security')->name('security');

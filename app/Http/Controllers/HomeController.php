@@ -24,6 +24,11 @@ class HomeController extends Controller
      */
     public function index()
     {
+        return view('welcome');
+    }
+
+    public function dashboard()
+    {
         $params['totalform'] = HInvoice::count();
         $params['hariini'] = HInvoice::whereDate('InvoiceDate', now()->toDateString())->orWhereDate('SJDate', now()->toDateString())->count();
         $params['mingguini'] = HInvoice::whereBetween('InvoiceDate', [now()->startOfWeek(), now()->endOfWeek()])->orWhereBetween('SJDate', [now()->startOfWeek(), now()->endOfWeek()])->count();
