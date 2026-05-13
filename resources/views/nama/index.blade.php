@@ -25,12 +25,16 @@
                             <select class="form-select select2" id="styleSelect" name="styleSelect" required>
                                 <option value="normal">Normal</option>
                                 <option value="outline">Outline</option>
-                                <option value="mc">Minecraft</option>
+                                <option value="mc">MC</option>
                                 <option value="mini">Mini</option>
                                 <option value="flex">Flexible</option>
                                 <option value="6">Barbie</option>
+                                <option value="6mini">Barbie Mini</option>
                                 <option value="bob">Spongebob</option>
                                 <option value="stand">Standing</option>
+                                <option value="bunga">Flower</option>
+                                <option value="mario">Mario</option>
+                                <option value="pokemon">Pokemon</option>
                             </select>
                         </div>
 
