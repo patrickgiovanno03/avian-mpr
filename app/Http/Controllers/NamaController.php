@@ -93,6 +93,34 @@ class NamaController extends Controller
 
         $names = array_filter(array_map('trim', explode("\n", $request->text)));
 
+        $mappingTipeCapital = [ // 1 : upper, 2 : lower, 3 : random
+            'outline' => 1,
+            'mc' => 2,
+            // 'pokemon' => 3,
+        ];
+        if ($mappingTipeCapital[$request->styleSelect] ?? false) {
+            $names = array_map(function($name) use ($mappingTipeCapital, $request) {
+                $tipe = $mappingTipeCapital[$request->styleSelect ?? 'outline'] ?? 1;
+                if ($tipe === 1) {
+                    return strtoupper($name);
+                } elseif ($tipe === 2) {
+                    return strtolower($name);
+                } elseif ($tipe === 3) {
+                    // 1 up and 1 low
+                    $result = '';
+                    for ($i = 0; $i < strlen($name); $i++) {
+                        if ($i % 2 === 0) {
+                            $result .= strtoupper($name[$i]);
+                        } else {
+                            $result .= strtolower($name[$i]);
+                        }
+                    }
+                    return $result;
+                }
+                return $name;
+            }, $names);
+        }
+
         if (empty($names)) {
             return back()->with('error', 'Tidak ada nama yang diinput');
         }
@@ -105,7 +133,7 @@ class NamaController extends Controller
 
             // $cleanName = preg_replace('/[^a-zA-Z0-9\s]/', '', $name);
             $cleanName = $name;
-            $outputFile = $cleanName . '.stl';
+            $outputFile = $cleanName . '_NAMABLOXIFY.stl';
             $outputStl = storage_path("app/public/bloxify/names/{$outputFile}");
 
             if (!file_exists(dirname($outputStl))) {

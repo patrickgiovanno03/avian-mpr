@@ -3,10 +3,10 @@
 
 /* [General] */
 // Text to display
-text = "Steve";
+text = "AURORAORAA";
 
 // Font selector
-selected_font = "Bungee"; // [Archivo Black, Bangers, Bungee, Changa One, Bebas Neue, Poppins Black, Sedgwick Ave Display]
+selected_font = "DynaPuff:style=Bold"; // [Archivo Black, Bangers, Bungee, Changa One, Bebas Neue, Poppins Black, Sedgwick Ave Display]
 
 // Letter size
 letter_size = 11;
@@ -18,15 +18,15 @@ letter_height = 1; // [-12:0.1:5]
 ring_first_element = true; // [true:Yes, false:No]
 
 // Base color
-base_color = "Black"; // [Yellow, Blue, Light Blue, Dark Blue, Beige, White, Gray, Brown, Purple, Orange, Black, Pink, Red, Turquoise, Green, Light Green, Dark Green]
+base_color = "Pink"; // [Yellow, Blue, Light Blue, Dark Blue, Beige, White, Gray, Brown, Purple, Orange, Black, Pink, Red, Turquoise, Green, Light Green, Dark Green]
 
 // Letter color
-letter_color = "Blue"; // [Yellow, Blue, Light Blue, Dark Blue, Beige, White, Gray, Brown, Purple, Orange, Black, Pink, Red, Turquoise, Green, Light Green, Dark Green]
+letter_color = "White"; // [Yellow, Blue, Light Blue, Dark Blue, Beige, White, Gray, Brown, Purple, Orange, Black, Pink, Red, Turquoise, Green, Light Green, Dark Green]
 
 /* [Base Settings] */
 height = 6;    // [6:0.5:12] Main rectangle height
-width = 15;  
-length = 16;
+width = 17;  
+length = 18;
 
 /* [Hidden] */
 hole_diameter = 10;
@@ -40,6 +40,12 @@ cylinder_separation = 2;
 support_height = 1;
 support_length = 2;
 chamfer_size = 1; // Chamfer size
+/* [Flower Shape Settings] */
+center_radius = 15;
+petal_radius = 12;
+petal_count = 5;
+petal_distance = 14;
+rounding_radius = 1;
 
 // Function to calculate the length of an individual element
 function calculate_element_length(is_first) = 
@@ -51,19 +57,45 @@ function calculate_total_length() =
     (len(text) - 1) * (length + space_between_models);
 
 // Module to create individual model
+module flower_profile_2d() {
+    offset(r = rounding_radius) {
+        union() {
+            // Center
+            circle(r = center_radius - rounding_radius);
+            
+            // Petals
+            angle_step = 360 / petal_count;
+            for (i = [0 : petal_count - 1]) {
+                rotate([0, 0, i * angle_step])
+                    translate([petal_distance, 0, 0])
+                        circle(r = petal_radius - rounding_radius);
+            }
+        }
+    }
+}
+
 module individual_model(letter, is_last = false, is_first = false) {
     
     current_length = (is_first && !ring_first_element) ? length - 2 : length;
     
     text_x = is_first && !ring_first_element ? 
         current_length/2 + 0.6 :
-        length/2 + 2;
+        length/2 + 1;
     
     difference() {
         
         color(base_color) {
             difference() {
-                cube([current_length, width, height]);
+                flower_size = petal_distance * 2 + petal_radius * 2;
+flower_scale = 1.1; // 🔥 ini kuncinya
+
+linear_extrude(height = height)
+    translate([8.5, 8.5, 0])
+        scale([
+            (current_length / flower_size) * flower_scale,
+            (width / flower_size) * flower_scale
+        ])
+            flower_profile_2d();
                 
                 // Bottom-left chamfer
                 translate([-1, 0, 0])
@@ -84,9 +116,11 @@ module individual_model(letter, is_last = false, is_first = false) {
             }
 
             if (!is_first || ring_first_element) {
-                translate([rod_diameter/2, 0, height/2])
-                    rotate([-90, 0, 0])
-                        cylinder(h=width, d=rod_diameter, $fn=50);
+                rod_length = width * 0.5; // 🔥 lebih pendek
+
+translate([rod_diameter/2, (width - rod_length)/2, height/2])
+    rotate([-90, 0, 0])
+        cylinder(h=rod_length, d=rod_diameter, $fn=50);
             }
 
             if (!is_last) {
@@ -123,7 +157,6 @@ font = selected_font);
         color(letter_color)
         translate([text_x, width/2, height])
         linear_extrude(height = letter_height)
-        //rotate([0,0,90])
         text(letter, 
         size = letter_size,
         valign = "center",
