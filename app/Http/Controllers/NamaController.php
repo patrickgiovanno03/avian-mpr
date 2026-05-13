@@ -87,79 +87,94 @@ class NamaController extends Controller
 
     public function generate(Request $request)
     {
-        $request->validate([
-            'text' => 'required|string'
-        ]);
+        // Get the text array (text[normal], text[outline], etc.)
+        $textArray = $request->input('text', []);
+        
+        // Validate that at least one style has input
+        $textArray = array_filter($textArray, function($value) {
+            return !empty(trim($value));
+        });
 
-        $names = array_filter(array_map('trim', explode("\n", $request->text)));
+        if (empty($textArray)) {
+            return back()->with('error', 'Pilih minimal 1 style dan input nama');
+        }
 
+        // Mapping for text transformation per style
         $mappingTipeCapital = [ // 1 : upper, 2 : lower, 3 : random
             'outline' => 1,
             'mc' => 2,
             // 'pokemon' => 3,
         ];
-        if ($mappingTipeCapital[$request->styleSelect] ?? false) {
-            $names = array_map(function($name) use ($mappingTipeCapital, $request) {
-                $tipe = $mappingTipeCapital[$request->styleSelect ?? 'outline'] ?? 1;
-                if ($tipe === 1) {
-                    return strtoupper($name);
-                } elseif ($tipe === 2) {
-                    return strtolower($name);
-                } elseif ($tipe === 3) {
-                    // 1 up and 1 low
-                    $result = '';
-                    for ($i = 0; $i < strlen($name); $i++) {
-                        if ($i % 2 === 0) {
-                            $result .= strtoupper($name[$i]);
-                        } else {
-                            $result .= strtolower($name[$i]);
-                        }
-                    }
-                    return $result;
-                }
-                return $name;
-            }, $names);
-        }
 
-        if (empty($names)) {
-            return back()->with('error', 'Tidak ada nama yang diinput');
-        }
-
-        $scadFile = public_path('openscad/templatev'.($request->styleSelect ?? 1).'.scad');
         $generatedFiles = [];
         $processes = [];
 
-        foreach ($names as $name) {
+        // Process each selected style
+        foreach ($textArray as $style => $textInput) {
+            $names = array_filter(array_map('trim', explode("\n", $textInput)));
 
-            // $cleanName = preg_replace('/[^a-zA-Z0-9\s]/', '', $name);
-            $cleanName = $name;
-            $outputFile = $cleanName . '_NAMABLOXIFY.stl';
-            $outputStl = storage_path("app/public/bloxify/names/{$outputFile}");
-
-            if (!file_exists(dirname($outputStl))) {
-                mkdir(dirname($outputStl), 0755, true);
+            if (empty($names)) {
+                continue;
             }
 
-            $process = new Process([
-                '/Applications/OpenSCAD-2021.01.app/Contents/MacOS/OpenSCAD',
-                '-o',
-                $outputStl,
-                '-D',
-                "text=\"{$cleanName}\"",
-                $scadFile
-            ]);
+            // Apply text transformation based on style
+            if ($mappingTipeCapital[$style] ?? false) {
+                $tipe = $mappingTipeCapital[$style];
+                $names = array_map(function($name) use ($tipe) {
+                    if ($tipe === 1) {
+                        return strtoupper($name);
+                    } elseif ($tipe === 2) {
+                        return strtolower($name);
+                    } elseif ($tipe === 3) {
+                        // 1 up and 1 low
+                        $result = '';
+                        for ($i = 0; $i < strlen($name); $i++) {
+                            if ($i % 2 === 0) {
+                                $result .= strtoupper($name[$i]);
+                            } else {
+                                $result .= strtolower($name[$i]);
+                            }
+                        }
+                        return $result;
+                    }
+                    return $name;
+                }, $names);
+            }
 
-            $process->setTimeout(120);
+            // Get the template version for this style
+            $scadFile = public_path("openscad/templatev{$style}.scad");
 
-            // 🔥 JANGAN run(), tapi start()
-            $process->start();
+            foreach ($names as $name) {
+                $cleanName = $name;
+                $outputFile = "{$cleanName}_{$style}_NAMABLOXIFY.stl";
+                $outputStl = storage_path("app/public/bloxify/names/{$outputFile}");
 
-            $processes[] = [
-                'process' => $process,
-                'outputFile' => $outputFile,
-                'outputStl' => $outputStl
-            ];
+                if (!file_exists(dirname($outputStl))) {
+                    mkdir(dirname($outputStl), 0755, true);
+                }
+
+                $process = new Process([
+                    '/Applications/OpenSCAD-2021.01.app/Contents/MacOS/OpenSCAD',
+                    '-o',
+                    $outputStl,
+                    '-D',
+                    "text=\"{$cleanName}\"",
+                    $scadFile
+                ]);
+
+                $process->setTimeout(120);
+
+                // 🔥 JANGAN run(), tapi start()
+                $process->start();
+
+                $processes[] = [
+                    'process' => $process,
+                    'outputFile' => $outputFile,
+                    'outputStl' => $outputStl
+                ];
+            }
         }
+        dd($processes);
 
         // 🔥 Tunggu semua proses selesai
         foreach ($processes as $item) {

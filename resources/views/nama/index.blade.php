@@ -14,42 +14,42 @@
                         Masukkan beberapa nama (pisahkan dengan Enter), lalu pilih tipe style.
                     </p>
 
-                    <form method="POST" action="{{ route('nama.generate') }}">
+                    <form method="POST" action="{{ route('nama.generate') }}" id="namaForm">
                         @csrf
 
-                        <!-- Pilih Style -->
-                        <div class="mb-3">
-                            <label for="styleSelect" class="form-label fw-semibold">
-                                Pilih Style
-                            </label>
-                            <select class="form-select select2" id="styleSelect" name="styleSelect" required>
-                                <option value="normal">Normal</option>
-                                <option value="outline">Outline</option>
-                                <option value="mc">MC</option>
-                                <option value="mini">Mini</option>
-                                <option value="flex">Flexible</option>
-                                <option value="6">Barbie</option>
-                                <option value="6mini">Barbie Mini</option>
-                                <option value="bob">Spongebob</option>
-                                <option value="stand">Standing</option>
-                                <option value="bunga">Flower</option>
-                                <option value="mario">Mario</option>
-                                <option value="pokemon">Pokemon</option>
-                            </select>
+                        <?php
+                        $styles = [
+                            ['value' => 'normal', 'label' => 'Normal'],
+                            ['value' => 'outline', 'label' => 'Outline'],
+                            ['value' => 'mc', 'label' => 'MC'],
+                            ['value' => 'mini', 'label' => 'Mini'],
+                            ['value' => 'flex', 'label' => 'Flexible'],
+                            ['value' => '6', 'label' => 'Barbie'],
+                            ['value' => '6mini', 'label' => 'Barbie Mini'],
+                            ['value' => 'bob', 'label' => 'Spongebob'],
+                            ['value' => 'stand', 'label' => 'Standing'],
+                            ['value' => 'bunga', 'label' => 'Flower'],
+                            ['value' => 'mario', 'label' => 'Mario'],
+                            ['value' => 'pokemon', 'label' => 'Pokemon'],
+                        ];
+                        ?>
+                        
+                        <!-- Pilih Style (Checkbox) -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold d-block mb-3">Pilih Style</label>
+                            <div>
+                                @foreach ($styles as $style)
+                                    <div class="form-check form-check-inline">
+                                        <input type="checkbox" class="form-check-input styleCheckbox" value="{{ $style['value'] }}" data-label="{{ $style['label'] }}" id="checkbox-{{ $style['value'] }}">
+                                        <label class="form-check-label" for="checkbox-{{ $style['value'] }}">{{ $style['label'] }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
 
-                        <!-- Input Nama -->
-                        <div class="mb-3">
-                            <label for="text" class="form-label fw-semibold">
-                                Daftar Nama
-                            </label>
-                            <textarea 
-                                id="text"
-                                name="text" 
-                                class="form-control" 
-                                rows="6" 
-                                placeholder="Nama 1&#10;Nama 2&#10;Nama 3"
-                                required></textarea>
+                        <!-- Dynamic Textareas Container -->
+                        <div id="textareasContainer" class="mb-3">
+                            <!-- Textareas akan di-generate oleh JavaScript -->
                         </div>
 
                         <!-- Button -->
@@ -99,5 +99,53 @@
 
 @section('js')
 <script>
+    const styleCheckboxes = document.querySelectorAll('.styleCheckbox');
+    const textareasContainer = document.getElementById('textareasContainer');
+    const namaForm = document.getElementById('namaForm');
+
+    function updateTextareas() {
+        textareasContainer.innerHTML = '';
+        const checkedStyles = Array.from(styleCheckboxes).filter(cb => cb.checked);
+
+        if (checkedStyles.length === 0) {
+            textareasContainer.innerHTML = '<p class="text-muted small">Pilih minimal 1 style untuk memulai</p>';
+            return;
+        }
+
+        checkedStyles.forEach(checkbox => {
+            const styleValue = checkbox.value;
+            const styleLabel = checkbox.dataset.label;
+
+            const textareaDiv = document.createElement('div');
+            textareaDiv.className = 'mb-3';
+            textareaDiv.innerHTML = `
+                <label for="text-${styleValue}" class="form-label fw-semibold">
+                    Daftar Nama - ${styleLabel}
+                </label>
+                <textarea 
+                    id="text-${styleValue}"
+                    name="text[${styleValue}]" 
+                    class="form-control" 
+                    rows="5" 
+                    placeholder="Nama 1&#10;Nama 2&#10;Nama 3"
+                    required></textarea>
+            `;
+            textareasContainer.appendChild(textareaDiv);
+        });
+    }
+
+    // Event listener untuk semua checkbox
+    styleCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateTextareas);
+    });
+
+    // Form submit handler untuk validasi
+    namaForm.addEventListener('submit', function(e) {
+        const checkedStyles = Array.from(styleCheckboxes).filter(cb => cb.checked);
+        if (checkedStyles.length === 0) {
+            e.preventDefault();
+            alert('Pilih minimal 1 style untuk melanjutkan');
+        }
+    });
 </script>
 @endsection
