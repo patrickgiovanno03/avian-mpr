@@ -19,4 +19,8 @@ class MSingle extends Model
     {
         return $this->hasMany(MPriceSingle::class, 'Category', 'Category');
     }
+    public function pricesinglecustomer()
+    {
+        return $this->hasOne(MPriceSingle::class, 'Category', 'Category')->where('CustomerCategory', 1);
+    }
 }

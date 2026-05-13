@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\HInvoice;
+use App\Models\MProduct;
+use App\Models\MSingle;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -14,7 +16,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except(['index']);
     }
 
     /**
@@ -24,7 +26,18 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('welcome');
+        $params['singlecookies'] = MSingle::with('pricesinglecustomer')->where('IsDel', 0)->get();
+        $params['singlecategories'] = [
+            'Bulat 250gr' => ['bulat-250gr', '250gr'],
+            'Bulat 300gr' => ['bulat-300gr', '300gr'],
+            'Bulat 500gr' => ['bulat-500gr', '500gr'],
+            'Tabung 400ml' => ['tabung-400ml', '400ml'],
+            'Tabung 700ml' => ['tabung-700ml', '700ml'],
+            'Kiloan' => ['kiloan', 'Kiloan'],
+        ];
+
+        $params['paketcookies'] = MProduct::with('price')->where('IsShowPaket', 1)->get();
+        return view('welcome', $params);
     }
 
     public function dashboard()
