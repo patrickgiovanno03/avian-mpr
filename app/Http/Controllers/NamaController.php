@@ -174,7 +174,7 @@ class NamaController extends Controller
                 ];
             }
         }
-        dd($processes);
+        // dd($processes);
 
         // 🔥 Tunggu semua proses selesai
         foreach ($processes as $item) {
@@ -197,7 +197,14 @@ class NamaController extends Controller
             return back()->with('error', 'Gagal generate file');
         }
 
-        return view('nama.download', compact('generatedFiles'));
+        $selectedStyles = array_keys($textArray);
+        $queryString = implode('&', array_map(function ($style) {
+            return 'style[]=' . urlencode($style);
+        }, $selectedStyles));
+
+        $backUrl = route('nama.index') . ($queryString ? ('?' . $queryString) : '');
+
+        return view('nama.download', compact('generatedFiles', 'backUrl'));
     }
 
     public function downloadFile($filename)

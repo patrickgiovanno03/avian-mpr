@@ -36,15 +36,31 @@
                         
                         <!-- Pilih Style (Checkbox) -->
                         <div class="mb-4">
-                            <label class="form-label fw-semibold d-block mb-3">Pilih Style</label>
-                            <div>
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                                <label class="form-label fw-semibold mb-0">Pilih Style</label>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Aksi cepat style">
+                                    <button type="button" class="btn btn-outline-secondary" id="selectAllStyles">Pilih Semua</button>
+                                    <button type="button" class="btn btn-outline-secondary" id="invertStyles">Balik Pilihan</button>
+                                    <button type="button" class="btn btn-outline-secondary" id="clearStyles">Kosongkan</button>
+                                </div>
+                            </div>
+
+                            <div class="style-grid" id="styleGrid">
                                 @foreach ($styles as $style)
-                                    <div class="form-check form-check-inline">
-                                        <input type="checkbox" class="form-check-input styleCheckbox" value="{{ $style['value'] }}" data-label="{{ $style['label'] }}" id="checkbox-{{ $style['value'] }}">
-                                        <label class="form-check-label" for="checkbox-{{ $style['value'] }}">{{ $style['label'] }}</label>
+                                    <div class="style-item">
+                                        <input
+                                            type="checkbox"
+                                            class="styleCheckbox style-input"
+                                            value="{{ $style['value'] }}"
+                                            data-label="{{ $style['label'] }}"
+                                            id="checkbox-{{ $style['value'] }}"
+                                        >
+                                        <label class="style-chip" for="checkbox-{{ $style['value'] }}">{{ $style['label'] }}</label>
                                     </div>
                                 @endforeach
                             </div>
+
+                            <p class="text-muted small mt-2 mb-0" id="selectedStylesInfo">0 style dipilih</p>
                         </div>
 
                         <!-- Dynamic Textareas Container -->
@@ -80,13 +96,56 @@
         padding: 0% 2% 1% 2%;
     }
     table.dataTable tbody td {
-        padding: 4px 16px !important; atas-bawah 12px, kiri-kanan 16px
+        padding: 4px 16px !important; /* atas-bawah 12px, kiri-kanan 16px */
         vertical-align: middle;
     }
 
-    input[type="checkbox"]:not(#show_all) {
-        width: 20px;
-        height: 20px;
+    .style-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+    }
+
+    .style-item {
+        position: relative;
+    }
+
+    .style-input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .style-chip {
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 999px;
+        text-align: center;
+        font-size: 0.9rem;
+        cursor: pointer;
+        user-select: none;
+        background: #fff;
+        transition: all 0.18s ease;
+    }
+
+    .style-chip:hover {
+        border-color: #0d6efd;
+        color: #0d6efd;
+    }
+
+    .style-input:checked + .style-chip {
+        background: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.22);
+    }
+
+    .style-input:focus + .style-chip,
+    .style-input:focus-visible + .style-chip {
+        outline: 2px solid rgba(13, 110, 253, 0.45);
+        outline-offset: 2px;
     }
     
     @media (max-width: 768px) {
@@ -102,10 +161,70 @@
     const styleCheckboxes = document.querySelectorAll('.styleCheckbox');
     const textareasContainer = document.getElementById('textareasContainer');
     const namaForm = document.getElementById('namaForm');
+    const selectedStylesInfo = document.getElementById('selectedStylesInfo');
+
+    const selectAllStylesBtn = document.getElementById('selectAllStyles');
+    const clearStylesBtn = document.getElementById('clearStyles');
+    const invertStylesBtn = document.getElementById('invertStyles');
+
+    function getCheckedStyles() {
+        return Array.from(styleCheckboxes).filter(cb => cb.checked);
+    }
+
+    function updateSelectedInfo() {
+        const selectedCount = getCheckedStyles().length;
+        selectedStylesInfo.textContent = `${selectedCount} style dipilih`;
+    }
+
+    function applyStylesFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const selectedFromUrl = new Set();
+
+        function collectValues(paramName) {
+            params.getAll(paramName).forEach(value => {
+                value
+                    .split(',')
+                    .map(item => item.trim())
+                    .filter(Boolean)
+                    .forEach(item => selectedFromUrl.add(item));
+            });
+        }
+
+        collectValues('style');
+        collectValues('styles');
+        collectValues('style[]');
+        collectValues('styles[]');
+
+        if (selectedFromUrl.size === 0) {
+            return;
+        }
+
+        styleCheckboxes.forEach(checkbox => {
+            checkbox.checked = selectedFromUrl.has(checkbox.value);
+        });
+    }
+
+    function syncStylesToUrl() {
+        const url = new URL(window.location.href);
+
+        url.searchParams.delete('style');
+        url.searchParams.delete('styles');
+        url.searchParams.delete('style[]');
+        url.searchParams.delete('styles[]');
+
+        getCheckedStyles().forEach(checkbox => {
+            url.searchParams.append('style[]', checkbox.value);
+        });
+
+        window.history.replaceState({}, '', url.toString());
+    }
 
     function updateTextareas() {
         textareasContainer.innerHTML = '';
-        const checkedStyles = Array.from(styleCheckboxes).filter(cb => cb.checked);
+        const checkedStyles = getCheckedStyles();
+
+        updateSelectedInfo();
+        syncStylesToUrl();
 
         if (checkedStyles.length === 0) {
             textareasContainer.innerHTML = '<p class="text-muted small">Pilih minimal 1 style untuk memulai</p>';
@@ -139,9 +258,33 @@
         checkbox.addEventListener('change', updateTextareas);
     });
 
+    selectAllStylesBtn.addEventListener('click', function() {
+        styleCheckboxes.forEach(checkbox => {
+            checkbox.checked = true;
+        });
+        updateTextareas();
+    });
+
+    clearStylesBtn.addEventListener('click', function() {
+        styleCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        updateTextareas();
+    });
+
+    invertStylesBtn.addEventListener('click', function() {
+        styleCheckboxes.forEach(checkbox => {
+            checkbox.checked = !checkbox.checked;
+        });
+        updateTextareas();
+    });
+
+    applyStylesFromUrl();
+    updateTextareas();
+
     // Form submit handler untuk validasi
     namaForm.addEventListener('submit', function(e) {
-        const checkedStyles = Array.from(styleCheckboxes).filter(cb => cb.checked);
+        const checkedStyles = getCheckedStyles();
         if (checkedStyles.length === 0) {
             e.preventDefault();
             alert('Pilih minimal 1 style untuk melanjutkan');

@@ -12,10 +12,13 @@
                 </div>
                 <div class="card-body">
                     <p class="text-success mb-3">{{ count($generatedFiles) }} file(s) berhasil di-generate</p>
+                    @php
+                        $returnUrl = $backUrl ?? route('nama.index');
+                    @endphp
                     
                     <div class="mb-3">
                         <button id="downloadAllBtn" class="btn btn-primary">Download Semua File</button>
-                        <a href="{{ route('nama.index') }}" class="btn btn-secondary">Kembali</a>
+                        <a href="{{ $returnUrl }}" class="btn btn-secondary">Kembali</a>
                     </div>
 
                     <div class="list-group">
@@ -52,7 +55,7 @@ document.getElementById('downloadAllBtn').addEventListener('click', function() {
 
     // 👉 redirect setelah semua download selesai
     setTimeout(() => {
-        window.location.href = "{{ route('nama.index') }}";
+        window.location.href = "{{ $returnUrl }}";
     }, delay + 500); // kasih buffer biar aman
 });
 </script>
